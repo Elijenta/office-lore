@@ -1,46 +1,23 @@
 # Office Lore — Supabase setup
 
-Follow these steps in order. Steps 1–4 you do yourself in the Supabase dashboard.
-Step 5 is the only thing you need to send back to me.
+Status: **done and verified.** This file is now a reference for what was set up, in case you need to reproduce it (new environment, new Supabase project, onboarding someone else to the setup) — not a to-do list.
 
-## 1. Create the Supabase project
+## What's live
 
-Go to [supabase.com](https://supabase.com) → **New project** (free tier is fine). Pick any name/region/password (the DB password isn't used by the app — the app only ever uses the anon key, see step 5).
+- Project URL: `https://pldhdsopdwmgvuvwdsta.supabase.co` (hardcoded in `index.html`, along with the publishable/anon key — safe to expose in client code, Row Level Security is the real protection layer).
+- Schema: [`supabase/0001_schema.sql`](supabase/0001_schema.sql) — tables, RLS policies, XP-ledger triggers, Realtime.
+- [`supabase/0003_xp_cleanup_triggers.sql`](supabase/0003_xp_cleanup_triggers.sql) — required companion migration so deleting a nickname/quote/anecdote/counter/beer (or moving a Perfect Pour vote) correctly reverses the XP it granted, instead of leaving it stale.
+- [`supabase/0002_seed_demo_data.sql`](supabase/0002_seed_demo_data.sql) — optional example content, not run on the live project.
+- Auth: **self-service sign-up**, open to anyone with the app's link (no allowlist). Authentication → Providers → Email → "Confirm email" is currently **off**, so new accounts can log in immediately after registering, no email click required.
 
-## 2. Create the 3 accounts
+## Reproducing this from scratch (new project)
 
-**Authentication → Users → Add user**, three times, once for each of Elien, Nick, and Atti.
+1. Create a Supabase project ([supabase.com](https://supabase.com) → New project).
+2. SQL Editor → run `0001_schema.sql`, then `0003_xp_cleanup_triggers.sql`. `0002_seed_demo_data.sql` is optional (edit the 3 placeholder emails near the top first if you use it).
+3. Authentication → Providers → Email → turn "Confirm email" off (unless you want people to click a confirmation link before first login).
+4. Project Settings → API → copy the Project URL and the publishable/anon key, paste them into the `SUPABASE_URL` / `SUPABASE_ANON_KEY` constants near the top of `index.html`'s `<script>`.
+5. Open `index.html`, click "Registreren" on the login screen to create the first account.
 
-- Use **real email addresses** you each actually control — this matters, because "forgot password" only works if the email can be delivered.
-- Set a temporary password for each (or use "Send invite email" if you'd rather they set their own).
-- You don't need to fill in anything else here — a profile row is created automatically for each account as soon as it exists (via a trigger you're about to install in step 3).
+## How people get in
 
-## 3. Run the schema SQL
-
-**SQL Editor → New query.**
-
-1. Paste the entire contents of [`supabase/0001_schema.sql`](supabase/0001_schema.sql) and click **Run**. This creates every table, the RLS policies, the XP-ledger triggers, and turns on Realtime for the relevant tables. Required — the app won't work without this.
-2. *(Optional)* If you want some example content to look at immediately instead of a blank app, open [`supabase/0002_seed_demo_data.sql`](supabase/0002_seed_demo_data.sql), replace the 3 placeholder emails near the top (`elien@officelore.app` etc.) with the real emails you used in step 2, paste the whole file into a new SQL Editor query, and run it. Skip this entirely if you'd rather start empty — nothing else depends on it.
-
-## 4. Copy your API credentials
-
-**Project Settings → API.** You need two values:
-
-- **Project URL** (looks like `https://xxxxxxxxxxxx.supabase.co`)
-- **anon / public** key (a long `eyJ...` string — **not** the `service_role` key, that one must never be used here)
-
-## 5. Send them to me
-
-Paste the Project URL and anon key back in this chat. I'll drop them into a clearly marked config block near the top of `index.html` and then wire up login, all the data screens, and realtime sync.
-
----
-
-### What happens after that
-
-Once the credentials are in, I'll:
-- Replace the "Who enters the Lore?" screen with a real email+password login (session persists across refresh/devices, plus a "forgot password" flow)
-- Connect every screen (nicknames, quotes, anecdotes, counters, beer club, leaderboards, profiles) to the database instead of the in-memory mock data
-- Add live sync so an action on one device shows up on the others without a manual refresh
-- Test it end-to-end in a browser before handing it back to you
-
-You won't need to touch the SQL again after this unless we add a new feature later.
+There are no pre-created accounts. Anyone with the app's URL clicks **Registreren** on the login screen, sets an email + password, and is in immediately. "Wachtwoord vergeten?" on the login screen handles password resets via Supabase's email flow (needs "Confirm email"-style mail delivery to work, so make sure your Supabase project's SMTP/email sending is functional if you rely on this).
