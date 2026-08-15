@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* =========================================================
      1. DESIGN TOKENS
@@ -1597,454 +1598,360 @@
    - Simpele router: leest state.activePage, toont bijhorende page.
    ============================================================= */
 
-/* ---------- 1. PLACEHOLDER DATA ---------- */
-const APP_DATA = {
-  /* Users: de enige "personen"-entiteit in de hele app die als
-     record bestaat. Er bestaan precies drie vaste accounts (Elien,
-     Nick, Atti) — dit zijn de gebruikers van de app ("Wie ben ik?" /
-     actieve user) en zij zijn het die acties uitvoeren (een nickname
-     toevoegen, een quote loggen, stemmen, ...). Nicknames, quotes,
-     anekdotes en counters gaan NIET over deze users — die gaan over
-     collega's op kantoor, vastgelegd als vrije tekst ("personRealName")
-     rechtstreeks op elk record. Er is dus bewust geen aparte people-
-     of colleagues-tabel. Nieuwe users toevoegen kan niet — dit array
-     wordt nergens in de app gemuteerd (geen push/splice). */
-  users: [
-    {
-      id: 'u1',
-      firstName: 'Elien',
-      displayName: 'Elien',
-      profileNickname: null,
-      businessUnit: null,
-      jobTitle: null,
-      bio: 'Houdt de Office Lore-app draaiende en verzamelt alle bewijs.',
-      avatarEmoji: '🦉',
-      avatarColor: 'var(--lilac)',
-      avatarPhoto: null,
-      createdAt: '2026-07-01T09:00:00',
-      updatedAt: '2026-07-01T09:00:00',
-    },
-    {
-      id: 'u2',
-      firstName: 'Nick',
-      displayName: 'Nick',
-      profileNickname: null,
-      businessUnit: 'Engineering',
-      jobTitle: 'Backend Developer',
-      bio: 'Fixt bugs sneller dan je ze kan reproduceren.',
-      avatarEmoji: '🐨',
-      avatarColor: 'var(--sky)',
-      avatarPhoto: null,
-      createdAt: '2026-07-01T09:00:00',
-      updatedAt: '2026-07-01T09:00:00',
-    },
-    {
-      id: 'u3',
-      firstName: 'Atti',
-      displayName: 'Atti',
-      profileNickname: null,
-      businessUnit: 'Marketing',
-      jobTitle: 'Brand & Growth',
-      bio: 'Verzint altijd de gekste actiethema\'s en kent iedereen bij naam binnen een week.',
-      avatarEmoji: '🦄',
-      avatarColor: 'var(--pink)',
-      avatarPhoto: null,
-      createdAt: '2026-07-01T09:00:00',
-      updatedAt: '2026-07-01T09:00:00',
-    },
-  ],
-
-  /* Nicknames: één centrale lijst. Er bestaat GEEN aparte people- of
-     colleagues-tabel — een nickname bevat rechtstreeks alle info over
-     de persoon in kwestie als tekstvelden: "personRealName" (vrije
-     tekst, kan om het even welke collega gaan, niet noodzakelijk één
-     van de 3 app-users) en optioneel "businessUnit". Meerdere
-     nicknames "horen bij dezelfde persoon" puur doordat ze exact
-     dezelfde "personRealName"-string delen — dat is zuiver visuele
-     groepering bij het renderen, geen relationele koppeling.
-     "createdByUserId" is wél een echte referentie naar APP_DATA.users:
-     dat is de app-gebruiker (Elien/Nick/Atti) die de nickname heeft
-     toegevoegd. "votes" houdt per categorie de user-id's bij die al
-     stemden (max 1 stem per user per categorie = geen duplicaten
-     toestaan). "usageLog" bouwt de XP op bovenop de +10 die een
-     nickname bij aanmaak krijgt. */
-  nicknames: [
-    {
-      id: 'n-atti-1',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      text: '"De Meme Minister"',
-      createdAt: '2026-07-22',
-      updatedAt: '2026-07-22',
-      createdByUserId: 'u2',
-      description: 'Ontstaan na een epische meme-thread die Atti zelf startte in de team-chat.',
-      anecdote: 'Tijdens de laatste town hall gebruikte de CEO deze naam per ongeluk.',
-      status: 'Actief',
-      xp: 16,
-      usageCount: 3,
-      usageLog: [
-        { id: 'u-1', type: 'reused', xp: 1, date: '2026-07-23', loggedBy: 'u1' },
-        { id: 'u-2', type: 'used_present', xp: 2, date: '2026-07-26', loggedBy: 'u3' },
-        { id: 'u-3', type: 'person_laughs', xp: 3, date: '2026-07-29', loggedBy: 'u2' },
-      ],
-      votes: { funny: ['u1', 'u2'], accurate: ['u3'], savage: [] },
-    },
-    {
-      id: 'n-atti-2',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      text: '"Atti die op tafel klopt"',
-      createdAt: '2026-08-01',
-      updatedAt: '2026-08-01',
-      createdByUserId: 'u1',
-      description: 'Atti klopt op tafel wanneer die het ergens roerend mee eens is tijdens meetings - inmiddels een herkenningsteken.',
-      anecdote: '',
-      status: 'Actief',
-      xp: 10,
-      usageCount: 0,
-      usageLog: [],
-      votes: { funny: [], accurate: [], savage: [] },
-    },
-    {
-      id: 'n-atti-3',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      text: '"Atti die zichzelf als groot licht gedraagt"',
-      createdAt: '2026-08-05',
-      updatedAt: '2026-08-05',
-      createdByUserId: 'u3',
-      description: 'Na een zelfverzekerde speech tijdens de kick-off waarin Atti zichzelf vergeleek met een lichtbaken.',
-      anecdote: 'Een klant vroeg achteraf of "het licht" ook aan de vergadering zou deelnemen.',
-      status: 'Actief',
-      xp: 15,
-      usageCount: 1,
-      usageLog: [
-        { id: 'u-4', type: 'used_outsider', xp: 5, date: '2026-08-06', loggedBy: 'u2' },
-      ],
-      votes: { funny: [], accurate: [], savage: ['u1', 'u2'] },
-    },
-    {
-      id: 'n-nick-1',
-      personRealName: 'Nick',
-      businessUnit: 'Engineering',
-      text: '"Ctrl+Z Koning"',
-      createdAt: '2026-07-24',
-      updatedAt: '2026-07-24',
-      createdByUserId: 'u3',
-      description: 'Nick drukt letterlijk Ctrl+Z als hij een verkeerde beslissing neemt, ook buiten de code.',
-      anecdote: 'Probeerde ooit een fysieke handdruk ongedaan te maken met Ctrl+Z.',
-      status: 'Actief',
-      xp: 25,
-      usageCount: 1,
-      usageLog: [
-        { id: 'u-5', type: 'self_used', xp: 15, date: '2026-07-28', loggedBy: 'u3' },
-      ],
-      votes: { funny: ['u3'], accurate: ['u1', 'u2', 'u3'], savage: [] },
-    },
-  ],
-
-  /* Lore = Quotes + Anecdotes, allebei als eigen centrale lijst
-     (zelfde patroon als nicknames). Ook hier: geen aparte people- of
-     colleagues-tabel, gewoon een vrij tekstveld "personRealName"
-     (+ optioneel "businessUnit") rechtstreeks op elke quote/anekdote.
-     "reactions" houdt per categorie (funny/savage/facepalm) de
-     user-id's bij die reageerden. "points" begint op 5 (nieuwe
-     quote/anekdote) en krijgt +5 zodra alle 3 vaste gebruikers ooit
-     reageerden (bijgehouden via allThreeBonusAwarded zodat de bonus
-     maar één keer wordt toegekend). */
-  quotes: [
-    {
-      id: 'q-atti-1',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      text: '"We doen gewoon iets en kijken wat er gebeurt."',
-      context: 'Tijdens de sprint planning, toen niemand een duidelijk plan had.',
-      date: '2026-07-25',
-      addedBy: 'u1',
-      reactions: { funny: ['u1', 'u2', 'u3'], savage: ['u2'], facepalm: [] },
-      points: 10,
-      allThreeBonusAwarded: true,
-    },
-    {
-      id: 'q-atti-2',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      text: '"Als het niet werkt, noemen we het een feature."',
-      context: '',
-      date: '2026-08-03',
-      addedBy: 'u2',
-      reactions: { funny: ['u1'], savage: [], facepalm: [] },
-      points: 5,
-      allThreeBonusAwarded: false,
-    },
-    {
-      id: 'q-nick-1',
-      personRealName: 'Nick',
-      businessUnit: 'Engineering',
-      text: '"Works on my machine."',
-      context: 'Antwoord op een bugreport, vlak voor de deploy.',
-      date: '2026-08-01',
-      addedBy: 'u2',
-      reactions: { funny: ['u1', 'u3'], savage: ['u2'], facepalm: ['u1'] },
-      points: 10,
-      allThreeBonusAwarded: true,
-    },
-  ],
-
-  anecdotes: [
-    {
-      id: 'a-atti-1',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      title: 'Presentatie in de verkeerde taal',
-      description: 'Vijf slides ver voor iemand het durfde te zeggen.',
-      date: '2026-07-30',
-      addedBy: 'u1',
-      reactions: { funny: ['u2', 'u3'], savage: [], facepalm: ['u1'] },
-      points: 10,
-      allThreeBonusAwarded: true,
-    },
-    {
-      id: 'a-atti-2',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      title: 'De actiethema-brainstorm die uit de hand liep',
-      description: 'Begon met confetti-ideeën en eindigde met een discussie of duiven een geldig kantoordier zijn.',
-      date: '2026-08-04',
-      addedBy: 'u3',
-      reactions: { funny: ['u1'], savage: [], facepalm: [] },
-      points: 5,
-      allThreeBonusAwarded: false,
-    },
-    {
-      id: 'a-nick-1',
-      personRealName: 'Nick',
-      businessUnit: 'Engineering',
-      title: 'Deploy op vrijdagnamiddag',
-      description: 'Wat kan er nu fout gaan, dacht hij nog.',
-      date: '2026-08-07',
-      addedBy: 'u2',
-      reactions: { funny: ['u2'], savage: ['u1'], facepalm: ['u3'] },
-      points: 10,
-      allThreeBonusAwarded: true,
-    },
-  ],
-
-  /* Counters: terugkerende dingen die iemand doet (zelfde
-     centrale-lijst patroon als nicknames en lore, geen aparte
-     people-tabel — gewoon "personRealName" + optioneel
-     "businessUnit" rechtstreeks op de counter). "history" bevat elke
-     +1/-1 registratie: wie, exact datum+tijd (ISO), en een optionele
-     notitie. "total" is de huidige stand. */
-  counters: [
-    {
-      id: 'ctr-atti-1',
-      name: 'Atti die op tafel klopt',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      description: 'Atti klopt op tafel wanneer die het ergens roerend mee eens is tijdens meetings.',
-      total: 7,
-      dateCreated: '2026-07-20',
-      createdBy: 'u1',
-      history: [
-        { id: 'h-1', delta: 1, by: 'u1', at: '2026-07-21T09:14:00', note: '' },
-        { id: 'h-2', delta: 1, by: 'u2', at: '2026-07-21T09:20:00', note: 'Tijdens de stand-up' },
-        { id: 'h-3', delta: 1, by: 'u3', at: '2026-07-28T11:02:00', note: '' },
-        { id: 'h-4', delta: 1, by: 'u1', at: '2026-08-04T14:45:00', note: '' },
-        { id: 'h-5', delta: 1, by: 'u1', at: '2026-08-11T10:00:00', note: 'Twee keer in dezelfde meeting' },
-        { id: 'h-6', delta: 1, by: 'u1', at: '2026-08-11T10:03:00', note: '' },
-        { id: 'h-7', delta: 1, by: 'u2', at: '2026-08-12T08:30:00', note: '' },
-      ],
-    },
-    {
-      id: 'ctr-atti-2',
-      name: 'Atti die zichzelf als groot licht gedraagt',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      description: 'Wanneer Atti zichzelf weer eens vergelijkt met een lichtbaken tijdens een speech of pitch.',
-      total: 3,
-      dateCreated: '2026-08-01',
-      createdBy: 'u3',
-      history: [
-        { id: 'h-8', delta: 1, by: 'u2', at: '2026-08-02T16:00:00', note: '' },
-        { id: 'h-9', delta: 1, by: 'u3', at: '2026-08-06T13:30:00', note: 'Kick-off speech' },
-        { id: 'h-10', delta: 1, by: 'u2', at: '2026-08-10T09:00:00', note: '' },
-      ],
-    },
-    {
-      id: 'ctr-atti-3',
-      name: 'Keer "we pivoten" gezegd',
-      personRealName: 'Atti',
-      businessUnit: 'Marketing',
-      description: 'Elke keer dat Atti een nieuw plan verkoopt als "geen koerswijziging, gewoon een pivot".',
-      total: 8,
-      dateCreated: '2026-07-15',
-      createdBy: 'u1',
-      history: [
-        { id: 'h-11', delta: 1, by: 'u2', at: '2026-07-16T10:00:00', note: '' },
-        { id: 'h-12', delta: 1, by: 'u1', at: '2026-07-18T15:20:00', note: '' },
-        { id: 'h-13', delta: 1, by: 'u3', at: '2026-07-22T09:45:00', note: 'Tijdens de OKR-review' },
-        { id: 'h-14', delta: 1, by: 'u1', at: '2026-07-25T11:00:00', note: '' },
-        { id: 'h-15', delta: 1, by: 'u2', at: '2026-07-30T14:10:00', note: '' },
-        { id: 'h-16', delta: 1, by: 'u1', at: '2026-08-03T16:40:00', note: '' },
-        { id: 'h-17', delta: 1, by: 'u3', at: '2026-08-06T10:30:00', note: '' },
-        { id: 'h-18', delta: 1, by: 'u1', at: '2026-08-09T13:00:00', note: '' },
-      ],
-    },
-    {
-      id: 'ctr-nick-1',
-      name: 'Keer prod gecrasht',
-      personRealName: 'Nick',
-      businessUnit: 'Engineering',
-      description: 'Elke keer dat een deploy van Nick production platlegt.',
-      total: 2,
-      dateCreated: '2026-07-22',
-      createdBy: 'u2',
-      history: [
-        { id: 'h-19', delta: 1, by: 'u2', at: '2026-07-28T17:05:00', note: 'Vrijdagmiddag deploy' },
-        { id: 'h-20', delta: 1, by: 'u3', at: '2026-08-07T18:20:00', note: '' },
-      ],
-    },
-  ],
-
-  /* Beer Club: bieren en sessies zijn gekoppeld aan de 3 vaste
-     gebruikers (niet aan People/collega's — dit is een apart
-     "spelletje" tussen de app-gebruikers zelf). Een bier is uniek
-     per naam+brouwerij (zie isDuplicateBeer()). Elke sessie bevat
-     "entries": één per combinatie van deelnemer × bier, met score,
-     review, aantal en of het een eerste keer was. Alle statistieken
-     (gemiddelde score, totalen, "Abt Lord", ...) worden hieruit
-     automatisch berekend — nergens een los, hardcoded getal. */
-  beers: [
-    {
-      id: 'beer-1',
-      name: 'Tripel Karmeliet',
-      brewery: 'Bosteels',
-      style: 'Tripel',
-      abv: 8.4,
-      country: 'België',
-      photo: null,
-      dateAdded: '2026-07-10',
-      addedBy: 'u1',
-    },
-    {
-      id: 'beer-2',
-      name: 'Duvel',
-      brewery: 'Duvel Moortgat',
-      style: 'Belgian Strong Golden Ale',
-      abv: 8.5,
-      country: 'België',
-      photo: null,
-      dateAdded: '2026-07-10',
-      addedBy: 'u2',
-    },
-    {
-      id: 'beer-3',
-      name: 'La Chouffe',
-      brewery: "Brasserie d'Achouffe",
-      style: 'Blond',
-      abv: 8.0,
-      country: 'België',
-      photo: null,
-      dateAdded: '2026-07-15',
-      addedBy: 'u3',
-    },
-    {
-      id: 'beer-4',
-      name: 'Westmalle Tripel',
-      brewery: 'Brouwerij der Trappisten van Westmalle',
-      style: 'Trappist Tripel',
-      abv: 9.5,
-      country: 'België',
-      photo: null,
-      dateAdded: '2026-08-01',
-      addedBy: 'u1',
-    },
-  ],
-
-  beerSessions: [
-    {
-      id: 'session-1',
-      date: '2026-07-12',
-      location: 'Kantoor terras',
-      beerIds: ['beer-1', 'beer-2'],
-      participantIds: ['u1', 'u2', 'u3'],
-      loggedBy: 'u1',
-      entries: [
-        { id: 'be-1', beerId: 'beer-1', userId: 'u1', score: 8, review: 'Fruitig en romig', quantity: 1, firstTime: true },
-        { id: 'be-2', beerId: 'beer-1', userId: 'u2', score: 7, review: '', quantity: 1, firstTime: true },
-        { id: 'be-3', beerId: 'beer-1', userId: 'u3', score: 9, review: 'Favoriet!', quantity: 2, firstTime: true },
-        { id: 'be-4', beerId: 'beer-2', userId: 'u1', score: 6, review: 'Sterk', quantity: 1, firstTime: true },
-        { id: 'be-5', beerId: 'beer-2', userId: 'u2', score: 8, review: '', quantity: 1, firstTime: true },
-        { id: 'be-6', beerId: 'beer-2', userId: 'u3', score: 7, review: '', quantity: 1, firstTime: true },
-      ],
-      perfectPourVotes: [
-        { id: 'pv-1', fromUserId: 'u1', toUserId: 'u3' },
-        { id: 'pv-2', fromUserId: 'u2', toUserId: 'u3' },
-        { id: 'pv-3', fromUserId: 'u3', toUserId: 'u1' },
-      ],
-    },
-    {
-      id: 'session-2',
-      date: '2026-07-26',
-      location: 'Vrijdagborrel',
-      beerIds: ['beer-2', 'beer-3'],
-      participantIds: ['u1', 'u2'],
-      loggedBy: 'u2',
-      entries: [
-        { id: 'be-7', beerId: 'beer-2', userId: 'u1', score: 7, review: 'Nog steeds goed', quantity: 2, firstTime: false },
-        { id: 'be-8', beerId: 'beer-2', userId: 'u2', score: 8, review: '', quantity: 1, firstTime: false },
-        { id: 'be-9', beerId: 'beer-3', userId: 'u1', score: 9, review: 'Beste van de avond', quantity: 1, firstTime: true },
-        { id: 'be-10', beerId: 'beer-3', userId: 'u2', score: 8, review: '', quantity: 1, firstTime: true },
-      ],
-      perfectPourVotes: [
-        { id: 'pv-4', fromUserId: 'u1', toUserId: 'u2' },
-        { id: 'pv-5', fromUserId: 'u2', toUserId: 'u1' },
-      ],
-    },
-    {
-      id: 'session-3',
-      date: '2026-08-09',
-      location: 'Kantoor terras',
-      beerIds: ['beer-1', 'beer-4'],
-      participantIds: ['u1', 'u2', 'u3'],
-      loggedBy: 'u3',
-      entries: [
-        { id: 'be-11', beerId: 'beer-1', userId: 'u1', score: 8, review: '', quantity: 1, firstTime: false },
-        { id: 'be-12', beerId: 'beer-1', userId: 'u3', score: 9, review: '', quantity: 1, firstTime: false },
-        { id: 'be-13', beerId: 'beer-4', userId: 'u1', score: 7, review: 'Pittig', quantity: 1, firstTime: true },
-        { id: 'be-14', beerId: 'beer-4', userId: 'u2', score: 9, review: 'Topbier', quantity: 1, firstTime: true },
-        { id: 'be-15', beerId: 'beer-4', userId: 'u3', score: 8, review: '', quantity: 2, firstTime: true },
-      ],
-      perfectPourVotes: [
-        { id: 'pv-6', fromUserId: 'u1', toUserId: 'u2' },
-        { id: 'pv-7', fromUserId: 'u3', toUserId: 'u2' },
-      ],
-    },
-    {
-      id: 'session-4',
-      date: '2026-08-11',
-      location: 'Weekend BBQ',
-      beerIds: ['beer-2'],
-      participantIds: ['u1', 'u2', 'u3'],
-      loggedBy: 'u1',
-      entries: [
-        { id: 'be-16', beerId: 'beer-2', userId: 'u1', score: 6, review: 'Ik heb er nog een paar staan liggen', quantity: 11, firstTime: false },
-        { id: 'be-17', beerId: 'beer-2', userId: 'u2', score: 8, review: '', quantity: 1, firstTime: false },
-        { id: 'be-18', beerId: 'beer-2', userId: 'u3', score: 7, review: '', quantity: 2, firstTime: false },
-      ],
-      perfectPourVotes: [
-        { id: 'pv-8', fromUserId: 'u2', toUserId: 'u3' },
-      ],
-    },
-  ],
+/* ---------- 1. DATA (Supabase-backed) ----------
+   APP_DATA has the exact same shape the app always used (camelCase,
+   nested usageLog/votes/reactions/entries arrays) so every render
+   function below keeps working completely unchanged. The difference
+   is that it now starts empty and gets populated by loadAppData()
+   (see the SUPABASE DATA LAYER section right below) instead of being
+   hardcoded here. */
+let APP_DATA = {
+  users: [],
+  nicknames: [],
+  quotes: [],
+  anecdotes: [],
+  counters: [],
+  beers: [],
+  beerSessions: [],
 };
+
+/* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
+   The anon/public key is safe to expose in client code by design —
+   Row Level Security (see supabase/0001_schema.sql) is the actual
+   security boundary, not secrecy of this key. */
+const SUPABASE_URL = 'https://pldhdsopdwmgvuvwdsta.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_BqEilTRoa09-UtJ_fNPheA_mhXqapM_';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ---------- 1c. SUPABASE DATA LAYER ----------
+   Fetches every table and reassembles APP_DATA in the exact shape the
+   rest of the app expects. Called once after login, then again after
+   every mutation and on every realtime event (see bottom of file). */
+async function loadAppData(){
+  const [
+    profilesRes, nicknamesRes, nicknameEventsRes, nicknameVotesRes,
+    quotesRes, quoteReactionsRes, anecdotesRes, anecdoteReactionsRes,
+    countersRes, counterEventsRes,
+    beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
+  ] = await Promise.all([
+    sb.from('profiles').select('*'),
+    sb.from('nicknames').select('*'),
+    sb.from('nickname_events').select('*'),
+    sb.from('nickname_votes').select('*'),
+    sb.from('quotes').select('*'),
+    sb.from('quote_reactions').select('*'),
+    sb.from('anecdotes').select('*'),
+    sb.from('anecdote_reactions').select('*'),
+    sb.from('counters').select('*'),
+    sb.from('counter_events').select('*'),
+    sb.from('beers').select('*'),
+    sb.from('beer_sessions').select('*'),
+    sb.from('beer_session_participants').select('*'),
+    sb.from('beer_ratings').select('*'),
+    sb.from('beer_consumption').select('*'),
+    sb.from('perfect_pours').select('*'),
+  ]);
+
+  for (const res of [
+    profilesRes, nicknamesRes, nicknameEventsRes, nicknameVotesRes,
+    quotesRes, quoteReactionsRes, anecdotesRes, anecdoteReactionsRes,
+    countersRes, counterEventsRes,
+    beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
+  ]){
+    if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
+  }
+
+  const users = (profilesRes.data || []).map(p => ({
+    id: p.id,
+    firstName: p.first_name,
+    displayName: p.display_name,
+    profileNickname: p.profile_nickname,
+    businessUnit: p.business_unit,
+    jobTitle: p.job_title,
+    bio: p.bio,
+    avatarEmoji: p.avatar_emoji,
+    avatarColor: p.accent_color,
+    avatarPhoto: p.avatar_photo,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+  }));
+
+  const nicknames = (nicknamesRes.data || []).map(n => {
+    const events = (nicknameEventsRes.data || []).filter(e => e.nickname_id === n.id);
+    const votesForN = (nicknameVotesRes.data || []).filter(v => v.nickname_id === n.id);
+    const votes = { funny: [], accurate: [], savage: [] };
+    votesForN.forEach(v => { if (votes[v.vote_type]) votes[v.vote_type].push(v.user_id); });
+    return {
+      id: n.id,
+      personRealName: n.person_real_name,
+      businessUnit: n.business_unit,
+      text: n.nickname,
+      createdAt: n.created_at,
+      updatedAt: n.updated_at,
+      createdByUserId: n.created_by_user_id,
+      description: n.description,
+      anecdote: n.anecdote,
+      status: n.status,
+      xp: 10 + events.reduce((sum, e) => sum + e.xp_value, 0),
+      usageCount: events.length,
+      usageLog: events.map(e => ({ id: e.id, type: e.event_type, xp: e.xp_value, date: e.created_at, loggedBy: e.created_by_user_id })),
+      votes,
+    };
+  });
+
+  function buildReactions(rows, itemId, idField){
+    const reactions = { funny: [], savage: [], facepalm: [] };
+    rows.filter(r => r[idField] === itemId).forEach(r => { if (reactions[r.reaction_type]) reactions[r.reaction_type].push(r.user_id); });
+    return reactions;
+  }
+
+  const quotes = (quotesRes.data || []).map(q => ({
+    id: q.id,
+    personRealName: q.person_real_name,
+    businessUnit: q.business_unit,
+    text: q.quote,
+    context: q.context,
+    date: q.created_at,
+    addedBy: q.created_by_user_id,
+    reactions: buildReactions(quoteReactionsRes.data || [], q.id, 'quote_id'),
+    points: 5 + (q.all_three_bonus_awarded ? 5 : 0),
+    allThreeBonusAwarded: q.all_three_bonus_awarded,
+  }));
+
+  const anecdotes = (anecdotesRes.data || []).map(a => ({
+    id: a.id,
+    personRealName: a.person_real_name,
+    businessUnit: a.business_unit,
+    title: a.title,
+    description: a.description,
+    date: a.created_at,
+    addedBy: a.created_by_user_id,
+    reactions: buildReactions(anecdoteReactionsRes.data || [], a.id, 'anecdote_id'),
+    points: 5 + (a.all_three_bonus_awarded ? 5 : 0),
+    allThreeBonusAwarded: a.all_three_bonus_awarded,
+  }));
+
+  const counters = (countersRes.data || []).map(c => {
+    const events = (counterEventsRes.data || []).filter(e => e.counter_id === c.id);
+    return {
+      id: c.id,
+      name: c.title,
+      personRealName: c.person_real_name,
+      businessUnit: c.business_unit,
+      description: c.description,
+      total: Math.max(0, events.reduce((sum, e) => sum + e.delta, 0)),
+      dateCreated: c.created_at,
+      createdBy: c.created_by_user_id,
+      history: events.map(e => ({ id: e.id, delta: e.delta, by: e.registered_by_user_id, at: e.created_at, note: e.note })),
+    };
+  });
+
+  const beers = (beersRes.data || []).map(b => ({
+    id: b.id,
+    name: b.name,
+    brewery: b.brewery,
+    style: b.beer_style,
+    abv: b.alcohol_percentage,
+    country: b.country,
+    photo: b.image_url,
+    dateAdded: b.created_at,
+    addedBy: b.created_by_user_id,
+  }));
+
+  const beerSessions = (beerSessionsRes.data || []).map(s => {
+    const ratings = (ratingsRes.data || []).filter(r => r.session_id === s.id);
+    const consumption = (consumptionRes.data || []).filter(c => c.session_id === s.id);
+    const key = (beerId, userId) => beerId + '::' + userId;
+    const consumptionByKey = new Map(consumption.map(c => [key(c.beer_id, c.user_id), c]));
+    const entryKeys = new Set([
+      ...ratings.map(r => key(r.beer_id, r.user_id)),
+      ...consumption.map(c => key(c.beer_id, c.user_id)),
+    ]);
+    const entries = Array.from(entryKeys).map(k => {
+      const [beerId, userId] = k.split('::');
+      const rating = ratings.find(r => r.beer_id === beerId && r.user_id === userId);
+      const cons = consumptionByKey.get(k);
+      const firstTime = !!cons && !(consumptionRes.data || []).some(c =>
+        c.beer_id === beerId && c.user_id === userId && new Date(c.created_at) < new Date(cons.created_at));
+      return {
+        id: (rating && rating.id) || (cons && cons.id),
+        beerId, userId,
+        score: rating ? rating.rating : null,
+        review: rating ? rating.review : '',
+        quantity: cons ? cons.quantity : 0,
+        firstTime,
+      };
+    });
+    return {
+      id: s.id,
+      date: s.session_date,
+      location: s.location,
+      beerIds: Array.from(new Set(entries.map(e => e.beerId))),
+      participantIds: (participantsRes.data || []).filter(p => p.session_id === s.id).map(p => p.user_id),
+      loggedBy: s.created_by_user_id,
+      entries,
+      perfectPourVotes: (pourRes.data || []).filter(pp => pp.session_id === s.id)
+        .map(pp => ({ id: pp.id, fromUserId: pp.given_by_user_id, toUserId: pp.received_by_user_id })),
+    };
+  });
+
+  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions };
+}
+
+/* Debounced "refetch everything + redraw" — used after every mutation
+   and by the realtime subscription. Simple over granular on purpose. */
+let refreshInFlight = null;
+async function refreshAppData(){
+  if (!refreshInFlight) refreshInFlight = loadAppData().finally(() => { refreshInFlight = null; });
+  await refreshInFlight;
+}
+
+/* ---------- 1d. REALTIME ----------
+   One channel across every domain table. Any insert/update/delete on
+   any of them -> debounce ~150ms -> refetch everything -> redraw the
+   current page. Simple over granular, on purpose (see SUPABASE_SETUP.md). */
+const REALTIME_TABLES = [
+  'nicknames', 'nickname_events', 'nickname_votes',
+  'quotes', 'quote_reactions', 'anecdotes', 'anecdote_reactions',
+  'counters', 'counter_events',
+  'beers', 'beer_sessions', 'beer_session_participants', 'beer_ratings', 'beer_consumption', 'perfect_pours',
+];
+let realtimeChannel = null;
+let realtimeDebounceTimer = null;
+
+function subscribeRealtime(){
+  if (realtimeChannel) return;
+  realtimeChannel = sb.channel('office-lore-changes');
+  REALTIME_TABLES.forEach(table => {
+    realtimeChannel.on('postgres_changes', { event: '*', schema: 'public', table }, onRealtimeChange);
+  });
+  realtimeChannel.subscribe();
+}
+
+function unsubscribeRealtime(){
+  if (!realtimeChannel) return;
+  sb.removeChannel(realtimeChannel);
+  realtimeChannel = null;
+}
+
+function onRealtimeChange(){
+  clearTimeout(realtimeDebounceTimer);
+  realtimeDebounceTimer = setTimeout(async () => {
+    if (!STATE.activeUser) return;
+    await refreshAppData();
+    renderApp();
+  }, 150);
+}
 
 /* ---------- 2. APP STATE ---------- */
 const STATE = {
   activePage: 'home',
-  activeUser: null, // null = nog geen keuze gemaakt -> "Who enters the Lore?"-gate wordt getoond
+  activeUser: null, // null = nog niet ingelogd -> loginscherm wordt getoond
 };
+
+/* ---------- 2b. AUTH STATE + FLOW ----------
+   activeUser is now driven by a real Supabase Auth session instead of
+   the old local "Who enters the Lore?" picker. AUTH_STATE only tracks
+   UI concerns (login form error, forgot-password mode, recovery mode);
+   the actual session lives in Supabase and survives refresh/devices. */
+const AUTH_STATE = {
+  loading: true,       // true while we're checking for an existing session on first load
+  error: '',
+  mode: 'login',        // 'login' | 'signup' | 'forgot' | 'recovery'
+  forgotSent: false,
+  signupSent: false,    // true once signUp succeeded and we're waiting on email confirmation
+};
+
+async function initAuth(){
+  // Supabase puts recovery tokens in the URL hash after a password-reset redirect.
+  if (window.location.hash.includes('type=recovery')) AUTH_STATE.mode = 'recovery';
+
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'PASSWORD_RECOVERY'){ AUTH_STATE.mode = 'recovery'; renderApp(); return; }
+    if (event === 'SIGNED_OUT'){ STATE.activeUser = null; renderApp(); return; }
+    if (session && event === 'SIGNED_IN'){ handleSignedIn(session); }
+  });
+
+  const { data: { session } } = await sb.auth.getSession();
+  AUTH_STATE.loading = false;
+  if (session && AUTH_STATE.mode !== 'recovery'){
+    await handleSignedIn(session);
+  } else {
+    renderApp();
+  }
+}
+
+async function handleSignedIn(session){
+  await refreshAppData();
+  STATE.activeUser = session.user.id;
+  STATE.activePage = 'home';
+  subscribeRealtime();
+  renderApp();
+}
+
+async function submitLoginForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  AUTH_STATE.error = '';
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  if (error){ AUTH_STATE.error = 'Inloggen mislukt: e-mail of wachtwoord klopt niet.'; renderApp(); return; }
+  // onAuthStateChange -> handleSignedIn() handles the rest
+}
+
+async function submitSignupForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const email = form.email.value.trim();
+  const password = form.password.value;
+  AUTH_STATE.error = '';
+  if (password.length < 6){ AUTH_STATE.error = 'Wachtwoord moet minstens 6 tekens hebben.'; renderApp(); return; }
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error){ AUTH_STATE.error = 'Registreren mislukt: ' + (error.message === 'User already registered' ? 'dit e-mailadres heeft al een account.' : 'probeer opnieuw.'); renderApp(); return; }
+  if (data.session){
+    // e-mailbevestiging staat uit in dit project -> meteen ingelogd
+    await handleSignedIn(data.session);
+  } else {
+    // e-mailbevestiging staat aan -> pas ingelogd na het klikken van de link in de mail
+    AUTH_STATE.signupSent = true;
+    renderApp();
+  }
+}
+
+async function submitForgotPasswordForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const email = form.email.value.trim();
+  AUTH_STATE.error = '';
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+  if (error){ AUTH_STATE.error = 'Kon geen reset-mail versturen. Controleer het e-mailadres.'; renderApp(); return; }
+  AUTH_STATE.forgotSent = true;
+  renderApp();
+}
+
+async function submitNewPasswordForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const password = form.password.value;
+  AUTH_STATE.error = '';
+  const { error } = await sb.auth.updateUser({ password });
+  if (error){ AUTH_STATE.error = 'Kon wachtwoord niet bijwerken. Probeer opnieuw.'; renderApp(); return; }
+  window.location.hash = '';
+  AUTH_STATE.mode = 'login';
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) await handleSignedIn(session);
+  else renderApp();
+}
+
+function goToForgotPassword(){ AUTH_STATE.mode = 'forgot'; AUTH_STATE.error = ''; AUTH_STATE.forgotSent = false; renderApp(); }
+function goToSignup(){ AUTH_STATE.mode = 'signup'; AUTH_STATE.error = ''; AUTH_STATE.signupSent = false; renderApp(); }
+function backToLogin(){ AUTH_STATE.mode = 'login'; AUTH_STATE.error = ''; renderApp(); }
+
+async function logout(){
+  unsubscribeRealtime();
+  await sb.auth.signOut();
+}
 
 /* User Lore-detailpagina: eigen substate voor welke user er net
    bekeken wordt (los van STATE.activePage, zelfde patroon als de
@@ -2450,9 +2357,6 @@ const REACTION_TYPES = [
   { id: 'facepalm', label: 'Facepalm', icon: '🤦' },
 ];
 
-const LORE_NEW_ITEM_POINTS = 5;   // nieuwe quote/anekdote
-const LORE_ALL_THREE_BONUS = 5;   // bonus als alle 3 vaste gebruikers reageerden
-
 /* ---------- LORE: helpers ---------- */
 /* "Toegevoegd door" (addedBy) — NIET "over wie". Quotes en
    anekdotes gaan over collega's op kantoor (personRealName, vrije
@@ -2530,18 +2434,6 @@ function getTopQuoteForUser(userId){
 function getTopAnecdoteForUser(userId){
   const list = getUserAnecdotes(userId);
   return list.length ? [...list].sort((a, b) => loreItemPopularity(b) - loreItemPopularity(a))[0] : null;
-}
-
-/* Alle drie de vaste gebruikers gereageerd (in om het even welke
-   categorie) -> eenmalige bonus, nooit weer ingetrokken. */
-function maybeAwardAllThreeBonus(item){
-  if (item.allThreeBonusAwarded) return;
-  const reactedUserIds = new Set([...item.reactions.funny, ...item.reactions.savage, ...item.reactions.facepalm]);
-  const allThreeReacted = APP_DATA.users.every(u => reactedUserIds.has(u.id));
-  if (allThreeReacted){
-    item.points += LORE_ALL_THREE_BONUS;
-    item.allThreeBonusAwarded = true;
-  }
 }
 
 /* ---------- BEER CLUB: helpers ----------
@@ -2678,21 +2570,22 @@ function getMasterOfThePourRows(){
 /* Stem casten/verplaatsen/intrekken: klik nogmaals op dezelfde persoon
    om de stem in te trekken; klik op iemand anders om de stem te
    verplaatsen (max 1 stem per gebruiker per sessie, nooit op jezelf). */
-function castPerfectPourVote(sessionId, toUserId){
+async function castPerfectPourVote(sessionId, toUserId){
   const session = APP_DATA.beerSessions.find(s => s.id === sessionId);
   if (!session) return;
   const fromUserId = STATE.activeUser;
   if (fromUserId === toUserId) return; // niet op jezelf stemmen
   if (!session.participantIds.includes(fromUserId) || !session.participantIds.includes(toUserId)) return;
 
-  const idx = session.perfectPourVotes.findIndex(v => v.fromUserId === fromUserId);
-  if (idx !== -1 && session.perfectPourVotes[idx].toUserId === toUserId){
-    session.perfectPourVotes.splice(idx, 1);
-  } else if (idx !== -1){
-    session.perfectPourVotes[idx].toUserId = toUserId;
+  const existing = session.perfectPourVotes.find(v => v.fromUserId === fromUserId);
+  if (existing && existing.toUserId === toUserId){
+    await sb.from('perfect_pours').delete().eq('id', existing.id);
   } else {
-    session.perfectPourVotes.push({ id: uid('pv'), fromUserId, toUserId });
+    // delete-then-insert (not update) so the XP trigger fires correctly for the new recipient
+    if (existing) await sb.from('perfect_pours').delete().eq('id', existing.id);
+    await sb.from('perfect_pours').insert({ session_id: sessionId, given_by_user_id: fromUserId, received_by_user_id: toUserId });
   }
+  await refreshAppData();
   renderPage();
 }
 
@@ -2874,7 +2767,7 @@ function computeBeerXp(userId){
     if (e.userId !== userId) return;
     xp += (e.quantity || 0) * BEER_XP_RULES.perDrink;
     if (e.firstTime) xp += BEER_XP_RULES.newBeerTried;
-    xp += BEER_XP_RULES.ratingGiven; // elke registratie bevat een score
+    if (typeof e.score === 'number' && e.score > 0) xp += BEER_XP_RULES.ratingGiven;
   });
   xp += getTotalPerfectPoursReceived(userId) * BEER_XP_RULES.perfectPour;
   APP_DATA.beers.forEach(b => {
@@ -3710,9 +3603,8 @@ function renderMyProfilePage(data){
   `;
 }
 
-function submitMyProfileForm(event){
+async function submitMyProfileForm(event){
   event.preventDefault();
-  const user = findUser(STATE.activeUser);
 
   const displayName = document.getElementById('mp-displayName').value.trim();
   const profileNickname = document.getElementById('mp-nickname').value.trim();
@@ -3727,18 +3619,20 @@ function submitMyProfileForm(event){
   }
   errorEl.textContent = '';
 
-  Object.assign(user, {
-    displayName,
-    profileNickname: profileNickname || null,
-    businessUnit: businessUnit || null,
-    jobTitle: jobTitle || null,
+  const { error } = await sb.from('profiles').update({
+    display_name: displayName,
+    profile_nickname: profileNickname || null,
+    business_unit: businessUnit || null,
+    job_title: jobTitle || null,
     bio,
-    avatarEmoji: formDraft.avatarEmoji,
-    avatarColor: formDraft.avatarColor,
-    avatarPhoto: formDraft.avatarPhoto,
-    updatedAt: new Date().toISOString(),
-  });
+    avatar_emoji: formDraft.avatarEmoji,
+    accent_color: formDraft.avatarColor,
+    avatar_photo: formDraft.avatarPhoto,
+  }).eq('id', STATE.activeUser);
 
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
   renderUserSwitcher(); // profielmenu-knop toont meteen de nieuwe naam/avatar
   goToPage('home');
   return false;
@@ -3899,7 +3793,7 @@ function clearNicknameFilters(){
   renderPage();
 }
 
-function submitNicknameForm(event){
+async function submitNicknameForm(event){
   event.preventDefault();
   const form = event.target;
   const mode = form.dataset.mode;
@@ -3919,24 +3813,24 @@ function submitNicknameForm(event){
   }
   errorEl.textContent = '';
 
+  let error;
   if (mode === 'edit'){
-    const n = APP_DATA.nicknames.find(x => x.id === editId);
-    Object.assign(n, { personRealName, businessUnit, text, description, anecdote, status, updatedAt: todayISO() });
+    ({ error } = await sb.from('nicknames').update({
+      person_real_name: personRealName, business_unit: businessUnit || null,
+      nickname: text, description, anecdote, status,
+    }).eq('id', editId));
   } else {
-    APP_DATA.nicknames.push({
-      id: uid('n'),
-      personRealName, businessUnit, text, description, anecdote,
+    ({ error } = await sb.from('nicknames').insert({
+      person_real_name: personRealName, business_unit: businessUnit || null,
+      nickname: text, description, anecdote,
       status: status || 'Actief',
-      createdAt: todayISO(),
-      updatedAt: todayISO(),
-      createdByUserId: STATE.activeUser,
-      xp: 10, // nieuwe nickname
-      usageCount: 0,
-      usageLog: [],
-      votes: { funny: [], accurate: [], savage: [] },
-    });
+      created_by_user_id: STATE.activeUser,
+    }));
   }
 
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
   closeModal();
   renderPage();
   return false;
@@ -3956,8 +3850,9 @@ function confirmDeleteNickname(id){
   `);
 }
 
-function performDeleteNickname(id){
-  APP_DATA.nicknames = APP_DATA.nicknames.filter(n => n.id !== id);
+async function performDeleteNickname(id){
+  await sb.from('nicknames').delete().eq('id', id);
+  await refreshAppData();
   closeModal();
   renderPage();
 }
@@ -3984,28 +3879,29 @@ function openLogUsageModal(nicknameId){
   `);
 }
 
-function logNicknameUsage(nicknameId, typeId){
+async function logNicknameUsage(nicknameId, typeId){
   const n = APP_DATA.nicknames.find(x => x.id === nicknameId);
   const type = USAGE_TYPES.find(t => t.id === typeId);
   if (!n || !type) return;
-  n.xp += type.xp;
-  n.usageCount += 1;
-  n.usageLog.push({ id: uid('u'), type: type.id, xp: type.xp, date: todayISO(), loggedBy: STATE.activeUser });
+  await sb.from('nickname_events').insert({
+    nickname_id: nicknameId, event_type: type.id, xp_value: type.xp, created_by_user_id: STATE.activeUser,
+  });
+  await refreshAppData();
   closeModal();
   renderPage();
 }
 
 /* ---- stemmen: max 1 stem per user per categorie, togglebaar ---- */
-function toggleNicknameVote(nicknameId, category){
+async function toggleNicknameVote(nicknameId, category){
   const n = APP_DATA.nicknames.find(x => x.id === nicknameId);
   if (!n) return;
-  const voters = n.votes[category];
-  const idx = voters.indexOf(STATE.activeUser);
-  if (idx === -1){
-    voters.push(STATE.activeUser);
+  const alreadyVoted = n.votes[category].includes(STATE.activeUser);
+  if (alreadyVoted){
+    await sb.from('nickname_votes').delete().eq('nickname_id', nicknameId).eq('user_id', STATE.activeUser).eq('vote_type', category);
   } else {
-    voters.splice(idx, 1);
+    await sb.from('nickname_votes').insert({ nickname_id: nicknameId, user_id: STATE.activeUser, vote_type: category });
   }
+  await refreshAppData();
   renderPage();
 }
 
@@ -4131,7 +4027,7 @@ function switchLoreFormType(kind){
   openModal(renderLoreFormHtml('add', kind, null, currentName));
 }
 
-function submitLoreForm(event){
+async function submitLoreForm(event){
   event.preventDefault();
   const form = event.target;
   const mode = form.dataset.mode;
@@ -4146,6 +4042,7 @@ function submitLoreForm(event){
     return false;
   }
 
+  let error;
   if (kind === 'quote'){
     const text = document.getElementById('lf-text').value.trim();
     const context = document.getElementById('lf-context').value.trim();
@@ -4155,16 +4052,14 @@ function submitLoreForm(event){
     }
     errorEl.textContent = '';
     if (mode === 'edit'){
-      const q = APP_DATA.quotes.find(x => x.id === editId);
-      Object.assign(q, { personRealName, businessUnit, text, context });
+      ({ error } = await sb.from('quotes').update({
+        person_real_name: personRealName, business_unit: businessUnit || null, quote: text, context,
+      }).eq('id', editId));
     } else {
-      APP_DATA.quotes.push({
-        id: uid('q'), personRealName, businessUnit, text, context,
-        date: todayISO(), addedBy: STATE.activeUser,
-        reactions: { funny: [], savage: [], facepalm: [] },
-        points: LORE_NEW_ITEM_POINTS,
-        allThreeBonusAwarded: false,
-      });
+      ({ error } = await sb.from('quotes').insert({
+        person_real_name: personRealName, business_unit: businessUnit || null, quote: text, context,
+        created_by_user_id: STATE.activeUser,
+      }));
     }
   } else {
     const title = document.getElementById('lf-title').value.trim();
@@ -4175,19 +4070,20 @@ function submitLoreForm(event){
     }
     errorEl.textContent = '';
     if (mode === 'edit'){
-      const a = APP_DATA.anecdotes.find(x => x.id === editId);
-      Object.assign(a, { personRealName, businessUnit, title, description });
+      ({ error } = await sb.from('anecdotes').update({
+        person_real_name: personRealName, business_unit: businessUnit || null, title, description,
+      }).eq('id', editId));
     } else {
-      APP_DATA.anecdotes.push({
-        id: uid('a'), personRealName, businessUnit, title, description,
-        date: todayISO(), addedBy: STATE.activeUser,
-        reactions: { funny: [], savage: [], facepalm: [] },
-        points: LORE_NEW_ITEM_POINTS,
-        allThreeBonusAwarded: false,
-      });
+      ({ error } = await sb.from('anecdotes').insert({
+        person_real_name: personRealName, business_unit: businessUnit || null, title, description,
+        created_by_user_id: STATE.activeUser,
+      }));
     }
   }
 
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
   closeModal();
   renderPage();
   return false;
@@ -4209,29 +4105,28 @@ function confirmDeleteLoreItem(kind, id){
   `);
 }
 
-function performDeleteLoreItem(kind, id){
-  if (kind === 'quote'){
-    APP_DATA.quotes = APP_DATA.quotes.filter(x => x.id !== id);
-  } else {
-    APP_DATA.anecdotes = APP_DATA.anecdotes.filter(x => x.id !== id);
-  }
+async function performDeleteLoreItem(kind, id){
+  await sb.from(kind === 'quote' ? 'quotes' : 'anecdotes').delete().eq('id', id);
+  await refreshAppData();
   closeModal();
   renderPage();
 }
 
 /* ---- reacties: togglebaar, net als nickname-stemmen ---- */
-function toggleLoreReaction(kind, itemId, category){
+async function toggleLoreReaction(kind, itemId, category){
   const list = kind === 'quote' ? APP_DATA.quotes : APP_DATA.anecdotes;
   const item = list.find(x => x.id === itemId);
   if (!item) return;
-  const reactors = item.reactions[category];
-  const idx = reactors.indexOf(STATE.activeUser);
-  if (idx === -1){
-    reactors.push(STATE.activeUser);
+  const table = kind === 'quote' ? 'quote_reactions' : 'anecdote_reactions';
+  const idField = kind === 'quote' ? 'quote_id' : 'anecdote_id';
+  const alreadyReacted = item.reactions[category].includes(STATE.activeUser);
+  if (alreadyReacted){
+    await sb.from(table).delete().eq(idField, itemId).eq('user_id', STATE.activeUser).eq('reaction_type', category);
   } else {
-    reactors.splice(idx, 1);
+    await sb.from(table).insert({ [idField]: itemId, user_id: STATE.activeUser, reaction_type: category });
   }
-  maybeAwardAllThreeBonus(item);
+  // all-three bonus (if any) is awarded server-side by a trigger on insert
+  await refreshAppData();
   renderPage();
 }
 
@@ -4466,7 +4361,7 @@ function openCounterForm(mode, counterId, presetRealName){
   openModal(renderCounterFormHtml(mode, counter, presetRealName));
 }
 
-function submitCounterForm(event){
+async function submitCounterForm(event){
   event.preventDefault();
   const form = event.target;
   const mode = form.dataset.mode;
@@ -4484,21 +4379,29 @@ function submitCounterForm(event){
   }
   errorEl.textContent = '';
 
+  let error;
   if (mode === 'edit'){
-    const c = APP_DATA.counters.find(x => x.id === editId);
-    Object.assign(c, { name, personRealName, businessUnit, description });
+    ({ error } = await sb.from('counters').update({
+      title: name, person_real_name: personRealName, business_unit: businessUnit || null, description,
+    }).eq('id', editId));
   } else {
     const startEl = document.getElementById('cf-start');
     const start = startEl ? Math.max(0, parseInt(startEl.value, 10) || 0) : 0;
-    APP_DATA.counters.push({
-      id: uid('ctr'), name, personRealName, businessUnit, description,
-      total: start,
-      dateCreated: todayISO(),
-      createdBy: STATE.activeUser,
-      history: [],
-    });
+    const { data, error: insertError } = await sb.from('counters').insert({
+      title: name, person_real_name: personRealName, business_unit: businessUnit || null, description,
+      created_by_user_id: STATE.activeUser,
+    }).select().single();
+    error = insertError;
+    if (!error && start > 0){
+      ({ error } = await sb.from('counter_events').insert({
+        counter_id: data.id, registered_by_user_id: STATE.activeUser, delta: start, note: 'Startwaarde',
+      }));
+    }
   }
 
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
   closeModal();
   renderPage();
   return false;
@@ -4518,8 +4421,9 @@ function confirmDeleteCounter(id){
   `);
 }
 
-function performDeleteCounter(id){
-  APP_DATA.counters = APP_DATA.counters.filter(c => c.id !== id);
+async function performDeleteCounter(id){
+  await sb.from('counters').delete().eq('id', id);
+  await refreshAppData();
   closeModal();
   if (COUNTER_STATE.historyCounterId === id){
     COUNTER_STATE.view = 'list';
@@ -4529,15 +4433,14 @@ function performDeleteCounter(id){
 }
 
 /* ---- +1 / -1 registreren ---- */
-function registerCounterEvent(counterId, delta, note){
+async function registerCounterEvent(counterId, delta, note){
   const counter = APP_DATA.counters.find(c => c.id === counterId);
   if (!counter) return;
-  counter.total = Math.max(0, counter.total + delta);
-  counter.history.push({
-    id: uid('h'), delta, by: STATE.activeUser, at: new Date().toISOString(), note: note || '',
+  await sb.from('counter_events').insert({
+    counter_id: counterId, registered_by_user_id: STATE.activeUser, delta, note: note || '',
   });
-  // Geeft de gekoppelde persoon +1 Lore XP: computeLoreScore() telt
-  // counter.total rechtstreeks op, dus dit gebeurt automatisch.
+  // Geeft de gekoppelde persoon +1 Lore XP via de xp_on_counter_event_insert-trigger.
+  await refreshAppData();
   renderPage();
 }
 
@@ -4610,10 +4513,10 @@ function pickRegisterDelta(btn, delta){
   btn.classList.add('btn-primary');
 }
 
-function submitCounterRegisterForm(event, counterId){
+async function submitCounterRegisterForm(event, counterId){
   event.preventDefault();
   const note = document.getElementById('cr-note').value.trim();
-  registerCounterEvent(counterId, counterRegisterDelta, note);
+  await registerCounterEvent(counterId, counterRegisterDelta, note);
   closeModal();
   return false;
 }
@@ -5188,7 +5091,7 @@ function clearBeerPhoto(){
   if (preview) preview.innerHTML = beerPhotoHtml(null, 72);
 }
 
-function submitBeerForm(event){
+async function submitBeerForm(event){
   event.preventDefault();
   const form = event.target;
   const mode = form.dataset.mode;
@@ -5213,16 +5116,24 @@ function submitBeerForm(event){
   }
   errorEl.textContent = '';
 
+  let error;
   if (mode === 'edit'){
-    const b = APP_DATA.beers.find(x => x.id === editId);
-    Object.assign(b, { name, brewery, style, abv, country, photo: beerFormPhoto });
+    ({ error } = await sb.from('beers').update({
+      name, brewery, beer_style: style, alcohol_percentage: abv, country, image_url: beerFormPhoto,
+    }).eq('id', editId));
   } else {
-    APP_DATA.beers.push({
-      id: uid('beer'), name, brewery, style, abv, country, photo: beerFormPhoto,
-      dateAdded: todayISO(), addedBy: STATE.activeUser,
-    });
+    ({ error } = await sb.from('beers').insert({
+      name, brewery, beer_style: style, alcohol_percentage: abv, country, image_url: beerFormPhoto,
+      created_by_user_id: STATE.activeUser,
+    }));
   }
 
+  if (error){
+    errorEl.textContent = error.code === '23505' ? 'Dit bier (zelfde naam + brouwerij) staat al in de Beer Database.' : 'Opslaan mislukt, probeer opnieuw.';
+    return false;
+  }
+
+  await refreshAppData();
   closeModal();
   renderPage();
   return false;
@@ -5241,12 +5152,9 @@ function confirmDeleteBeer(id){
   `);
 }
 
-function performDeleteBeer(id){
-  APP_DATA.beers = APP_DATA.beers.filter(b => b.id !== id);
-  APP_DATA.beerSessions.forEach(s => {
-    s.beerIds = s.beerIds.filter(bid => bid !== id);
-    s.entries = s.entries.filter(e => e.beerId !== id);
-  });
+async function performDeleteBeer(id){
+  await sb.from('beers').delete().eq('id', id);
+  await refreshAppData();
   closeModal();
   if (BEER_STATE.beerDetailId === id){
     BEER_STATE.view = 'database';
@@ -5507,7 +5415,7 @@ function renderSessionMatrix(){
   mount.innerHTML = html;
 }
 
-function submitSessionForm(){
+async function submitSessionForm(){
   const errorEl = document.getElementById('sf-error');
   const date = document.getElementById('sf-date').value;
   const location = document.getElementById('sf-location').value.trim();
@@ -5526,35 +5434,39 @@ function submitSessionForm(){
   }
   errorEl.textContent = '';
 
-  const entries = [];
+  const ratingRows = [];
+  const consumptionRows = [];
   SESSION_DRAFT.beerIds.forEach(beerId => {
     SESSION_DRAFT.participantIds.forEach(userId => {
       const key = `${beerId}__${userId}`;
       const scoreEl = document.getElementById(`entry-score-${key}`);
       const reviewEl = document.getElementById(`entry-review-${key}`);
       const quantityEl = document.getElementById(`entry-quantity-${key}`);
-      const firstTimeEl = document.getElementById(`entry-firsttime-${key}`);
-      entries.push({
-        id: uid('be'),
-        beerId, userId,
-        score: Math.max(0, Math.min(10, parseFloat(scoreEl?.value) || 0)),
-        review: (reviewEl?.value || '').trim(),
-        quantity: Math.max(0, parseInt(quantityEl?.value, 10) || 0),
-        firstTime: !!firstTimeEl?.checked,
-      });
+      const score = Math.max(0, Math.min(10, parseFloat(scoreEl?.value) || 0));
+      const review = (reviewEl?.value || '').trim();
+      const quantity = Math.max(0, parseInt(quantityEl?.value, 10) || 0);
+      // lege cellen (geen score en geen aantal) worden niet opgeslagen
+      if (score > 0) ratingRows.push({ beer_id: beerId, user_id: userId, rating: score, review });
+      if (quantity > 0) consumptionRows.push({ beer_id: beerId, user_id: userId, quantity });
     });
   });
 
-  APP_DATA.beerSessions.push({
-    id: uid('session'),
-    date, location,
-    beerIds: [...SESSION_DRAFT.beerIds],
-    participantIds: [...SESSION_DRAFT.participantIds],
-    loggedBy: STATE.activeUser,
-    entries,
-    perfectPourVotes: [],
-  });
+  const { data: session, error: sessionError } = await sb.from('beer_sessions').insert({
+    session_date: date, location, created_by_user_id: STATE.activeUser,
+  }).select().single();
+  if (sessionError){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return; }
 
+  await sb.from('beer_session_participants').insert(
+    SESSION_DRAFT.participantIds.map(userId => ({ session_id: session.id, user_id: userId }))
+  );
+  if (ratingRows.length){
+    await sb.from('beer_ratings').insert(ratingRows.map(r => ({ ...r, session_id: session.id })));
+  }
+  if (consumptionRows.length){
+    await sb.from('beer_consumption').insert(consumptionRows.map(c => ({ ...c, session_id: session.id })));
+  }
+
+  await refreshAppData();
   BEER_STATE.view = 'sessions';
   renderPage();
 }
@@ -5577,7 +5489,7 @@ function renderUserSwitcher(){
       </button>
       <div class="profile-menu-dropdown" id="profile-menu-dropdown">
         <button type="button" onclick="closeProfileMenu(); goToPage('myprofile');">🙋 My Profile</button>
-        <button type="button" onclick="closeProfileMenu(); switchUser();">🔄 Switch User</button>
+        <button type="button" onclick="closeProfileMenu(); logout();">🚪 Log out</button>
       </div>
     </div>
   `;
@@ -5599,53 +5511,138 @@ document.addEventListener('click', (e) => {
   if (!e.target.closest('.profile-menu')) closeProfileMenu();
 });
 
-/* ---------- 6b. RENDER: "Who enters the Lore?"-gate ----------
-   Wordt getoond in plaats van de volledige app zolang er geen
-   actieve user gekozen is (STATE.activeUser === null). */
+/* ---------- 6b. RENDER: login / forgot-password / recovery ----------
+   Wordt getoond in plaats van de volledige app zolang er geen actieve
+   Supabase-sessie is (STATE.activeUser === null). Vervangt het oude
+   lokale "Who enters the Lore?"-gate-scherm door echte Supabase Auth. */
 function renderGateScreen(){
   const root = document.getElementById('page-root');
+
+  if (AUTH_STATE.loading){
+    root.innerHTML = `<div class="gate-screen"><p class="gate-sub">Bezig met laden…</p></div>`;
+    return;
+  }
+
+  if (AUTH_STATE.mode === 'recovery'){
+    root.innerHTML = `
+      <div class="gate-screen">
+        <div class="gate-header">
+          <div class="logo-badge" style="margin:0 auto;">🗂️</div>
+          <h1>Nieuw wachtwoord</h1>
+          <p class="gate-sub">Kies een nieuw wachtwoord voor je account.</p>
+        </div>
+        <div class="modal-box" style="text-align:left; max-width:360px;">
+          <form onsubmit="submitNewPasswordForm(event)">
+            <div class="form-field">
+              <label class="form-label">Nieuw wachtwoord</label>
+              <input class="form-input" type="password" name="password" required minlength="6" autocomplete="new-password" />
+            </div>
+            <div class="form-error">${escapeHtml(AUTH_STATE.error)}</div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Wachtwoord instellen</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (AUTH_STATE.mode === 'signup'){
+    root.innerHTML = `
+      <div class="gate-screen">
+        <div class="gate-header">
+          <div class="logo-badge" style="margin:0 auto;">🗂️</div>
+          <h1>Account aanmaken</h1>
+          <p class="gate-sub">Registreer met je e-mail en een wachtwoord.</p>
+        </div>
+        <div class="modal-box" style="text-align:left; max-width:360px;">
+          ${AUTH_STATE.signupSent ? `
+            <p>Bijna klaar! Check je mailbox en klik op de bevestigingslink om je account te activeren.</p>
+            <div class="form-actions"><button type="button" class="btn" onclick="backToLogin()">Terug naar inloggen</button></div>
+          ` : `
+            <form onsubmit="submitSignupForm(event)">
+              <div class="form-field">
+                <label class="form-label">E-mail</label>
+                <input class="form-input" type="email" name="email" required autocomplete="email" />
+              </div>
+              <div class="form-field" style="margin-top:12px;">
+                <label class="form-label">Wachtwoord</label>
+                <input class="form-input" type="password" name="password" required minlength="6" autocomplete="new-password" />
+              </div>
+              <div class="form-error">${escapeHtml(AUTH_STATE.error)}</div>
+              <div class="form-actions" style="justify-content:space-between; align-items:center;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="backToLogin()">Al een account?</button>
+                <button type="submit" class="btn btn-primary">Registreren</button>
+              </div>
+            </form>
+          `}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (AUTH_STATE.mode === 'forgot'){
+    root.innerHTML = `
+      <div class="gate-screen">
+        <div class="gate-header">
+          <div class="logo-badge" style="margin:0 auto;">🗂️</div>
+          <h1>Wachtwoord vergeten</h1>
+          <p class="gate-sub">Vul je e-mailadres in, dan sturen we een reset-link.</p>
+        </div>
+        <div class="modal-box" style="text-align:left; max-width:360px;">
+          ${AUTH_STATE.forgotSent ? `
+            <p>Als dit e-mailadres bestaat, is er een reset-link naartoe gestuurd. Check je mailbox.</p>
+            <div class="form-actions"><button type="button" class="btn" onclick="backToLogin()">Terug naar inloggen</button></div>
+          ` : `
+            <form onsubmit="submitForgotPasswordForm(event)">
+              <div class="form-field">
+                <label class="form-label">E-mail</label>
+                <input class="form-input" type="email" name="email" required autocomplete="email" />
+              </div>
+              <div class="form-error">${escapeHtml(AUTH_STATE.error)}</div>
+              <div class="form-actions" style="justify-content:space-between;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="backToLogin()">Terug</button>
+                <button type="submit" class="btn btn-primary">Verstuur reset-link</button>
+              </div>
+            </form>
+          `}
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   root.innerHTML = `
     <div class="gate-screen">
       <div class="gate-header">
         <div class="logo-badge" style="margin:0 auto;">🗂️</div>
-        <h1>Who enters the Lore?</h1>
-        <p class="gate-sub">Kies wie je bent om verder te gaan.</p>
+        <h1>Office Lore</h1>
+        <p class="gate-sub">Log in om verder te gaan.</p>
       </div>
-      <div class="gate-cards">
-        ${APP_DATA.users.map(u => {
-          const loreScore = computeLoreScore(u);
-          const loreRank = rankUsersBy(x => computeLoreScore(x), { includeZero: true }).findIndex(e => e.user.id === u.id) + 1;
-          const beerXp = computeBeerXp(u.id);
-          const isAbtLord = ABT_LORD_STATE.currentLordId === u.id;
-          return `
-            <button type="button" class="gate-card" onclick="selectActiveUser('${u.id}')">
-              ${isAbtLord ? `<div class="gate-card-crown">👑</div>` : ''}
-              <div class="gate-card-avatar">${avatarHtml(u, 84)}</div>
-              <div class="gate-card-name">${escapeHtml(u.displayName)}</div>
-              <div class="gate-card-stats">
-                <span class="stat-chip">✨ ${loreScore} Lore XP · #${loreRank}</span>
-                <span class="stat-chip">🍻 ${beerXp} Beer XP</span>
-              </div>
-              ${isAbtLord ? `<span class="badge yellow">✦ The Abt Lord ✦</span>` : ''}
-            </button>
-          `;
-        }).join('')}
+      <div class="modal-box" style="text-align:left; max-width:360px;">
+        <form onsubmit="submitLoginForm(event)">
+          <div class="form-field">
+            <label class="form-label">E-mail</label>
+            <input class="form-input" type="email" name="email" required autocomplete="email" />
+          </div>
+          <div class="form-field" style="margin-top:12px;">
+            <label class="form-label">Wachtwoord</label>
+            <input class="form-input" type="password" name="password" required autocomplete="current-password" />
+          </div>
+          <div class="form-error">${escapeHtml(AUTH_STATE.error)}</div>
+          <div class="form-actions" style="justify-content:space-between; align-items:center;">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="goToForgotPassword()">Wachtwoord vergeten?</button>
+            <button type="submit" class="btn btn-primary">Inloggen</button>
+          </div>
+        </form>
+        <p style="text-align:center; margin-top:14px; font-size:12.5px; font-weight:700; color:#8a7a6b;">
+          Nog geen account? <a href="#" onclick="goToSignup(); return false;" style="color:var(--ink);">Registreren</a>
+        </p>
       </div>
     </div>
   `;
-}
-
-function selectActiveUser(userId){
-  STATE.activeUser = userId;
-  STATE.activePage = 'home';
-  renderApp();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function switchUser(){
-  STATE.activeUser = null;
-  renderApp();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ---------- 7. RENDER: nav ---------- */
@@ -5706,7 +5703,7 @@ function renderApp(){
 }
 
 /* ---------- 10. INIT ---------- */
-renderApp();
+initAuth();
 </script>
 </body>
 </html>
