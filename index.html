@@ -1252,6 +1252,172 @@
   }
   .fallen-abt-badge{ margin-top: 16px; }
 
+  .abt-throne-reigning{
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: .3px;
+    color: #6b4d1f;
+    margin-top: 2px;
+  }
+  .abt-throne-dynasty-stats{ margin-top: 10px; }
+  .abt-throne-lead{
+    margin-top: 14px;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: #6b4d1f;
+  }
+  .abt-throne-lead.danger{
+    color: #8a2e0e;
+    animation: wiggle 1.4s ease-in-out infinite;
+  }
+
+  /* ---- The Abt Dynasty: vertical reign timeline ---- */
+  .dynasty-timeline{
+    position: relative;
+    display:flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-left: 4px;
+  }
+  .dynasty-timeline::before{
+    content: '';
+    position: absolute;
+    left: 27px;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    background: repeating-linear-gradient(180deg, var(--lilac-deep) 0, var(--lilac-deep) 6px, transparent 6px, transparent 12px);
+  }
+  .dynasty-entry{
+    position: relative;
+    display:flex;
+    align-items:flex-start;
+    gap: 14px;
+    z-index: 1;
+  }
+  .dynasty-avatar{ flex: 0 0 auto; }
+  .dynasty-avatar .avatar-emoji, .dynasty-avatar .avatar-img{ background: var(--card); }
+  .dynasty-info{
+    background: var(--card);
+    border: var(--outline-thin);
+    border-radius: var(--radius-md);
+    padding: 8px 14px;
+    box-shadow: var(--shadow-pop-sm);
+    flex: 1;
+  }
+  .dynasty-name{ font-family: var(--font-display); font-size: 15px; }
+  .dynasty-length{ font-size: 12px; font-weight: 800; color: #6b5c4d; margin-top: 2px; }
+  .dynasty-dates{ font-size: 11px; font-weight: 700; color: #8a7a6b; margin-top: 2px; }
+  .dynasty-entry.current .dynasty-info{
+    background: linear-gradient(135deg, var(--yellow), var(--peach));
+    box-shadow: var(--shadow-pop);
+  }
+  .dynasty-entry.current .dynasty-length{ color: #6b4d1f; }
+
+  /* ---- dramatic full-screen dethronement overlay ---- */
+  .dynasty-overlay{
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 20px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 20%, rgba(255,201,60,.35), transparent 55%), rgba(43,35,32,.82);
+    animation: fadeIn .2s ease;
+  }
+  .dynasty-overlay-confetti{
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .dynasty-confetti-piece{
+    position: absolute;
+    top: -40px;
+    font-size: 26px;
+    animation: confetti-fall 2.6s ease-in forwards;
+  }
+  @keyframes confetti-fall{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 1; }
+    100%{ transform: translateY(110vh) rotate(340deg); opacity: 0; }
+  }
+  .dynasty-overlay-card{
+    position: relative;
+    z-index: 1;
+    max-width: 440px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: center;
+    background: linear-gradient(160deg, var(--yellow) 0%, var(--peach) 55%, var(--pink) 100%);
+    border: var(--outline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    padding: 30px 24px 26px;
+    animation: crown-drop .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes crown-drop{
+    0%{ transform: translateY(-40px) scale(.85); opacity: 0; }
+    100%{ transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .dynasty-overlay-crown{
+    font-size: 54px;
+    line-height: 1;
+    animation: floaty 2.2s ease-in-out infinite;
+  }
+  .dynasty-overlay-title{
+    font-family: var(--font-display);
+    font-size: 24px;
+    letter-spacing: .5px;
+    color: #7a1f1f;
+    text-shadow: 2px 2px 0 rgba(255,255,255,.5);
+    margin-top: 8px;
+  }
+  .dynasty-overlay-headline{
+    font-weight: 800;
+    font-size: 13.5px;
+    letter-spacing: .3px;
+    color: #4b3f36;
+    margin-top: 8px;
+  }
+  .dynasty-overlay-battle{
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .dynasty-overlay-side{
+    border: var(--outline-thin);
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    background: rgba(255,255,255,.6);
+  }
+  .dynasty-overlay-side.winner{ background: var(--mint); }
+  .dynasty-overlay-side.loser{ background: rgba(255,255,255,.5); opacity: .85; }
+  .dynasty-overlay-tagline{
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: .8px;
+    color: #6b4d1f;
+    margin-top: 4px;
+  }
+  .dynasty-overlay-newlord{
+    font-family: var(--font-display);
+    font-size: 18px;
+    margin-top: 10px;
+  }
+  .dynasty-overlay-subtitle{
+    font-style: italic;
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b4d1f;
+    margin-top: 6px;
+  }
+  .dynasty-overlay-btn{ margin-top: 20px; }
+
   /* =========================================================
      12. PERFECT POUR / MASTER OF THE POUR
      (speelse bier-/schuim-animaties op de winnende podiumplek
@@ -1582,6 +1748,9 @@
 <!-- gevuld door JS: openModal()/closeModal() -- herbruikbaar voor toekomstige modules -->
 <div id="modal-root"></div>
 
+<!-- gevuld door JS: openDramaticOverlay()/closeDramaticOverlay() -- full-screen Abt Dynasty moments -->
+<div id="dynasty-overlay-root"></div>
+
 <script>
 /* =============================================================
    OFFICE LORE — APP FUNDAMENT
@@ -1613,6 +1782,7 @@ let APP_DATA = {
   counters: [],
   beers: [],
   beerSessions: [],
+  abtReigns: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -1633,6 +1803,7 @@ async function loadAppData(){
     quotesRes, quoteReactionsRes, anecdotesRes, anecdoteReactionsRes,
     countersRes, counterEventsRes,
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
+    abtReignsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -1650,6 +1821,7 @@ async function loadAppData(){
     sb.from('beer_ratings').select('*'),
     sb.from('beer_consumption').select('*'),
     sb.from('perfect_pours').select('*'),
+    sb.from('abt_reigns').select('*'),
   ]);
 
   for (const res of [
@@ -1657,6 +1829,7 @@ async function loadAppData(){
     quotesRes, quoteReactionsRes, anecdotesRes, anecdoteReactionsRes,
     countersRes, counterEventsRes,
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
+    abtReignsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -1795,7 +1968,17 @@ async function loadAppData(){
     };
   });
 
-  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions };
+  const abtReigns = (abtReignsRes.data || []).map(r => ({
+    id: r.id,
+    userId: r.user_id,
+    startedAt: r.started_at,
+    endedAt: r.ended_at,
+    startingBeerXp: r.starting_beer_xp,
+    endingBeerXp: r.ending_beer_xp,
+    dethronedByUserId: r.dethroned_by_user_id,
+  }));
+
+  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns };
 }
 
 /* Debounced "refetch everything + redraw" — used after every mutation
@@ -1815,6 +1998,7 @@ const REALTIME_TABLES = [
   'quotes', 'quote_reactions', 'anecdotes', 'anecdote_reactions',
   'counters', 'counter_events',
   'beers', 'beer_sessions', 'beer_session_participants', 'beer_ratings', 'beer_consumption', 'perfect_pours',
+  'abt_reigns',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -1825,6 +2009,11 @@ function subscribeRealtime(){
   REALTIME_TABLES.forEach(table => {
     realtimeChannel.on('postgres_changes', { event: '*', schema: 'public', table }, onRealtimeChange);
   });
+  // dedicated listener: a reign row is only ever UPDATEd once, exactly
+  // when it's closed by a dethronement (dethroned_by_user_id gets set
+  // then and never touched again) — this only fires for genuinely live
+  // events since the listener is registered after the initial load
+  realtimeChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'abt_reigns' }, onAbtReignClosed);
   realtimeChannel.subscribe();
 }
 
@@ -1841,6 +2030,22 @@ function onRealtimeChange(){
     await refreshAppData();
     renderApp();
   }, 150);
+}
+
+/* live dethronement -> one-time full-screen "THE THRONE HAS FALLEN" moment.
+   Only reacts to real-time events (registered after the initial load),
+   so a page refresh/re-login never replays a past dethronement. */
+let lastShownDethronementReignId = null;
+async function onAbtReignClosed(payload){
+  const row = payload.new;
+  if (!row || !row.dethroned_by_user_id) return; // an edit unrelated to a dethronement
+  if (lastShownDethronementReignId === row.id) return; // avoid duplicate realtime deliveries
+  lastShownDethronementReignId = row.id;
+
+  if (!STATE.activeUser) return;
+  await refreshAppData();
+  renderApp();
+  showDethronementOverlay(row.user_id, row.dethroned_by_user_id, row.ending_beer_xp);
 }
 
 /* ---------- 2. APP STATE ---------- */
@@ -2282,6 +2487,13 @@ function statusBadgeClass(status){
    collega's op kantoor (personRealName, vrije tekst). */
 function getUserCounters(userId){
   return APP_DATA.counters.filter(c => c.createdBy === userId);
+}
+
+/* Abt Dynasty ceremonial dates are deliberately in English, matching
+   the existing Abt Lord flourishes ("May his glass never run dry.") —
+   the rest of the app's UI stays Dutch. */
+function formatNiceDate(iso){
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 function formatDateTime(iso){
@@ -2788,28 +3000,81 @@ function getBeerUserStats(userId){
   return { totalQuantity, uniqueBeers, avgRating, perfectPours };
 }
 
-/* ---------- "THE ABT LORD": exclusieve titel, altijd de gebruiker
-   met de hoogste totale Beer XP. Wordt elke render opnieuw
-   gecontroleerd; bij een troonswissel onthouden we wie er net
-   onttroond is voor de "The Fallen Abt"-badge. ---------- */
+/* ---------- THE ABT DYNASTY: persisted reign history ----------
+   Who The Abt Lord is (and every reign before them) is decided
+   entirely server-side — see supabase/0004_abt_dynasty.sql,
+   trg_check_abt_throne, which is the ONLY thing that ever writes to
+   abt_reigns. The client only ever reads APP_DATA.abtReigns and
+   derives everything below from it, same philosophy as
+   computeBeerXp/computeLoreScore elsewhere in this file. */
 const ABT_LORD_STATE = {
   currentLordId: null,
   fallenAbtId: null,
 };
 
-function refreshAbtLordState(){
-  const ranking = APP_DATA.users
-    .map(u => ({ userId: u.id, xp: computeBeerXp(u.id) }))
-    .sort((a, b) => b.xp - a.xp);
-  const newLordId = ranking.length && ranking[0].xp > 0 ? ranking[0].userId : null;
+const FALLEN_ABT_WINDOW_DAYS = 7;
 
-  if (ABT_LORD_STATE.currentLordId && newLordId && newLordId !== ABT_LORD_STATE.currentLordId){
-    // troonswissel: de vorige nummer 1 wordt (tijdelijk) "The Fallen Abt"
-    ABT_LORD_STATE.fallenAbtId = ABT_LORD_STATE.currentLordId;
-  }
-  if (newLordId){
-    ABT_LORD_STATE.currentLordId = newLordId;
-  }
+function refreshAbtLordState(){
+  const current = APP_DATA.abtReigns.find(r => !r.endedAt);
+  ABT_LORD_STATE.currentLordId = current ? current.userId : null;
+
+  const endedReigns = [...APP_DATA.abtReigns].filter(r => r.endedAt).sort((a, b) => b.endedAt.localeCompare(a.endedAt));
+  const mostRecentEnded = endedReigns[0];
+  const daysSinceEnded = mostRecentEnded ? (Date.now() - new Date(mostRecentEnded.endedAt).getTime()) / 86400000 : Infinity;
+  ABT_LORD_STATE.fallenAbtId = (mostRecentEnded && daysSinceEnded < FALLEN_ABT_WINDOW_DAYS && mostRecentEnded.userId !== ABT_LORD_STATE.currentLordId)
+    ? mostRecentEnded.userId
+    : null;
+}
+
+function getUserReignHistory(userId){
+  return APP_DATA.abtReigns.filter(r => r.userId === userId).sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+}
+
+function getAllReignsSorted(){
+  return [...APP_DATA.abtReigns].sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+}
+
+function getReignDays(reign){
+  const end = reign.endedAt ? new Date(reign.endedAt) : new Date();
+  const start = new Date(reign.startedAt);
+  return Math.max(0, Math.floor((end - start) / 86400000));
+}
+
+function getLongestReignEver(userId){
+  return getUserReignHistory(userId).reduce((max, r) => Math.max(max, getReignDays(r)), 0);
+}
+
+function getTotalDaysInPower(userId){
+  return getUserReignHistory(userId).reduce((sum, r) => sum + getReignDays(r), 0);
+}
+
+function getThroneCaptureCount(userId){
+  return getUserReignHistory(userId).length;
+}
+
+function getTimesDethroned(userId){
+  return APP_DATA.abtReigns.filter(r => r.userId === userId && r.dethronedByUserId).length;
+}
+
+function getTimesDethronedOthers(userId){
+  return APP_DATA.abtReigns.filter(r => r.dethronedByUserId === userId).length;
+}
+
+/* "The Sacred Records" — one titleholder per category, fully dynamic.
+   null if nobody has ever held the throne yet. */
+function getAbtRecords(){
+  if (!APP_DATA.abtReigns.length) return null;
+  const topBy = (fn) => APP_DATA.users
+    .map(u => ({ user: u, value: fn(u.id) }))
+    .sort((a, b) => b.value - a.value)[0];
+
+  return {
+    longestReign: topBy(getLongestReignEver),
+    mostTotalDays: topBy(getTotalDaysInPower),
+    mostCaptures: topBy(getThroneCaptureCount),
+    mostSlaying: topBy(getTimesDethronedOthers),
+    mostDethroned: topBy(getTimesDethroned),
+  };
 }
 
 /* =============================================================
@@ -3407,6 +3672,8 @@ function renderUserLorePage(data){
       </div>
     </section>
 
+    ${renderUserAbtHistorySection(user)}
+
     <section class="section">
       <div class="section-head">
         <h3>🕓 Recente lore</h3>
@@ -3472,6 +3739,54 @@ function renderUserLorePage(data){
       ${getUserCounters(user.id).length
         ? `<div class="grid cols-wide-lg">${getUserCounters(user.id).map(c => renderCounterCard(c)).join('')}</div>`
         : emptyState('Nog geen counters aangemaakt door deze user.')}
+    </section>
+  `;
+}
+
+/* ---- Abt History: personal reign record, on the user's own Lore page ---- */
+function renderUserAbtHistorySection(user){
+  const reigns = getUserReignHistory(user.id);
+  const captures = reigns.length;
+
+  if (!captures){
+    return `
+      <section class="section">
+        <div class="section-head"><h3>👑 Abt History</h3></div>
+        ${emptyState('Never claimed the throne... yet.')}
+      </section>
+    `;
+  }
+
+  const longest = getLongestReignEver(user.id);
+  const totalDays = getTotalDaysInPower(user.id);
+  const slayerCount = getTimesDethronedOthers(user.id);
+  const dethronedCount = getTimesDethroned(user.id);
+
+  return `
+    <section class="section">
+      <div class="section-head"><h3>👑 Abt History</h3></div>
+      <div class="beer-stats">
+        <div class="beer-stat"><div class="num">👑 ${captures}</div><div class="label">Reign${captures === 1 ? '' : 's'}</div></div>
+        <div class="beer-stat"><div class="num">🏰 ${longest}</div><div class="label">Longest (days)</div></div>
+        <div class="beer-stat"><div class="num">⏳ ${totalDays}</div><div class="label">Total rule (days)</div></div>
+        <div class="beer-stat"><div class="num">⚔️ ${slayerCount}</div><div class="label">Dethronements caused</div></div>
+        <div class="beer-stat"><div class="num">💀 ${dethronedCount}</div><div class="label">Times dethroned</div></div>
+      </div>
+      <div class="dynasty-timeline" style="margin-top:16px;">
+        ${reigns.map(r => {
+          const isCurrent = !r.endedAt;
+          const days = getReignDays(r);
+          return `
+            <div class="dynasty-entry ${isCurrent ? 'current' : ''}">
+              <div class="dynasty-avatar">${userAvatarHtml(user, 40)}</div>
+              <div class="dynasty-info">
+                <div class="dynasty-length">👑 ${isCurrent ? 'Current reign' : `${days} day${days === 1 ? '' : 's'}`}</div>
+                <div class="dynasty-dates">${formatNiceDate(r.startedAt)} → ${isCurrent ? 'Present' : formatNiceDate(r.endedAt)}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
     </section>
   `;
 }
@@ -3650,6 +3965,46 @@ function openModal(innerHtml){
 
 function closeModal(){
   document.getElementById('modal-root').innerHTML = '';
+}
+
+/* ---- dramatic full-screen Abt Dynasty overlay (dethronement moment) ----
+   Separate from openModal()/closeModal() on purpose: that modal is
+   capped at 420px, deliberately plain/reusable — this is a one-off,
+   full-screen, ceremonial moment. */
+function openDramaticOverlay(innerHtml){
+  document.getElementById('dynasty-overlay-root').innerHTML = `<div class="dynasty-overlay">${innerHtml}</div>`;
+}
+
+function closeDramaticOverlay(){
+  document.getElementById('dynasty-overlay-root').innerHTML = '';
+}
+
+function showDethronementOverlay(oldLordId, newLordId, oldLordEndingXp){
+  const oldLord = findUser(oldLordId);
+  const newLord = findUser(newLordId);
+  if (!oldLord || !newLord) return;
+  const newLordXp = computeBeerXp(newLordId);
+  const confettiEmojis = ['👑', '🍺', '🍻', '⚜️', '🫧'];
+  const confettiHtml = Array.from({ length: 18 }, (_, i) => `
+    <span class="dynasty-confetti-piece" style="left:${Math.round(Math.random() * 100)}%; animation-delay:${(Math.random() * 0.6).toFixed(2)}s;">${confettiEmojis[i % confettiEmojis.length]}</span>
+  `).join('');
+
+  openDramaticOverlay(`
+    <div class="dynasty-overlay-confetti">${confettiHtml}</div>
+    <div class="dynasty-overlay-card">
+      <div class="dynasty-overlay-crown">👑</div>
+      <h2 class="dynasty-overlay-title">THE THRONE HAS FALLEN</h2>
+      <p class="dynasty-overlay-headline">${newLord.avatarEmoji} ${escapeHtml(newLord.displayName).toUpperCase()} HAS DETHRONED ${escapeHtml(oldLord.displayName).toUpperCase()}</p>
+      <div class="dynasty-overlay-battle">
+        <div class="dynasty-overlay-side winner">🍺 ${escapeHtml(newLord.displayName)} — ${newLordXp} XP</div>
+        <div class="dynasty-overlay-side loser">💀 ${escapeHtml(oldLord.displayName)} — ${oldLordEndingXp ?? 0} XP</div>
+      </div>
+      <p class="dynasty-overlay-tagline">A NEW REIGN BEGINS.</p>
+      <div class="dynasty-overlay-newlord">👑 ${escapeHtml(newLord.displayName).toUpperCase()} IS THE NEW ABT LORD</div>
+      <p class="dynasty-overlay-subtitle">"May their glass never run dry."</p>
+      <button type="button" class="btn btn-primary dynasty-overlay-btn" onclick="closeDramaticOverlay()">LONG LIVE THE ABT LORD</button>
+    </div>
+  `);
 }
 
 /* =============================================================
@@ -4649,21 +5004,45 @@ function renderAbtLordThrone(){
   const stats = getBeerUserStats(lordId);
   const fallen = (ABT_LORD_STATE.fallenAbtId && ABT_LORD_STATE.fallenAbtId !== lordId) ? findUser(ABT_LORD_STATE.fallenAbtId) : null;
 
+  const currentReign = APP_DATA.abtReigns.find(r => r.userId === lordId && !r.endedAt);
+  const reignDays = currentReign ? getReignDays(currentReign) : 0;
+  const longestReign = getLongestReignEver(lordId);
+  const captures = getThroneCaptureCount(lordId);
+  const totalDaysInPower = getTotalDaysInPower(lordId);
+
+  const runnerUp = APP_DATA.users
+    .filter(x => x.id !== lordId)
+    .map(x => ({ user: x, xp: computeBeerXp(x.id) }))
+    .sort((a, b) => b.xp - a.xp)[0];
+  const lead = runnerUp ? xp - runnerUp.xp : null;
+  const throneInDanger = lead !== null && lead < 10;
+
   return `
     <div class="abt-throne">
       <div class="abt-throne-crown">👑</div>
       <div class="abt-throne-title">✦ THE ABT LORD ✦</div>
       <div class="abt-throne-avatar">${userAvatarHtml(u, 100)}</div>
       <div class="abt-throne-name">${u.avatarEmoji} ${escapeHtml(u.displayName)}</div>
-      <div class="abt-throne-subtitle">"May his glass never run dry."</div>
+      <div class="abt-throne-subtitle">"May their glass never run dry."</div>
+      ${currentReign ? `<div class="abt-throne-reigning">Reigning for ${reignDays} day${reignDays === 1 ? '' : 's'}</div>` : ''}
       <div class="abt-throne-level">${level.icon} ${level.label}</div>
       <div class="abt-throne-stats">
-        <div class="abt-stat"><div class="num">${xp}</div><div class="label">Beer XP</div></div>
+        <div class="abt-stat"><div class="num">${xp}</div><div class="label">🍺 Beer XP</div></div>
         <div class="abt-stat"><div class="num">${stats.totalQuantity}</div><div class="label">Bieren</div></div>
         <div class="abt-stat"><div class="num">${stats.uniqueBeers}</div><div class="label">Verschillend</div></div>
         <div class="abt-stat"><div class="num">${stats.avgRating !== null ? stats.avgRating : '—'}</div><div class="label">Gem. rating</div></div>
         <div class="abt-stat"><div class="num">${stats.perfectPours}</div><div class="label">Perfect Pours</div></div>
       </div>
+      <div class="abt-throne-stats abt-throne-dynasty-stats">
+        <div class="abt-stat"><div class="num">🏰 ${longestReign}d</div><div class="label">Longest Reign</div></div>
+        <div class="abt-stat"><div class="num">⚔️ ${captures}×</div><div class="label">Throne Captured</div></div>
+        <div class="abt-stat"><div class="num">👑 ${totalDaysInPower}d</div><div class="label">Total Days in Power</div></div>
+      </div>
+      ${runnerUp ? `
+        <div class="abt-throne-lead ${throneInDanger ? 'danger' : ''}">
+          ${throneInDanger ? '⚠️ THE THRONE IS IN DANGER — ' : '⚔️ '}Lead over ${escapeHtml(runnerUp.user.displayName)}: +${lead} XP
+        </div>
+      ` : ''}
       ${fallen ? `
         <div class="fallen-abt-badge">
           <span class="badge peach">💀 The Fallen Abt: ${fallen.avatarEmoji} ${escapeHtml(fallen.displayName)}</span>
@@ -4848,6 +5227,83 @@ function renderBeerLeaderboardsPage(data){
         ? renderPodium(loyalRows.map(r => userEntry(r.user, r.value, v => `${v}×`, r.loyalty ? r.loyalty.beer.name : null)))
         : emptyState('Nog geen herhaalde bieren gelogd.')}
       ${getMostLoyalNote(loyalRows) ? `<p class="beer-fun-note">💬 ${getMostLoyalNote(loyalRows)}</p>` : ''}
+    </section>
+    ${renderAbtDynastySection()}
+    ${renderSacredRecordsSection()}
+  `;
+}
+
+/* ---- The Abt Dynasty: vertical reign timeline, oldest -> present ---- */
+function renderAbtDynastySection(){
+  const reigns = getAllReignsSorted();
+  if (!reigns.length){
+    return `
+      <section class="section">
+        <div class="section-head"><h3>👑 THE ABT DYNASTY</h3></div>
+        ${emptyState('The throne has not been claimed yet. Log a Beer Session to begin the dynasty!')}
+      </section>
+    `;
+  }
+  return `
+    <section class="section">
+      <div class="section-head"><h3>👑 THE ABT DYNASTY</h3></div>
+      <div class="dynasty-timeline">
+        ${reigns.map(r => {
+          const user = findUser(r.userId);
+          const isCurrent = !r.endedAt;
+          const days = getReignDays(r);
+          return `
+            <div class="dynasty-entry ${isCurrent ? 'current' : ''}">
+              <div class="dynasty-avatar">${userAvatarHtml(user, 46)}</div>
+              <div class="dynasty-info">
+                <div class="dynasty-name">${user.avatarEmoji} ${escapeHtml(user.displayName)}</div>
+                <div class="dynasty-length">👑 ${isCurrent ? 'Current reign' : `${days} day${days === 1 ? '' : 's'}`}</div>
+                <div class="dynasty-dates">${formatNiceDate(r.startedAt)} → ${isCurrent ? 'Present' : formatNiceDate(r.endedAt)}</div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+/* ---- The Sacred Records: dynamically computed from abt_reigns, never hardcoded ---- */
+function renderSacredRecordsSection(){
+  const records = getAbtRecords();
+  if (!records){
+    return `
+      <section class="section">
+        <div class="section-head"><h3>📜 THE SACRED RECORDS</h3></div>
+        ${emptyState('No records yet — the dynasty has yet to begin.')}
+      </section>
+    `;
+  }
+  const rows = [
+    { icon: '🏰', label: 'Longest Reign', entry: records.longestReign, unit: 'days' },
+    { icon: '👑', label: 'Most Total Days', entry: records.mostTotalDays, unit: 'days' },
+    { icon: '⚔️', label: 'Most Throne Captures', entry: records.mostCaptures, unit: '×' },
+    { icon: '🗡️', label: 'King/Queen Slayer', entry: records.mostSlaying, unit: '×' },
+    { icon: '💀', label: 'Most Dethroned', entry: records.mostDethroned, unit: '×' },
+  ].filter(r => r.entry && r.entry.value > 0);
+
+  return `
+    <section class="section">
+      <div class="section-head"><h3>📜 THE SACRED RECORDS</h3></div>
+      ${rows.length ? `
+        <div class="row-list">
+          ${rows.map(r => `
+            <div class="row-item">
+              <div class="rank">${r.icon}</div>
+              <div class="info">
+                <div class="name">${r.label}</div>
+                <div class="sub">${r.entry.user.avatarEmoji} ${escapeHtml(r.entry.user.displayName)}</div>
+              </div>
+              <div class="value">${r.entry.value}${r.unit === 'days' ? ' days' : r.unit}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : emptyState('No records yet — the dynasty has yet to begin.')}
     </section>
   `;
 }
