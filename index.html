@@ -1900,6 +1900,7 @@ let APP_DATA = {
   beers: [],
   beerSessions: [],
   abtReigns: [],
+  standaloneBeerEntries: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2095,7 +2096,39 @@ async function loadAppData(){
     dethronedByUserId: r.dethroned_by_user_id,
   }));
 
-  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns };
+  /* Standalone ratings/consumption: beer_ratings/beer_consumption rows
+     with session_id = null ("Rate this beer" on the beer detail page,
+     no Beer Session required). Kept as separate rating/consumption
+     entries (not merged into one object like session entries are) —
+     XP/stat functions just sum contributions per entry regardless, so
+     this needs no changes to computeBeerXp/getBeerUserStats/etc. The
+     quantity shown alongside a standalone rating in the UI is a
+     best-effort match against a consumption row inserted within the
+     same few seconds (both rows come from the same submit action) —
+     cosmetic only, never relied on for XP (that's handled entirely by
+     the existing session-agnostic DB triggers). */
+  const standaloneConsumptionRows = (consumptionRes.data || []).filter(c => !c.session_id);
+  const standaloneRatings = (ratingsRes.data || []).filter(r => !r.session_id).map(r => {
+    const matchingConsumption = standaloneConsumptionRows.find(c =>
+      c.beer_id === r.beer_id && c.user_id === r.user_id && Math.abs(new Date(c.created_at) - new Date(r.created_at)) < 5000);
+    return {
+      kind: 'rating', id: r.id, beerId: r.beer_id, userId: r.user_id,
+      score: r.rating, review: r.review || '', quantity: matchingConsumption ? matchingConsumption.quantity : 0,
+      firstTime: false, sessionDate: r.rated_at, context: r.context || '', createdAt: r.created_at,
+    };
+  });
+  const standaloneConsumption = standaloneConsumptionRows.map(c => {
+    const firstTime = !(consumptionRes.data || []).some(c2 =>
+      c2.beer_id === c.beer_id && c2.user_id === c.user_id && new Date(c2.created_at) < new Date(c.created_at));
+    return {
+      kind: 'consumption', id: c.id, beerId: c.beer_id, userId: c.user_id,
+      score: null, review: '', quantity: c.quantity, firstTime,
+      sessionDate: c.created_at.slice(0, 10), createdAt: c.created_at,
+    };
+  });
+  const standaloneBeerEntries = [...standaloneRatings, ...standaloneConsumption];
+
+  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries };
 }
 
 /* Debounced "refetch everything + redraw" — used after every mutation
@@ -2839,7 +2872,16 @@ function getBeerEntries(beerId){
   APP_DATA.beerSessions.forEach(s => {
     s.entries.filter(e => e.beerId === beerId).forEach(e => entries.push({ ...e, sessionId: s.id, sessionDate: s.date }));
   });
+  APP_DATA.standaloneBeerEntries.filter(e => e.beerId === beerId).forEach(e => entries.push({ ...e, sessionId: null }));
   return entries;
+}
+
+/* Alleen de losse ratings (géén sessie) voor dit bier, nieuwste eerst
+   — gebruikt op de bierdetailpagina. */
+function getStandaloneRatingsForBeer(beerId){
+  return APP_DATA.standaloneBeerEntries
+    .filter(e => e.kind === 'rating' && e.beerId === beerId)
+    .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 
 function getBeerSessionsFor(beerId){
@@ -2888,6 +2930,7 @@ function getBeerHighestScorer(beerId){
 function getAllBeerEntries(){
   const entries = [];
   APP_DATA.beerSessions.forEach(s => s.entries.forEach(e => entries.push({ ...e, sessionDate: s.date })));
+  APP_DATA.standaloneBeerEntries.forEach(e => entries.push({ ...e }));
   return entries;
 }
 
@@ -5614,6 +5657,7 @@ function renderBeerDetailPage(data){
           </div>
         </div>
         <div class="detail-actions">
+          <button type="button" class="btn btn-primary btn-sm" onclick="openStandaloneRatingForm('${beer.id}')">🙋 Rate this beer</button>
           <button type="button" class="btn btn-secondary btn-sm" onclick="openBeerForm('edit','${beer.id}')">✏️ Bewerken</button>
           <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteBeer('${beer.id}')">🗑️ Verwijderen</button>
         </div>
@@ -5680,6 +5724,31 @@ function renderBeerDetailPage(data){
           <p style="font-size:12px; color:#a08d78; margin-top:8px; font-weight:700;">→ Bekijk sessie & stem Perfect Pour</p>
         </div>
       `).join('') : emptyState('Dit bier is nog in geen enkele sessie geregistreerd.')}
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h3>🙋 Losse ratings</h3>
+        <span class="count-chip">${getStandaloneRatingsForBeer(beer.id).length}</span>
+      </div>
+      <p style="font-size:12.5px; color:#8a7a6b; font-weight:700; margin-bottom:12px;">Persoonlijke ratings zonder Beer Session — telt gewoon mee voor Beer XP en de gemiddelde score.</p>
+      ${getStandaloneRatingsForBeer(beer.id).length ? `
+        <div class="row-list">
+          ${getStandaloneRatingsForBeer(beer.id).map(e => {
+            const u = findUser(e.userId);
+            return `
+              <div class="row-item" style="cursor:default;">
+                <div class="avatar" style="background:${u ? u.avatarColor : 'var(--mint)'}">${u ? u.avatarEmoji : '❓'}</div>
+                <div class="info">
+                  <div class="name">${resolveUserLabel(e.userId)} — ${e.score}/10${e.quantity ? ` (${e.quantity}×)` : ''}</div>
+                  <div class="sub">${[e.review, e.context].filter(Boolean).map(escapeHtml).join(' · ') || 'Geen review'} · ${e.sessionDate}</div>
+                </div>
+                ${e.userId === STATE.activeUser ? `<button type="button" class="btn btn-ghost btn-sm" onclick="confirmDeleteStandaloneRating('${e.id}','${beer.id}')">🗑️</button>` : ''}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : emptyState('Nog geen losse ratings voor dit bier. Klik "Rate this beer" hierboven.')}
     </section>
   `;
 }
@@ -5851,6 +5920,113 @@ async function performDeleteBeer(id){
     BEER_STATE.view = 'database';
     BEER_STATE.beerDetailId = null;
   }
+  renderPage();
+}
+
+/* ---- "Rate this beer": persoonlijke rating zonder Beer Session ----
+   Zelfde beer_ratings/beer_consumption-tabellen en dezelfde bestaande
+   XP-triggers als sessie-gebonden ratings (session_id = null), zie
+   supabase/0006_standalone_beer_ratings.sql. */
+function openStandaloneRatingForm(beerId){
+  const beer = APP_DATA.beers.find(b => b.id === beerId);
+  if (!beer) return;
+  openModal(`
+    <h3>🙋 Rate this beer</h3>
+    <p style="font-size:13px; color:#6b5c4d; margin-bottom:14px;">${escapeHtml(beer.name)} — geen Beer Session nodig, telt gewoon mee voor je Beer XP.</p>
+    <form data-beer-id="${beerId}" onsubmit="return submitStandaloneRatingForm(event)">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label" for="sr-score">Score (0-10) *</label>
+          <input class="form-input" id="sr-score" type="number" min="0" max="10" step="0.5" value="7" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="sr-date">Datum *</label>
+          <input class="form-input" id="sr-date" type="date" value="${todayISO()}" required>
+        </div>
+        <div class="form-field" style="grid-column: 1 / -1;">
+          <label class="form-label" for="sr-review">Review</label>
+          <input class="form-input" id="sr-review" type="text" placeholder="Optioneel">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="sr-quantity">Aantal gedronken</label>
+          <input class="form-input" id="sr-quantity" type="number" min="0" step="1" placeholder="Optioneel">
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="sr-context">Context / waar gedronken</label>
+          <input class="form-input" id="sr-context" type="text" placeholder="Optioneel">
+        </div>
+      </div>
+      <div id="sr-error" class="form-error"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Rating toevoegen</button>
+      </div>
+    </form>
+  `);
+}
+
+async function submitStandaloneRatingForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const beerId = form.dataset.beerId;
+  const errorEl = document.getElementById('sr-error');
+
+  const score = Math.max(0, Math.min(10, parseFloat(document.getElementById('sr-score').value)));
+  const date = document.getElementById('sr-date').value;
+  const review = document.getElementById('sr-review').value.trim();
+  const quantityRaw = document.getElementById('sr-quantity').value;
+  const quantity = quantityRaw === '' ? 0 : Math.max(0, parseInt(quantityRaw, 10) || 0);
+  const context = document.getElementById('sr-context').value.trim();
+
+  if (!score || !date){
+    errorEl.textContent = 'Vul minstens een score en datum in.';
+    return false;
+  }
+  errorEl.textContent = '';
+
+  const { error: ratingError } = await sb.from('beer_ratings').insert({
+    beer_id: beerId, session_id: null, user_id: STATE.activeUser,
+    rating: score, review, rated_at: date, context: context || null,
+  });
+  if (ratingError){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  if (quantity > 0){
+    await sb.from('beer_consumption').insert({ beer_id: beerId, session_id: null, user_id: STATE.activeUser, quantity });
+  }
+
+  await refreshAppData();
+  closeModal();
+  renderPage();
+  return false;
+}
+
+function confirmDeleteStandaloneRating(ratingId, beerId){
+  openModal(`
+    <h3>🗑️ Losse rating verwijderen?</h3>
+    <p>Deze rating (en het bijhorende aantal, indien ingevuld) wordt definitief verwijderd. Dit kan niet ongedaan gemaakt worden.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button type="button" class="btn btn-danger" onclick="performDeleteStandaloneRating('${ratingId}','${beerId}')">Ja, verwijderen</button>
+    </div>
+  `);
+}
+
+async function performDeleteStandaloneRating(ratingId, beerId){
+  const entry = APP_DATA.standaloneBeerEntries.find(e => e.kind === 'rating' && e.id === ratingId);
+  await sb.from('beer_ratings').delete().eq('id', ratingId);
+  // best-effort: ook de gekoppelde losse consumptie-registratie opruimen (zelfde matching als bij het laden)
+  if (entry && entry.quantity > 0){
+    await sb.from('beer_consumption')
+      .delete()
+      .eq('beer_id', beerId)
+      .eq('user_id', entry.userId)
+      .is('session_id', null)
+      .eq('quantity', entry.quantity)
+      .gte('created_at', new Date(new Date(entry.createdAt).getTime() - 5000).toISOString())
+      .lte('created_at', new Date(new Date(entry.createdAt).getTime() + 5000).toISOString());
+  }
+  await refreshAppData();
+  closeModal();
   renderPage();
 }
 
