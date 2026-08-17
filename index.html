@@ -2203,10 +2203,61 @@ async function initAuth(){
   }
 }
 
+/* ---------- PERSISTENT NAVIGATION STATE ----------
+   Remembers which page (and, for Beer Club, which subtab) the user
+   was on, so a refresh/re-open/data-reload returns them there instead
+   of always dumping them back on Home. Saved on every renderPage()
+   call (so it always reflects whatever's actually on screen, and
+   realtime-triggered re-renders never change it since they never
+   touch STATE.activePage themselves) and restored once, right after
+   login, before the first render. Deep-link sub-views that depend on
+   a specific record (beerDetail/sessionForm/sessionDetail, or a
+   Counter's history view) are deliberately NOT persisted — those fall
+   back to their parent list, since the record they pointed at may no
+   longer exist by the time the user comes back. */
+const NAV_STATE_STORAGE_KEY = 'officeLoreNavState';
+const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'leaderboards', 'myprofile'];
+const PERSISTABLE_BEER_VIEWS = ['database', 'sessions', 'leaderboards'];
+
+/* deep-link views normaliseren naar hun bovenliggende tab (het record
+   waar ze naar wijzen bestaat mogelijk niet meer bij terugkomst) */
+function normalizeBeerViewForPersistence(view){
+  if (view === 'beerDetail') return 'database';
+  if (view === 'sessionDetail' || view === 'sessionForm') return 'sessions';
+  return PERSISTABLE_BEER_VIEWS.includes(view) ? view : 'database';
+}
+
+function saveNavState(){
+  if (!PERSISTABLE_PAGES.includes(STATE.activePage)) return;
+  const navState = { page: STATE.activePage };
+  if (STATE.activePage === 'beerclub'){
+    navState.beerView = normalizeBeerViewForPersistence(BEER_STATE.view);
+  }
+  try { localStorage.setItem(NAV_STATE_STORAGE_KEY, JSON.stringify(navState)); } catch (e) { /* storage unavailable (private browsing etc.) -> just skip persisting */ }
+}
+
+function restoreNavState(){
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(NAV_STATE_STORAGE_KEY)); } catch (e) { saved = null; }
+
+  if (saved && PERSISTABLE_PAGES.includes(saved.page) && MODULES[saved.page]){
+    STATE.activePage = saved.page;
+    if (saved.page === 'beerclub' && PERSISTABLE_BEER_VIEWS.includes(saved.beerView)){
+      BEER_STATE.view = saved.beerView;
+    }
+  } else {
+    STATE.activePage = 'home'; // onbekende/niet-meer-bestaande route -> terug naar Home
+  }
+}
+
+function clearNavState(){
+  try { localStorage.removeItem(NAV_STATE_STORAGE_KEY); } catch (e) { /* ignore */ }
+}
+
 async function handleSignedIn(session){
   await refreshAppData();
   STATE.activeUser = session.user.id;
-  STATE.activePage = 'home';
+  restoreNavState();
   subscribeRealtime();
   renderApp();
 }
@@ -2272,6 +2323,7 @@ function backToLogin(){ AUTH_STATE.mode = 'login'; AUTH_STATE.error = ''; render
 
 async function logout(){
   unsubscribeRealtime();
+  clearNavState(); // een volgende login (zelfde of andere user) start weer op Home, niet op de oude route
   await sb.auth.signOut();
 }
 
@@ -6310,6 +6362,7 @@ function renderPage(){
     root.innerHTML = emptyState('Deze pagina bestaat nog niet.');
     return;
   }
+  saveNavState(); // onthoudt de huidige pagina (+ Beer Club-subtab) voor de volgende keer
   root.innerHTML = `
     <div class="page active">
       <div class="page-header">
