@@ -2362,6 +2362,8 @@ const BEER_STATE = {
   view: 'database', // 'database' | 'sessions' | 'leaderboards' | 'beerDetail' | 'sessionForm' | 'sessionDetail'
   beerDetailId: null,
   sessionDetailId: null,
+  sessionFormMode: null, // 'add' | 'edit', zelfde patroon als openBeerForm(mode, id)
+  sessionFormEditId: null,
 };
 
 /* Draft voor de foto in het bier-formulier (zelfde patroon als
@@ -5909,6 +5911,9 @@ function renderSessionDetailPage(data){
             return b ? escapeHtml(b.name) : '(verwijderd bier)';
           }).join(', ')}</div>
         </div>
+        <div class="detail-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openSessionForm('edit', '${session.id}')">✏️ Edit Session</button>
+        </div>
       </div>
       <div class="detail-meta-row">
         <span class="badge mint">👤 Gelogd door ${resolveUserLabel(session.loggedBy)}</span>
@@ -5980,41 +5985,73 @@ function backToBeerSessions(){
   renderPage();
 }
 
-/* ---- nieuwe-sessie-formulier (eigen pagina, geen modal) ---- */
-function openSessionForm(){
-  SESSION_DRAFT = { beerIds: [], participantIds: [], entries: {} };
+/* ---- nieuwe-sessie-formulier / bewerk-formulier (eigen pagina, geen modal) ----
+   Zelfde formulier voor 'add' en 'edit': BEER_STATE.sessionFormMode +
+   .sessionFormEditId bepalen welke modus, zelfde patroon als
+   openBeerForm(mode, id). Bij edit wordt SESSION_DRAFT vooraf gevuld
+   vanuit de bestaande sessie zodat de matrix meteen alles toont. */
+function openSessionForm(mode, sessionId){
+  const editMode = mode === 'edit';
+  const session = editMode ? APP_DATA.beerSessions.find(s => s.id === sessionId) : null;
+  if (editMode && !session){
+    BEER_STATE.view = 'sessions';
+    renderPage();
+    return;
+  }
+
+  BEER_STATE.sessionFormMode = editMode ? 'edit' : 'add';
+  BEER_STATE.sessionFormEditId = editMode ? sessionId : null;
+
+  if (editMode){
+    const entries = {};
+    session.entries.forEach(e => {
+      entries[`${e.beerId}__${e.userId}`] = { score: e.score || 0, review: e.review || '', quantity: e.quantity || 0, firstTime: e.firstTime };
+    });
+    SESSION_DRAFT = { beerIds: [...session.beerIds], participantIds: [...session.participantIds], entries };
+  } else {
+    SESSION_DRAFT = { beerIds: [], participantIds: [], entries: {} };
+  }
+
   BEER_STATE.view = 'sessionForm';
   renderPage();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function cancelSessionForm(){
-  BEER_STATE.view = 'sessions';
+  if (BEER_STATE.sessionFormMode === 'edit' && BEER_STATE.sessionFormEditId){
+    BEER_STATE.view = 'sessionDetail';
+    BEER_STATE.sessionDetailId = BEER_STATE.sessionFormEditId;
+  } else {
+    BEER_STATE.view = 'sessions';
+  }
   renderPage();
 }
 
 function renderSessionFormPage(data){
+  const editMode = BEER_STATE.sessionFormMode === 'edit';
+  const session = editMode ? data.beerSessions.find(s => s.id === BEER_STATE.sessionFormEditId) : null;
+
   return `
     <section class="section">
       <div class="page-header" style="margin:0 0 16px;">
-        <h2 style="font-size:20px;">➕ Nieuwe Beer Session</h2>
+        <h2 style="font-size:20px;">${editMode ? '✏️ Beer Session bewerken' : '➕ Nieuwe Beer Session'}</h2>
       </div>
 
       <div class="form-grid">
         <div class="form-field">
           <label class="form-label" for="sf-date">Datum *</label>
-          <input class="form-input" id="sf-date" type="date" value="${todayISO()}">
+          <input class="form-input" id="sf-date" type="date" value="${session ? session.date : todayISO()}">
         </div>
         <div class="form-field">
           <label class="form-label" for="sf-location">Locatie</label>
-          <input class="form-input" id="sf-location" type="text" placeholder="Optioneel">
+          <input class="form-input" id="sf-location" type="text" placeholder="Optioneel" value="${session ? escapeHtml(session.location || '') : ''}">
         </div>
       </div>
 
       <div class="form-field" style="margin-top:14px;">
         <label class="form-label">Welke bier(en)? *</label>
         <div class="lore-type-toggle" style="flex-wrap:wrap;">
-          ${data.beers.map(b => `<button type="button" class="btn btn-ghost btn-sm" onclick="toggleSessionBeer('${b.id}', this)">🍺 ${escapeHtml(b.name)}</button>`).join('')}
+          ${data.beers.map(b => `<button type="button" class="btn ${SESSION_DRAFT.beerIds.includes(b.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionBeer('${b.id}', this)">🍺 ${escapeHtml(b.name)}</button>`).join('')}
         </div>
         ${!data.beers.length ? emptyState('Voeg eerst een bier toe via de Beer Database.') : ''}
       </div>
@@ -6022,18 +6059,18 @@ function renderSessionFormPage(data){
       <div class="form-field" style="margin-top:14px;">
         <label class="form-label">Wie neemt deel? *</label>
         <div class="lore-type-toggle">
-          ${data.users.map(u => `<button type="button" class="btn btn-ghost btn-sm" onclick="toggleSessionParticipant('${u.id}', this)">${u.avatarEmoji} ${u.displayName}</button>`).join('')}
+          ${data.users.map(u => `<button type="button" class="btn ${SESSION_DRAFT.participantIds.includes(u.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionParticipant('${u.id}', this)">${u.avatarEmoji} ${u.displayName}</button>`).join('')}
         </div>
       </div>
 
       <div id="session-matrix" style="margin-top:16px;">
-        ${emptyState('Kies minstens één bier en één deelnemer om scores in te vullen.')}
+        ${buildSessionMatrixHtml()}
       </div>
 
       <div id="sf-error" class="form-error"></div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="cancelSessionForm()">Annuleren</button>
-        <button type="button" class="btn btn-primary" onclick="submitSessionForm()">Sessie opslaan</button>
+        <button type="button" class="btn btn-primary" onclick="submitSessionForm()">${editMode ? 'Wijzigingen opslaan' : 'Sessie opslaan'}</button>
       </div>
     </section>
   `;
@@ -6055,16 +6092,14 @@ function toggleSessionParticipant(userId, btn){
   renderSessionMatrix();
 }
 
-/* Bouwt de score-matrix (bier × deelnemer) rechtstreeks in de DOM,
+/* Bouwt de score-matrix (bier × deelnemer) als HTML-string — gebruikt
+   zowel bij de initiële paginarender (add: leeg, edit: vooraf gevuld)
+   als bij reactieve updates via renderSessionMatrix() hieronder,
    zonder de rest van het formulier (datum/locatie/knoppen) opnieuw
-   te renderen — zo blijft alles wat al is ingevuld bewaard. */
-function renderSessionMatrix(){
-  const mount = document.getElementById('session-matrix');
-  if (!mount) return;
-
+   te renderen -- zo blijft alles wat al is ingevuld bewaard. */
+function buildSessionMatrixHtml(){
   if (!SESSION_DRAFT.beerIds.length || !SESSION_DRAFT.participantIds.length){
-    mount.innerHTML = emptyState('Kies minstens één bier en één deelnemer om scores in te vullen.');
-    return;
+    return emptyState('Kies minstens één bier en één deelnemer om scores in te vullen.');
   }
 
   let html = '';
@@ -6101,7 +6136,13 @@ function renderSessionMatrix(){
     html += `</div>`;
   });
 
-  mount.innerHTML = html;
+  return html;
+}
+
+function renderSessionMatrix(){
+  const mount = document.getElementById('session-matrix');
+  if (!mount) return;
+  mount.innerHTML = buildSessionMatrixHtml();
 }
 
 async function submitSessionForm(){
@@ -6122,6 +6163,21 @@ async function submitSessionForm(){
     return;
   }
   errorEl.textContent = '';
+
+  const editMode = BEER_STATE.sessionFormMode === 'edit';
+  const editId = BEER_STATE.sessionFormEditId;
+
+  if (editMode){
+    const ok = await saveEditedSession(editId, date, location);
+    if (!ok){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return; }
+    await refreshAppData();
+    BEER_STATE.sessionFormMode = null;
+    BEER_STATE.sessionFormEditId = null;
+    BEER_STATE.view = 'sessionDetail';
+    BEER_STATE.sessionDetailId = editId;
+    renderPage();
+    return;
+  }
 
   const ratingRows = [];
   const consumptionRows = [];
@@ -6158,6 +6214,84 @@ async function submitSessionForm(){
   await refreshAppData();
   BEER_STATE.view = 'sessions';
   renderPage();
+}
+
+/* ---- bestaande sessie bewerken: diff tegen wat er al in de DB staat,
+   zodat XP nooit dubbel toegekend wordt --------------------------------
+   - nieuwe rating/consumptie -> insert (triggert de bestaande XP-regels)
+   - bestaande rating gewijzigd -> update, GEEN nieuwe rating-XP
+   - bestaande consumptie-aantal gewijzigd -> update, XP-trigger kent
+     alleen het verschil toe (zie 0005_beer_session_editing.sql)
+   - cel leeggemaakt -> delete (ruimt ook de bijhorende XP op, zie
+     0003_xp_cleanup_triggers.sql)
+   - deelnemer/bier volledig uit de sessie gehaald -> hun/zijn rijen
+     voor deze sessie verwijderen */
+async function saveEditedSession(sessionId, date, location){
+  const existingSession = APP_DATA.beerSessions.find(s => s.id === sessionId);
+  if (!existingSession) return false;
+
+  const { error: updateErr } = await sb.from('beer_sessions')
+    .update({ session_date: date, location })
+    .eq('id', sessionId);
+  if (updateErr) return false;
+
+  const oldParticipants = existingSession.participantIds;
+  const newParticipants = SESSION_DRAFT.participantIds;
+  const removedParticipants = oldParticipants.filter(id => !newParticipants.includes(id));
+  const addedParticipants = newParticipants.filter(id => !oldParticipants.includes(id));
+
+  if (removedParticipants.length){
+    await sb.from('beer_session_participants').delete().eq('session_id', sessionId).in('user_id', removedParticipants);
+    await sb.from('beer_ratings').delete().eq('session_id', sessionId).in('user_id', removedParticipants);
+    await sb.from('beer_consumption').delete().eq('session_id', sessionId).in('user_id', removedParticipants);
+  }
+  if (addedParticipants.length){
+    await sb.from('beer_session_participants').insert(addedParticipants.map(userId => ({ session_id: sessionId, user_id: userId })));
+  }
+
+  const oldBeerIds = existingSession.beerIds;
+  const newBeerIds = SESSION_DRAFT.beerIds;
+  const removedBeerIds = oldBeerIds.filter(id => !newBeerIds.includes(id));
+  if (removedBeerIds.length){
+    await sb.from('beer_ratings').delete().eq('session_id', sessionId).in('beer_id', removedBeerIds);
+    await sb.from('beer_consumption').delete().eq('session_id', sessionId).in('beer_id', removedBeerIds);
+  }
+
+  for (const beerId of newBeerIds){
+    for (const userId of newParticipants){
+      const key = `${beerId}__${userId}`;
+      const scoreEl = document.getElementById(`entry-score-${key}`);
+      const reviewEl = document.getElementById(`entry-review-${key}`);
+      const quantityEl = document.getElementById(`entry-quantity-${key}`);
+      const score = Math.max(0, Math.min(10, parseFloat(scoreEl?.value) || 0));
+      const review = (reviewEl?.value || '').trim();
+      const quantity = Math.max(0, parseInt(quantityEl?.value, 10) || 0);
+
+      const existingEntry = existingSession.entries.find(e => e.beerId === beerId && e.userId === userId);
+      const hadRating = !!existingEntry && typeof existingEntry.score === 'number' && existingEntry.score > 0;
+      const hadConsumption = !!existingEntry && existingEntry.quantity > 0;
+
+      if (score > 0 && !hadRating){
+        await sb.from('beer_ratings').insert({ beer_id: beerId, session_id: sessionId, user_id: userId, rating: score, review });
+      } else if (score > 0 && hadRating){
+        if (score !== existingEntry.score || review !== (existingEntry.review || '')){
+          await sb.from('beer_ratings').update({ rating: score, review }).eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+        }
+      } else if (score <= 0 && hadRating){
+        await sb.from('beer_ratings').delete().eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      }
+
+      if (quantity > 0 && !hadConsumption){
+        await sb.from('beer_consumption').insert({ beer_id: beerId, session_id: sessionId, user_id: userId, quantity });
+      } else if (quantity > 0 && hadConsumption && quantity !== existingEntry.quantity){
+        await sb.from('beer_consumption').update({ quantity }).eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      } else if (quantity <= 0 && hadConsumption){
+        await sb.from('beer_consumption').delete().eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      }
+    }
+  }
+
+  return true;
 }
 
 /* ---------- 6. RENDER: profielmenu (My Profile / Switch User) ----------
