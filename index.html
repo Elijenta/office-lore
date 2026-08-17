@@ -1418,6 +1418,123 @@
   }
   .dynasty-overlay-btn{ margin-top: 20px; }
 
+  /* ---- Abt Dynasty HERO: the single most prestigious section on the
+     Leaderboards page — deliberately bigger/richer than every other
+     card on the page (thicker outline, bigger shadow, warm gradient,
+     subtle glow pulse) so it reads as THE headline, not just another
+     leaderboard. ---- */
+  .dynasty-hero{
+    position: relative;
+    background: linear-gradient(165deg, var(--yellow) 0%, var(--peach) 45%, var(--pink) 80%, var(--lilac) 100%);
+    border: 4px solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: 7px 7px 0 var(--ink);
+    padding: 28px 20px 24px;
+    margin-bottom: 24px;
+    animation: dynasty-hero-glow 4s ease-in-out infinite;
+  }
+  @keyframes dynasty-hero-glow{
+    0%, 100%{ box-shadow: 7px 7px 0 var(--ink), 0 0 0 rgba(255,201,60,0); }
+    50%{ box-shadow: 7px 7px 0 var(--ink), 0 0 34px rgba(255,201,60,.55); }
+  }
+  .dynasty-hero-header{ text-align: center; margin-bottom: 18px; }
+  .dynasty-hero-crown{
+    font-size: 62px;
+    line-height: 1;
+    animation: floaty 3s ease-in-out infinite;
+  }
+  .dynasty-hero-title{
+    font-family: var(--font-display);
+    font-size: 30px;
+    letter-spacing: 1.5px;
+    text-shadow: 3px 3px 0 rgba(255,255,255,.5);
+    margin-top: 4px;
+  }
+  .dynasty-hero-tagline{
+    font-style: italic;
+    font-weight: 700;
+    font-size: 13px;
+    color: #6b4d1f;
+    margin-top: 4px;
+  }
+  .dynasty-hero-lord{
+    text-align: center;
+    background: rgba(255,255,255,.55);
+    border: var(--outline);
+    border-radius: var(--radius-lg);
+    padding: 22px 18px;
+    margin-bottom: 18px;
+  }
+  .dynasty-hero-avatar{ display:flex; justify-content:center; margin-bottom: 10px; }
+  .dynasty-hero-avatar .avatar-emoji, .dynasty-hero-avatar .avatar-img{
+    border-width: 4px;
+    box-shadow: var(--shadow-pop);
+  }
+  .dynasty-hero-name{ font-family: var(--font-display); font-size: 30px; }
+  .dynasty-hero-subtitle{
+    font-style: italic;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #6b4d1f;
+    margin-top: 4px;
+  }
+  .dynasty-hero-level{
+    display:inline-block;
+    margin-top: 10px;
+    padding: 5px 16px;
+    background: rgba(255,255,255,.7);
+    border: var(--outline-thin);
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 13px;
+  }
+  .dynasty-hero-xp{
+    font-family: var(--font-display);
+    font-size: 44px;
+    margin-top: 14px;
+    color: #6b4d1f;
+  }
+  .dynasty-hero-xp span{
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 800;
+    display: block;
+    margin-top: -4px;
+  }
+  .dynasty-hero-stats{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin-top: 18px;
+  }
+  .dynasty-hero-stats .dynasty-hero-stat{
+    background: rgba(255,255,255,.75);
+    border: var(--outline-thin);
+    border-radius: var(--radius-md);
+    padding: 12px 6px;
+  }
+  .dynasty-hero-stats .num{ font-family: var(--font-display); font-size: 20px; }
+  .dynasty-hero-stats .label{
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    color: #6b4d1f;
+  }
+  .dynasty-hero-lead{
+    margin-top: 16px;
+    font-weight: 800;
+    font-size: 13.5px;
+    color: #6b4d1f;
+  }
+  .dynasty-hero-lead.danger{
+    color: #8a2e0e;
+    animation: wiggle 1.4s ease-in-out infinite;
+  }
+  .dynasty-hero .fallen-abt-badge{ margin-top: 14px; }
+  .dynasty-hero .section{ margin-bottom: 14px; }
+  .dynasty-hero .section:last-child{ margin-bottom: 0; }
+
   /* =========================================================
      12. PERFECT POUR / MASTER OF THE POUR
      (speelse bier-/schuim-animaties op de winnende podiumplek
@@ -5183,6 +5300,7 @@ function renderBeerLeaderboardsPage(data){
   `;
 
   return `
+    ${renderAbtDynastyHero()}
     ${suspiciousPanel}
     ${podiumSection('👑', 'The Abt Lord — hoogste Beer XP', abtRows, fmtXp)}
     ${podiumSection('🍺', 'Beer King/Queen — meeste bieren gedronken', kingRows, fmtBeers)}
@@ -5228,8 +5346,71 @@ function renderBeerLeaderboardsPage(data){
         : emptyState('Nog geen herhaalde bieren gelogd.')}
       ${getMostLoyalNote(loyalRows) ? `<p class="beer-fun-note">💬 ${getMostLoyalNote(loyalRows)}</p>` : ''}
     </section>
-    ${renderAbtDynastySection()}
-    ${renderSacredRecordsSection()}
+  `;
+}
+
+/* ---- The Abt Dynasty HERO: the single most prestigious/prominent
+   section on the Leaderboards page — current lord's full ceremonial
+   stat card, followed immediately by the timeline and records that
+   already existed (reused as-is, just relocated + restyled around). ---- */
+function renderAbtDynastyHero(){
+  const lordId = ABT_LORD_STATE.currentLordId;
+  return `
+    <section class="dynasty-hero">
+      <div class="dynasty-hero-header">
+        <div class="dynasty-hero-crown">👑</div>
+        <h2 class="dynasty-hero-title">THE ABT DYNASTY</h2>
+        <p class="dynasty-hero-tagline">The most prestigious title in the Beer Club.</p>
+      </div>
+      ${lordId ? renderDynastyHeroCurrentLord(lordId) : emptyState('The throne stands empty. Log a Beer Session to begin the dynasty! 👑')}
+      ${renderAbtDynastySection()}
+      ${renderSacredRecordsSection()}
+    </section>
+  `;
+}
+
+function renderDynastyHeroCurrentLord(lordId){
+  const u = findUser(lordId);
+  const xp = computeBeerXp(lordId);
+  const { level } = getBeerLevelInfo(xp);
+  const currentReign = APP_DATA.abtReigns.find(r => r.userId === lordId && !r.endedAt);
+  const reignDays = currentReign ? getReignDays(currentReign) : 0;
+  const longestReign = getLongestReignEver(lordId);
+  const captures = getThroneCaptureCount(lordId);
+  const totalDaysInPower = getTotalDaysInPower(lordId);
+  const fallen = (ABT_LORD_STATE.fallenAbtId && ABT_LORD_STATE.fallenAbtId !== lordId) ? findUser(ABT_LORD_STATE.fallenAbtId) : null;
+
+  const runnerUp = APP_DATA.users
+    .filter(x => x.id !== lordId)
+    .map(x => ({ user: x, xp: computeBeerXp(x.id) }))
+    .sort((a, b) => b.xp - a.xp)[0];
+  const lead = runnerUp ? xp - runnerUp.xp : null;
+  const throneInDanger = lead !== null && lead < 10;
+
+  return `
+    <div class="dynasty-hero-lord">
+      <div class="dynasty-hero-avatar">${userAvatarHtml(u, 120)}</div>
+      <div class="dynasty-hero-name">${u.avatarEmoji} ${escapeHtml(u.displayName)}</div>
+      <div class="dynasty-hero-subtitle">"May their glass never run dry."</div>
+      <div class="dynasty-hero-level">${level.icon} ${level.label}</div>
+      <div class="dynasty-hero-xp">${xp} <span>Beer XP</span></div>
+      <div class="dynasty-hero-stats">
+        <div class="dynasty-hero-stat"><div class="num">👑 ${reignDays}d</div><div class="label">Current Reign</div></div>
+        <div class="dynasty-hero-stat"><div class="num">🏰 ${longestReign}d</div><div class="label">Longest Reign</div></div>
+        <div class="dynasty-hero-stat"><div class="num">⏳ ${totalDaysInPower}d</div><div class="label">Total on Throne</div></div>
+        <div class="dynasty-hero-stat"><div class="num">⚔️ ${captures}×</div><div class="label">Throne Captures</div></div>
+      </div>
+      ${runnerUp ? `
+        <div class="dynasty-hero-lead ${throneInDanger ? 'danger' : ''}">
+          ${throneInDanger ? '⚠️ THE THRONE IS IN DANGER — ' : '⚔️ '}Lead over ${escapeHtml(runnerUp.user.displayName)}: +${lead} XP
+        </div>
+      ` : ''}
+      ${fallen ? `
+        <div class="fallen-abt-badge">
+          <span class="badge peach">💀 The Fallen Abt: ${fallen.avatarEmoji} ${escapeHtml(fallen.displayName)}</span>
+        </div>
+      ` : ''}
+    </div>
   `;
 }
 
@@ -5239,14 +5420,14 @@ function renderAbtDynastySection(){
   if (!reigns.length){
     return `
       <section class="section">
-        <div class="section-head"><h3>👑 THE ABT DYNASTY</h3></div>
+        <div class="section-head"><h3>📖 Historical Reigns</h3></div>
         ${emptyState('The throne has not been claimed yet. Log a Beer Session to begin the dynasty!')}
       </section>
     `;
   }
   return `
     <section class="section">
-      <div class="section-head"><h3>👑 THE ABT DYNASTY</h3></div>
+      <div class="section-head"><h3>📖 Historical Reigns</h3></div>
       <div class="dynasty-timeline">
         ${reigns.map(r => {
           const user = findUser(r.userId);
