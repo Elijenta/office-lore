@@ -2103,7 +2103,7 @@ async function loadAppData(){
   const nicknames = (nicknamesRes.data || []).map(n => {
     const events = (nicknameEventsRes.data || []).filter(e => e.nickname_id === n.id);
     const votesForN = (nicknameVotesRes.data || []).filter(v => v.nickname_id === n.id);
-    const votes = { funny: [], accurate: [], savage: [] };
+    const votes = { funny: [], accurate: [], savage: [], legendary: [], doubt: [] };
     votesForN.forEach(v => { if (votes[v.vote_type]) votes[v.vote_type].push(v.user_id); });
     return {
       id: n.id,
@@ -2351,6 +2351,7 @@ function onRealtimeChange(){
     if (!STATE.activeUser) return;
     await refreshAppData();
     renderApp();
+    refreshOpenNicknameDetailModal();
   }, 150);
 }
 
@@ -2557,6 +2558,41 @@ const NICKNAME_FILTER_STATE = {
   level: '',
 };
 
+/* Cards/Compact-keuze: lokale UI-voorkeur, niet in Supabase. Zelfde
+   try/catch-om-localStorage-patroon als saveNavState/restoreNavState
+   (de enige andere localStorage-usage in de app) -- maar hier
+   onafhankelijk van login, want de keuze is niet user-specifiek. */
+const NICKNAMES_VIEW_MODE_STORAGE_KEY = 'officeLoreNicknamesViewMode';
+function loadNicknamesViewMode(){
+  try {
+    const saved = localStorage.getItem(NICKNAMES_VIEW_MODE_STORAGE_KEY);
+    if (saved === 'cards' || saved === 'compact') return saved;
+  } catch (e) { /* private browsing etc. */ }
+  return 'cards';
+}
+const NICKNAME_VIEW_STATE = { mode: loadNicknamesViewMode() };
+
+/* Sortering is puur sessie-state (niet persistent), gedeeld tussen
+   Cards (her-sorteert groepen + binnen-groep) en Compact (platte
+   lijst) -- zie renderNicknamesResultsHtml(). 'default' laat de
+   bestaande vaste volgorde (totalXp/popularity) volledig ongewijzigd. */
+const NICKNAME_SORT_STATE = { sortBy: 'default' };
+const NICKNAME_SORT_DEFS = [
+  { id: 'default',        label: 'Standaard' },
+  { id: 'newest',         label: 'Newest',       compare: (a, b) => b.createdAt.localeCompare(a.createdAt) },
+  { id: 'oldest',         label: 'Oldest',       compare: (a, b) => a.createdAt.localeCompare(b.createdAt) },
+  { id: 'most-xp',        label: 'Most XP',      compare: (a, b) => b.xp - a.xp },
+  { id: 'most-reactions', label: 'Most Reactions', compare: (a, b) => nicknamePopularity(b) - nicknamePopularity(a) },
+  { id: 'alphabetical',   label: 'Alphabetical (A-Z)', compare: (a, b) => a.text.localeCompare(b.text) },
+  { id: 'real-name',      label: 'Real Name (A-Z)', compare: (a, b) => (a.personRealName || '').localeCompare(b.personRealName || '') },
+  { id: 'most-legendary', label: 'Most Legendary', compare: (a, b) => b.votes.legendary.length - a.votes.legendary.length },
+  { id: 'most-doubt',     label: 'Most Doubt',   compare: (a, b) => b.votes.doubt.length - a.votes.doubt.length },
+];
+function getNicknameSortCompare(){
+  const def = NICKNAME_SORT_DEFS.find(d => d.id === NICKNAME_SORT_STATE.sortBy);
+  return (def && def.compare) ? def.compare : (a, b) => (nicknamePopularity(b) - nicknamePopularity(a)) || (b.xp - a.xp);
+}
+
 /* Bewaart welke actie (+1/-1) net geselecteerd staat in de
    "registratie met notitie"-modal. */
 let counterRegisterDelta = 1;
@@ -2754,15 +2790,26 @@ function getUserNicknames(userId){
 }
 
 function nicknamePopularity(n){
-  return n.votes.funny.length + n.votes.accurate.length + n.votes.savage.length;
+  return n.votes.funny.length + n.votes.accurate.length + n.votes.savage.length + n.votes.legendary.length + n.votes.doubt.length;
+}
+
+function getLegendaryScore(n){ return n.votes.legendary.length; }
+function getDoubtScore(n){ return n.votes.doubt.length; }
+
+/* Een nickname is "Legendary" zodra alle 3 users hem Legendary hebben
+   gegeven -- puur afgeleid, niets opgeslagen, verdwijnt vanzelf zodra
+   iemand die stem intrekt (zelfde filosofie als getPoemOfTheMonth). */
+function isLegendaryNickname(n){
+  return APP_DATA.users.length > 0 && APP_DATA.users.every(u => n.votes.legendary.includes(u.id));
 }
 
 /* Alle groepen van nicknames die exact dezelfde "personRealName"
    delen — dit is PUUR visuele groepering bij het renderen, er wordt
    nergens een person-/colleague-record voor aangemaakt of bewaard.
    Alles hieronder wordt live herberekend uit APP_DATA.nicknames. */
-function getNicknameRealNameGroups(list){
+function getNicknameRealNameGroups(list, compareFn){
   const source = list || APP_DATA.nicknames;
+  const compare = compareFn || ((a, b) => (nicknamePopularity(b) - nicknamePopularity(a)) || (b.xp - a.xp));
   const order = [];
   const map = {};
   source.forEach(n => {
@@ -2771,7 +2818,7 @@ function getNicknameRealNameGroups(list){
     map[key].push(n);
   });
   return order.map(name => {
-    const items = [...map[name]].sort((a, b) => (nicknamePopularity(b) - nicknamePopularity(a)) || (b.xp - a.xp));
+    const items = [...map[name]].sort(compare);
     const totalXp = items.reduce((sum, n) => sum + n.xp, 0);
     const businessUnit = items.find(n => n.businessUnit)?.businessUnit || null;
     return { name, nicknames: items, count: items.length, totalXp, topNickname: items[0], businessUnit };
@@ -2828,8 +2875,20 @@ function renderNicknamesResultsHtml(){
       ? 'Geen nicknames gevonden voor deze zoekopdracht/filters.'
       : 'Nog geen nicknames. Klik op "+ Nieuwe nickname" om te beginnen.');
   }
-  const groups = getNicknameRealNameGroups(filtered).sort((a, b) => b.totalXp - a.totalXp);
-  return groups.map(g => `
+
+  if (NICKNAME_VIEW_STATE.mode === 'compact'){
+    const compare = getNicknameSortCompare();
+    const sorted = [...filtered].sort(compare);
+    return `<div class="row-list">${sorted.map(n => renderNicknameCompactRow(n)).join('')}</div>`;
+  }
+
+  const isDefaultSort = NICKNAME_SORT_STATE.sortBy === 'default';
+  const compare = isDefaultSort ? undefined : getNicknameSortCompare();
+  const groups = getNicknameRealNameGroups(filtered, compare);
+  const sortedGroups = isDefaultSort
+    ? groups.sort((a, b) => b.totalXp - a.totalXp)
+    : groups.sort((a, b) => compare(a.topNickname, b.topNickname));
+  return sortedGroups.map(g => `
     <div class="nickname-group">
       <div class="nickname-group-header">
         <span class="nickname-group-title">${escapeHtml(g.name.toUpperCase())}</span>
@@ -2841,6 +2900,37 @@ function renderNicknamesResultsHtml(){
       </div>
     </div>
   `).join('');
+}
+
+/* ---- Compact View: 1 rij per nickname, alleen het belangrijkste.
+   Geen inline vote-/edit-/delete-controls -- klikken opent de
+   volledige detail-modal (openNicknameDetail) waar dat allemaal wel
+   kan. Hergebruikt .row-item/.row-list, hetzelfde dichte, al
+   mobiel-bewezen patroon als leaderboards/counter-historiek. ---- */
+function renderNicknameCompactRow(n){
+  const isLegendary = isLegendaryNickname(n);
+  const reactionDefs = [
+    { key: 'funny', icon: '😂' }, { key: 'savage', icon: '💀' }, { key: 'accurate', icon: '🎯' },
+    { key: 'legendary', icon: '🔥' }, { key: 'doubt', icon: '🤔' },
+  ];
+  const reactionSummary = reactionDefs
+    .map(r => ({ ...r, count: n.votes[r.key].length }))
+    .filter(r => r.count > 0)
+    .map(r => `${r.icon}${r.count}`)
+    .join(' · ');
+  const subParts = [n.personRealName || 'onbekend'];
+  if (n.businessUnit) subParts.push(n.businessUnit);
+
+  return `
+    <div class="row-item clickable" onclick="openNicknameDetail('${n.id}')">
+      ${initialsAvatarHtml(n.personRealName, 36)}
+      <div class="info">
+        <div class="name">${escapeHtml(n.text)}${isLegendary ? ' 🔥' : ''}</div>
+        <div class="sub">${escapeHtml(subParts.join(' · '))}</div>
+      </div>
+      ${reactionSummary ? `<div class="value" style="font-size:12px;">${reactionSummary}</div>` : ''}
+    </div>
+  `;
 }
 
 function getTopNicknames(count){
@@ -3584,8 +3674,8 @@ const LEADERBOARD_DEFS = [
     build(){ return rankNicknamesBy(n => n.votes.accurate.length).map(e => nicknameEntry(e.nickname, e.value, v => `${v} 🎯`)); },
   },
   {
-    id: 'most-savage-nickname', icon: '🔥', title: 'Most Savage Nickname',
-    build(){ return rankNicknamesBy(n => n.votes.savage.length).map(e => nicknameEntry(e.nickname, e.value, v => `${v} 🔥`)); },
+    id: 'most-savage-nickname', icon: '💀', title: 'Most Savage Nickname',
+    build(){ return rankNicknamesBy(n => n.votes.savage.length).map(e => nicknameEntry(e.nickname, e.value, v => `${v} 💀`)); },
   },
   {
     id: 'fastest-rising-nickname', icon: '🚀', title: 'Fastest Rising Nickname',
@@ -3908,6 +3998,8 @@ const MODULES = {
             </div>
           </div>
 
+          <div id="nicknames-view-switcher-mount">${renderNicknamesViewSwitcherHtml()}</div>
+
           <div class="nickname-filter-bar">
             <div class="form-field search-field">
               <label class="form-label" for="nk-search">🔎 Zoeken</label>
@@ -3932,6 +4024,12 @@ const MODULES = {
               <select class="form-input" id="nk-filter-level" onchange="updateNicknameFilter('level', this.value)">
                 <option value="">Alle levels</option>
                 ${NICKNAME_LEVELS.map(l => `<option value="${escapeHtml(l.label)}" ${NICKNAME_FILTER_STATE.level === l.label ? 'selected' : ''}>${l.icon} ${l.label}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label" for="nk-sort">Sorteren</label>
+              <select class="form-input" id="nk-sort" onchange="updateNicknameSort(this.value)">
+                ${NICKNAME_SORT_DEFS.map(d => `<option value="${d.id}" ${NICKNAME_SORT_STATE.sortBy === d.id ? 'selected' : ''}>${escapeHtml(d.label)}</option>`).join('')}
               </select>
             </div>
             ${filtersActive ? `<button type="button" class="btn btn-ghost btn-sm" onclick="clearNicknameFilters()">✕ Filters wissen</button>` : ''}
@@ -4508,9 +4606,12 @@ function renderNicknameCard(n, opts = {}){
   const compact = !!opts.compact;
   const { level, next, progressPct, xpToNext } = getNicknameLevelInfo(n.xp);
   const funnyScore = n.votes.funny.length;
-  const accurateScore = n.votes.accurate.length;
   const savageScore = n.votes.savage.length;
+  const accurateScore = n.votes.accurate.length;
+  const legendaryScore = n.votes.legendary.length;
+  const doubtScore = n.votes.doubt.length;
   const statusClass = statusBadgeClass(n.status);
+  const isLegendary = isLegendaryNickname(n);
 
   return `
     <div class="sticker-card nickname-card ${compact ? 'nickname-card-compact' : ''}">
@@ -4523,7 +4624,10 @@ function renderNicknameCard(n, opts = {}){
           </div>
           ${n.businessUnit ? `<span class="badge lilac" style="margin-top:4px;">${escapeHtml(n.businessUnit)}</span>` : ''}
         </div>
-        <span class="badge ${statusClass}">${escapeHtml(n.status)}</span>
+        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+          <span class="badge ${statusClass}">${escapeHtml(n.status)}</span>
+          ${isLegendary ? `<span class="badge yellow">🔥 LEGENDARY NICKNAME</span>` : ''}
+        </div>
       </div>
 
       <div class="nickname-level-row">
@@ -4538,8 +4642,10 @@ function renderNicknameCard(n, opts = {}){
       ${compact ? `
         <div class="nickname-meta-row">
           <span class="stat-chip">😂 ${funnyScore}</span>
+          <span class="stat-chip">💀 ${savageScore}</span>
           <span class="stat-chip">🎯 ${accurateScore}</span>
-          <span class="stat-chip">🔥 ${savageScore}</span>
+          <span class="stat-chip">🔥 ${legendaryScore}</span>
+          <span class="stat-chip">🤔 ${doubtScore}</span>
         </div>
       ` : `
         <p class="nickname-origin">${n.description ? escapeHtml(n.description) : 'Geen oorsprong toegevoegd.'}</p>
@@ -4547,8 +4653,10 @@ function renderNicknameCard(n, opts = {}){
 
         <div class="vote-row">
           <button type="button" class="vote-btn ${n.votes.funny.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','funny')">😂 Funny <span>${funnyScore}</span></button>
+          <button type="button" class="vote-btn ${n.votes.savage.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','savage')">💀 Savage <span>${savageScore}</span></button>
           <button type="button" class="vote-btn ${n.votes.accurate.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','accurate')">🎯 Accurate <span>${accurateScore}</span></button>
-          <button type="button" class="vote-btn ${n.votes.savage.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','savage')">🔥 Savage <span>${savageScore}</span></button>
+          <button type="button" class="vote-btn ${n.votes.legendary.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','legendary')">🔥 Legendary <span>${legendaryScore}</span></button>
+          <button type="button" class="vote-btn ${n.votes.doubt.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','doubt')">🤔 Doubt <span>${doubtScore}</span></button>
         </div>
 
         <div class="nickname-meta-row">
@@ -4633,6 +4741,32 @@ function clearNicknameFilters(){
   NICKNAME_FILTER_STATE.createdBy = '';
   NICKNAME_FILTER_STATE.level = '';
   renderPage();
+}
+
+function updateNicknameSort(value){
+  NICKNAME_SORT_STATE.sortBy = value;
+  rerenderNicknamesResults();
+}
+
+function rerenderNicknamesViewSwitcher(){
+  const mount = document.getElementById('nicknames-view-switcher-mount');
+  if (mount) mount.innerHTML = renderNicknamesViewSwitcherHtml();
+}
+
+function renderNicknamesViewSwitcherHtml(){
+  return `
+    <div class="people-toolbar" style="margin-bottom:14px;">
+      <button type="button" class="nav-btn ${NICKNAME_VIEW_STATE.mode === 'cards' ? 'active' : ''}" onclick="switchNicknamesViewMode('cards')">▦ Cards</button>
+      <button type="button" class="nav-btn ${NICKNAME_VIEW_STATE.mode === 'compact' ? 'active' : ''}" onclick="switchNicknamesViewMode('compact')">☰ Compact</button>
+    </div>
+  `;
+}
+
+function switchNicknamesViewMode(mode){
+  NICKNAME_VIEW_STATE.mode = mode;
+  try { localStorage.setItem(NICKNAMES_VIEW_MODE_STORAGE_KEY, mode); } catch (e) { /* private browsing etc. */ }
+  rerenderNicknamesViewSwitcher();
+  rerenderNicknamesResults();
 }
 
 async function submitNicknameForm(event){
@@ -4745,6 +4879,41 @@ async function toggleNicknameVote(nicknameId, category){
   }
   await refreshAppData();
   renderPage();
+  refreshOpenNicknameDetailModal();
+}
+
+/* ---- detail-modal: enige plek waar de VOLLEDIGE kaart (alle
+   reactions, uitleg, anekdote, edit/delete) getoond wordt vanuit
+   Compact View. Hergebruikt gewoon renderNicknameCard(n) niet-compact
+   -- geen nieuwe velden, exact dezelfde content als Cards View. Het
+   data-nickname-detail-id-attribuut maakt "is deze modal nu open"
+   zelf-herstellend te controleren (zie refreshOpenNicknameDetailModal):
+   geen apart open/closed state-object nodig, en nooit stale na een
+   backdrop-klik omdat closeModal() de hele modal-root leegmaakt. */
+function renderNicknameDetailHtml(n){
+  return `
+    <div data-nickname-detail-id="${n.id}">
+      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="closeModal()">✕ Sluiten</button>
+      </div>
+      ${renderNicknameCard(n)}
+    </div>
+  `;
+}
+
+function openNicknameDetail(id){
+  const n = APP_DATA.nicknames.find(x => x.id === id);
+  if (!n) return;
+  openModal(renderNicknameDetailHtml(n));
+}
+
+function refreshOpenNicknameDetailModal(){
+  const openEl = document.querySelector('[data-nickname-detail-id]');
+  if (!openEl) return;
+  const id = openEl.getAttribute('data-nickname-detail-id');
+  const fresh = APP_DATA.nicknames.find(n => n.id === id);
+  if (fresh) openModal(renderNicknameDetailHtml(fresh));
+  else closeModal();
 }
 
 /* =============================================================
