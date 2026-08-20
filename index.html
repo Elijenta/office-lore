@@ -1661,6 +1661,48 @@
   }
 
   /* =========================================================
+     11c. NICKNAME BATTLES — VS layout stacks vertically on mobile
+     by default (flex-wrap), reveal reuses the Abt Dynasty overlay
+     mechanism as-is (see JS).
+  ========================================================= */
+  .battle-card{ cursor:pointer; text-align:center; transition: transform .15s ease; }
+  .battle-card:hover{ transform: translateY(-2px); }
+  .battle-card-sides{ display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; font-weight:700; font-size:14px; }
+  .battle-card-vs{ font-family: var(--font-display); font-weight:800; color: var(--peach-deep); flex-shrink:0; }
+
+  .battle-vs-layout{
+    display:flex;
+    align-items:stretch;
+    justify-content:center;
+    gap:14px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+  .battle-side-card{
+    flex: 1 1 200px;
+    min-width: 180px;
+    text-align:center;
+    background: var(--card);
+    border: var(--outline-thin);
+    border-radius: var(--radius-sm);
+    padding: 16px 12px;
+    box-shadow: var(--shadow-pop-sm);
+  }
+  .battle-vs-divider{
+    align-self:center;
+    font-family: var(--font-display);
+    font-weight:800;
+    font-size:20px;
+    color: var(--peach-deep);
+    flex-shrink:0;
+  }
+  .battle-side-nickname{ font-weight:800; font-size:16px; margin-bottom:4px; }
+  .battle-side-person{ font-size:12px; color:#8a7a6b; margin-bottom:10px; }
+  .battle-side-votes{ font-weight:800; font-size:14px; margin-bottom:6px; }
+  .battle-side-card.battle-winner{ background: var(--yellow); transform: scale(1.03); }
+  .battle-side-card.battle-loser{ opacity:.55; }
+
+  /* =========================================================
      12. PERFECT POUR / MASTER OF THE POUR
      (speelse bier-/schuim-animaties op de winnende podiumplek
      en op de stemknoppen in de sessiedetailpagina)
@@ -2029,6 +2071,9 @@ let APP_DATA = {
   poems: [],
   poemReactions: [],
   poetLaureateReigns: [],
+  nicknameBattles: [],
+  nicknameBattleVotes: [],
+  nicknameBattleVoteCounts: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2051,6 +2096,7 @@ async function loadAppData(){
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
+    nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2072,6 +2118,9 @@ async function loadAppData(){
     sb.from('poems').select('*'),
     sb.from('poem_reactions').select('*'),
     sb.from('poet_laureate_reigns').select('*'),
+    sb.from('nickname_battles').select('*'),
+    sb.from('nickname_battle_votes').select('*'),
+    sb.from('nickname_battle_vote_counts').select('*'),
   ]);
 
   for (const res of [
@@ -2081,6 +2130,7 @@ async function loadAppData(){
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
+    nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2299,7 +2349,31 @@ async function loadAppData(){
     dethronedByUserId: r.dethroned_by_user_id,
   }));
 
-  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries, poems, poemReactions, poetLaureateReigns };
+  /* Nickname Battles: RLS filtert stille stemmen transparant weg --
+     de client krijgt gewoon terug wat toegelaten is (eigen stem altijd,
+     alle stemmen pas na reveal), geen aparte logica nodig hier. */
+  const nicknameBattles = (nicknameBattlesRes.data || []).map(b => ({
+    id: b.id,
+    nicknameAId: b.nickname_a_id, nicknameAText: b.nickname_a_text, nicknameAPersonName: b.nickname_a_person_name, nicknameABusinessUnit: b.nickname_a_business_unit,
+    nicknameBId: b.nickname_b_id, nicknameBText: b.nickname_b_text, nicknameBPersonName: b.nickname_b_person_name, nicknameBBusinessUnit: b.nickname_b_business_unit,
+    status: b.status,
+    winnerNicknameId: b.winner_nickname_id, winnerNicknameText: b.winner_nickname_text,
+    createdByUserId: b.created_by_user_id, createdAt: b.created_at, finishedAt: b.finished_at,
+  }));
+
+  const nicknameBattleVotes = (nicknameBattleVotesRes.data || []).map(v => ({
+    id: v.id, battleId: v.battle_id, userId: v.user_id, votedSide: v.voted_side, createdAt: v.created_at, updatedAt: v.updated_at,
+  }));
+
+  const nicknameBattleVoteCounts = (nicknameBattleVoteCountsRes.data || []).map(c => ({
+    battleId: c.battle_id, totalVotes: c.total_votes, votesA: c.votes_a, votesB: c.votes_b,
+  }));
+
+  APP_DATA = {
+    users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
+    poems, poemReactions, poetLaureateReigns,
+    nicknameBattles, nicknameBattleVotes, nicknameBattleVoteCounts,
+  };
 }
 
 /* Debounced "refetch everything + redraw" — used after every mutation
@@ -2321,6 +2395,7 @@ const REALTIME_TABLES = [
   'beers', 'beer_sessions', 'beer_session_participants', 'beer_ratings', 'beer_consumption', 'perfect_pours',
   'abt_reigns',
   'poems', 'poem_reactions', 'poet_laureate_reigns',
+  'nickname_battles', 'nickname_battle_votes',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -2336,6 +2411,7 @@ function subscribeRealtime(){
   // then and never touched again) — this only fires for genuinely live
   // events since the listener is registered after the initial load
   realtimeChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'abt_reigns' }, onAbtReignClosed);
+  realtimeChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'nickname_battles' }, onNicknameBattleResolved);
   realtimeChannel.subscribe();
 }
 
@@ -2369,6 +2445,34 @@ async function onAbtReignClosed(payload){
   await refreshAppData();
   renderApp();
   showDethronementOverlay(row.user_id, row.dethroned_by_user_id, row.ending_beer_xp);
+}
+
+/* live battle reveal -> full-screen moment when a battle resolves.
+   Shared between "I just cast the deciding vote" (toggleBattleVote
+   calls checkAndShowBattleReveal directly) and "someone else just
+   cast it" (this realtime listener) -- the lastShownBattleRevealId
+   guard makes sure the two paths never double-show the same reveal
+   when both fire for one resolution. Only takes over the screen if
+   I currently have that specific battle open, never for battles I'm
+   not looking at. */
+let lastShownBattleRevealId = null;
+function checkAndShowBattleReveal(battleId){
+  const battle = APP_DATA.nicknameBattles.find(b => b.id === battleId);
+  if (!battle || battle.status === 'open') return;
+  if (lastShownBattleRevealId === battleId) return;
+  lastShownBattleRevealId = battleId;
+  showBattleRevealOverlay(battle);
+}
+
+async function onNicknameBattleResolved(payload){
+  const row = payload.new;
+  if (!row || row.status === 'open') return; // niet zopas afgerond
+  if (!STATE.activeUser) return;
+  await refreshAppData();
+  renderApp();
+  refreshOpenNicknameDetailModal();
+  const openEl = document.querySelector(`[data-battle-detail-id="${row.id}"]`);
+  if (openEl) checkAndShowBattleReveal(row.id);
 }
 
 /* ---------- 2. APP STATE ---------- */
@@ -2571,6 +2675,15 @@ function loadNicknamesViewMode(){
   return 'cards';
 }
 const NICKNAME_VIEW_STATE = { mode: loadNicknamesViewMode() };
+
+/* Nicknames-pagina: top-level tab tussen de bestaande Cards/Compact-
+   browsing en de nieuwe Battles-subsectie. Puur sessie-state (niet
+   persistent, in tegenstelling tot NICKNAME_VIEW_STATE hierboven). */
+const NICKNAME_PAGE_STATE = { tab: 'nicknames' };
+function switchNicknamePageTab(tab){
+  NICKNAME_PAGE_STATE.tab = tab;
+  renderPage();
+}
 
 /* Sortering is puur sessie-state (niet persistent), gedeeld tussen
    Cards (her-sorteert groepen + binnen-groep) en Compact (platte
@@ -3984,11 +4097,22 @@ const MODULES = {
 
   nicknames: {
     title: 'Nicknames',
-    subtitle: 'XP, levels, stemmen en gebruiksmomenten — gegroepeerd per collega, puur visueel.',
+    subtitle: 'XP, levels, stemmen, gebruiksmomenten en battles — gegroepeerd per collega, puur visueel.',
     render(data){
+      const pageTabsHtml = `
+        <div class="people-toolbar" style="margin-bottom:16px;">
+          <button type="button" class="nav-btn ${NICKNAME_PAGE_STATE.tab === 'nicknames' ? 'active' : ''}" onclick="switchNicknamePageTab('nicknames')">🏷️ Nicknames</button>
+          <button type="button" class="nav-btn ${NICKNAME_PAGE_STATE.tab === 'battles' ? 'active' : ''}" onclick="switchNicknamePageTab('battles')">⚔️ Battles</button>
+        </div>
+      `;
+
+      if (NICKNAME_PAGE_STATE.tab === 'battles'){
+        return pageTabsHtml + renderNicknameBattlesTab(data);
+      }
+
       const businessUnits = getKnownNicknameBusinessUnits();
       const filtersActive = !!(NICKNAME_FILTER_STATE.search || NICKNAME_FILTER_STATE.businessUnit || NICKNAME_FILTER_STATE.createdBy || NICKNAME_FILTER_STATE.level);
-      return `
+      return pageTabsHtml + `
         <section class="section">
           <div class="section-head">
             <h3>🏷️ Alle nicknames</h3>
@@ -4593,6 +4717,415 @@ function showDethronementOverlay(oldLordId, newLordId, oldLordEndingXp){
 }
 
 /* =============================================================
+   NICKNAME BATTLES MODULE — Phase 1: 1v1 battles, no Championship
+   yet (see plan). Alles hieronder wordt puur afgeleid uit
+   APP_DATA.nicknameBattles/nicknameBattleVotes/nicknameBattleVoteCounts
+   -- zelfde filosofie als computeBeerXp/isLegendaryNickname. De DB
+   (0011_nickname_battles.sql) is de enige plek die een battle ooit
+   automatisch afrondt (resolve_nickname_battle_outcome, met een
+   per-battle advisory lock) -- de client vraagt enkel aan of toont
+   wat er al beslist is.
+   ============================================================= */
+
+function showBattleRevealOverlay(battle){
+  const counts = getBattleVoteCounts(battle.id);
+  const isDraw = battle.status === 'draw';
+  const winnerIsA = battle.winnerNicknameId === battle.nicknameAId;
+  const confettiEmojis = ['⚔️', '🏆', '🔥', '✨', '👑'];
+  const confettiHtml = Array.from({ length: 18 }, (_, i) => `
+    <span class="dynasty-confetti-piece" style="left:${Math.round(Math.random() * 100)}%; animation-delay:${(Math.random() * 0.6).toFixed(2)}s;">${confettiEmojis[i % confettiEmojis.length]}</span>
+  `).join('');
+
+  openDramaticOverlay(`
+    ${!isDraw ? `<div class="dynasty-overlay-confetti">${confettiHtml}</div>` : ''}
+    <div class="dynasty-overlay-card">
+      <div class="dynasty-overlay-crown">⚔️</div>
+      <h2 class="dynasty-overlay-title">${isDraw ? 'BATTLE ENDED IN A DRAW' : 'BATTLE COMPLETE'}</h2>
+      <div class="dynasty-overlay-battle">
+        <div class="dynasty-overlay-side ${!isDraw && winnerIsA ? 'winner' : (!isDraw ? 'loser' : '')}">🔨 ${escapeHtml(battle.nicknameAText)} — ${counts.votesA} vote${counts.votesA === 1 ? '' : 's'}</div>
+        <div class="dynasty-overlay-side ${!isDraw && !winnerIsA ? 'winner' : (!isDraw ? 'loser' : '')}">💡 ${escapeHtml(battle.nicknameBText)} — ${counts.votesB} vote${counts.votesB === 1 ? '' : 's'}</div>
+      </div>
+      ${isDraw ? `
+        <p class="dynasty-overlay-tagline">⚔️ DRAW — NO WINNER DECLARED</p>
+      ` : `
+        <p class="dynasty-overlay-tagline">🏆 WINNER</p>
+        <div class="dynasty-overlay-newlord">${escapeHtml(battle.winnerNicknameText).toUpperCase()}</div>
+      `}
+      <button type="button" class="btn btn-primary dynasty-overlay-btn" onclick="closeDramaticOverlay()">CLOSE</button>
+    </div>
+  `);
+}
+
+/* ---- afgeleide data ---- */
+function getBattleVoteCounts(battleId){
+  return APP_DATA.nicknameBattleVoteCounts.find(c => c.battleId === battleId) || { battleId, totalVotes: 0, votesA: 0, votesB: 0 };
+}
+
+function getMyVoteInBattle(battleId){
+  const v = APP_DATA.nicknameBattleVotes.find(x => x.battleId === battleId && x.userId === STATE.activeUser);
+  return v ? v.votedSide : null;
+}
+
+function getNicknameBattleRecord(nicknameId){
+  const allInvolved = APP_DATA.nicknameBattles
+    .filter(b => b.status !== 'open' && (b.nicknameAId === nicknameId || b.nicknameBId === nicknameId))
+    .sort((a, b) => (a.finishedAt || '').localeCompare(b.finishedAt || ''));
+  const decided = allInvolved.filter(b => b.status === 'finished');
+  const played = allInvolved.length;
+  const wins = decided.filter(b => b.winnerNicknameId === nicknameId).length;
+  const losses = decided.length - wins;
+  const winRate = decided.length ? Math.round((wins / decided.length) * 100) : 0;
+
+  let currentStreak = 0;
+  for (let i = allInvolved.length - 1; i >= 0; i--){
+    const b = allInvolved[i];
+    if (b.status === 'draw') break; // een draw onderbreekt een reeks
+    if (b.winnerNicknameId === nicknameId) currentStreak++; else break;
+  }
+  let longestStreak = 0, running = 0;
+  allInvolved.forEach(b => {
+    if (b.status === 'draw'){ running = 0; return; }
+    if (b.winnerNicknameId === nicknameId){ running++; longestStreak = Math.max(longestStreak, running); }
+    else running = 0;
+  });
+
+  const totalVotesReceived = allInvolved.reduce((sum, b) => {
+    const counts = getBattleVoteCounts(b.id);
+    return sum + (b.nicknameAId === nicknameId ? counts.votesA : counts.votesB);
+  }, 0);
+
+  return { played, wins, losses, winRate, totalVotesReceived, currentStreak, longestStreak };
+}
+
+/* alle nicknames die minstens 1 afgeronde/draw battle achter de rug hebben */
+function getBattleActiveNicknames(){
+  const ids = new Set();
+  APP_DATA.nicknameBattles.forEach(b => {
+    if (b.status === 'open') return;
+    if (b.nicknameAId) ids.add(b.nicknameAId);
+    if (b.nicknameBId) ids.add(b.nicknameBId);
+  });
+  return [...ids].map(id => APP_DATA.nicknames.find(n => n.id === id)).filter(Boolean);
+}
+
+function getHallOfChampions(){
+  const withRecord = getBattleActiveNicknames().map(n => ({ nickname: n, record: getNicknameBattleRecord(n.id) }));
+  return {
+    mostWins: withRecord.filter(e => e.record.wins > 0).sort((a, b) => b.record.wins - a.record.wins),
+    bestWinRate: withRecord.filter(e => e.record.played >= 3).sort((a, b) => b.record.winRate - a.record.winRate),
+    longestStreak: withRecord.filter(e => e.record.longestStreak > 0).sort((a, b) => b.record.longestStreak - a.record.longestStreak),
+    mostVotes: withRecord.filter(e => e.record.totalVotesReceived > 0).sort((a, b) => b.record.totalVotesReceived - a.record.totalVotesReceived),
+  };
+}
+
+/* Battles-pagina-scoped, puur afgeleide lijst -- geen echte
+   opgeslagen activity feed (bestaat nergens in deze app), zelfde
+   "spotlight" filosofie als Quote of the Week etc. */
+function getRecentBattleActivity(){
+  const messages = [];
+  const recentDecided = [...APP_DATA.nicknameBattles]
+    .filter(b => b.status !== 'open')
+    .sort((a, b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''))
+    .slice(0, 5);
+
+  recentDecided.forEach(b => {
+    if (b.status === 'draw'){
+      messages.push(`⚔️ "${b.nicknameAText}" vs "${b.nicknameBText}" ended in a DRAW`);
+      return;
+    }
+    const counts = getBattleVoteCounts(b.id);
+    const loserText = b.winnerNicknameId === b.nicknameAId ? b.nicknameBText : b.nicknameAText;
+    messages.push(`🏆 "${b.winnerNicknameText}" defeated "${loserText}" ${Math.max(counts.votesA, counts.votesB)}–${Math.min(counts.votesA, counts.votesB)}`);
+  });
+
+  const seenStreakNicknames = new Set();
+  recentDecided.forEach(b => {
+    if (b.status !== 'finished' || !b.winnerNicknameId || seenStreakNicknames.has(b.winnerNicknameId)) return;
+    const record = getNicknameBattleRecord(b.winnerNicknameId);
+    if (record.currentStreak >= 3){
+      seenStreakNicknames.add(b.winnerNicknameId);
+      messages.push(`🔥 "${b.winnerNicknameText}" has won ${record.currentStreak} battles in a row`);
+    }
+  });
+
+  return messages.slice(0, 6);
+}
+
+/* ---- render: Battles-tab ---- */
+function renderHallOfChampionsSection(){
+  const h = getHallOfChampions();
+  const board = (title, icon, entries, formatValue) => `
+    <div class="sticker-card" style="text-align:left;">
+      <div class="lore-item-title" style="margin-bottom:8px;">${icon} ${title}</div>
+      ${entries.length ? `
+        <div class="row-list">
+          ${entries.slice(0, 3).map((e, idx) => `
+            <div class="row-item" style="cursor:default;">
+              <div class="rank">#${idx + 1}</div>
+              ${initialsAvatarHtml(e.nickname.personRealName, 32)}
+              <div class="info">
+                <div class="name">${escapeHtml(e.nickname.text)}</div>
+                <div class="sub">${escapeHtml(e.nickname.personRealName || '')}</div>
+              </div>
+              <div class="value">${formatValue(e.record)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : emptyState('Nog geen data.')}
+    </div>
+  `;
+  return `
+    <section class="section">
+      <div class="section-head"><h3>🏆 Hall of Champions</h3></div>
+      <div class="grid cols-auto">
+        ${board('Most Battle Wins', '🏆', h.mostWins, r => `${r.wins} wins`)}
+        ${board('Best Win Rate (≥3 battles)', '🔥', h.bestWinRate, r => `${r.winRate}%`)}
+        ${board('Longest Winning Streak', '⚔️', h.longestStreak, r => `${r.longestStreak}×`)}
+        ${board('Most Votes Ever', '🗳️', h.mostVotes, r => `${r.totalVotesReceived} votes`)}
+      </div>
+    </section>
+  `;
+}
+
+function renderBattleCard(battle){
+  const counts = getBattleVoteCounts(battle.id);
+  const isOpen = battle.status === 'open';
+  const isDraw = battle.status === 'draw';
+  return `
+    <div class="sticker-card battle-card" onclick="openBattleDetail('${battle.id}')">
+      <div class="battle-card-sides">
+        <div class="battle-card-side">🔨 ${escapeHtml(battle.nicknameAText)}</div>
+        <div class="battle-card-vs">⚔️ VS</div>
+        <div class="battle-card-side">💡 ${escapeHtml(battle.nicknameBText)}</div>
+      </div>
+      ${isOpen ? `
+        <div class="stat-chip" style="margin-top:8px;">${counts.totalVotes}/3 votes received</div>
+      ` : isDraw ? `
+        <div class="badge grey" style="margin-top:8px;">⚔️ DRAW</div>
+      ` : `
+        <div style="margin-top:8px; font-size:13px; font-weight:800;">${counts.votesA} – ${counts.votesB} · 🏆 ${escapeHtml(battle.winnerNicknameText)}</div>
+      `}
+    </div>
+  `;
+}
+
+function renderNicknameBattlesTab(data){
+  const activity = getRecentBattleActivity();
+  const activitySection = activity.length ? `
+    <section class="section">
+      <div class="section-head"><h3>📢 Recent Battle Activity</h3></div>
+      <div class="row-list">
+        ${activity.map(m => `<div class="row-item" style="cursor:default;"><div class="info"><div class="name">${escapeHtml(m)}</div></div></div>`).join('')}
+      </div>
+    </section>
+  ` : '';
+
+  const openBattles = data.nicknameBattles.filter(b => b.status === 'open').sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const decidedBattles = data.nicknameBattles.filter(b => b.status !== 'open').sort((a, b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''));
+
+  return `
+    ${activitySection}
+    ${renderHallOfChampionsSection()}
+    <section class="section">
+      <div class="section-head">
+        <h3>⚔️ Active Battles</h3>
+        <span class="count-chip">${openBattles.length}</span>
+      </div>
+      <button type="button" class="btn btn-primary" style="margin-bottom:14px;" onclick="openStartBattleForm()">+ Start a Battle</button>
+      ${openBattles.length ? `<div class="grid cols-auto-wide">${openBattles.map(b => renderBattleCard(b)).join('')}</div>` : emptyState('Geen actieve battles. Start er één!')}
+    </section>
+    <section class="section">
+      <div class="section-head">
+        <h3>📜 Battle History</h3>
+        <span class="count-chip">${decidedBattles.length}</span>
+      </div>
+      ${decidedBattles.length ? `<div class="grid cols-auto-wide">${decidedBattles.map(b => renderBattleCard(b)).join('')}</div>` : emptyState('Nog geen afgeronde battles.')}
+    </section>
+  `;
+}
+
+/* ---- start a battle ---- */
+function openStartBattleForm(){
+  const options = [...APP_DATA.nicknames].sort((a, b) => a.text.localeCompare(b.text))
+    .map(n => `<option value="${n.id}">"${escapeHtml(n.text)}" — ${escapeHtml(n.personRealName || 'onbekend')}</option>`).join('');
+  openModal(`
+    <h3>⚔️ Start a Battle</h3>
+    <form onsubmit="return submitStartBattleForm(event)">
+      <div class="form-field">
+        <label class="form-label" for="sb-a">Nickname A</label>
+        <select class="form-input" id="sb-a" required><option value="">— kies —</option>${options}</select>
+      </div>
+      <div style="text-align:center; font-weight:800; margin:10px 0;">⚔️ VS</div>
+      <div class="form-field">
+        <label class="form-label" for="sb-b">Nickname B</label>
+        <select class="form-input" id="sb-b" required><option value="">— kies —</option>${options}</select>
+      </div>
+      <div id="sb-error" class="form-error"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Start Battle</button>
+      </div>
+    </form>
+  `);
+}
+
+async function submitStartBattleForm(event){
+  event.preventDefault();
+  const aId = document.getElementById('sb-a').value;
+  const bId = document.getElementById('sb-b').value;
+  const errorEl = document.getElementById('sb-error');
+  if (!aId || !bId){ errorEl.textContent = 'Kies twee nicknames.'; return false; }
+  if (aId === bId){ errorEl.textContent = 'Een nickname kan niet tegen zichzelf battlen.'; return false; }
+  const a = APP_DATA.nicknames.find(n => n.id === aId);
+  const b = APP_DATA.nicknames.find(n => n.id === bId);
+  if (!a || !b) return false;
+
+  const { data, error } = await sb.from('nickname_battles').insert({
+    nickname_a_id: a.id, nickname_a_text: a.text, nickname_a_person_name: a.personRealName, nickname_a_business_unit: a.businessUnit,
+    nickname_b_id: b.id, nickname_b_text: b.text, nickname_b_person_name: b.personRealName, nickname_b_business_unit: b.businessUnit,
+    created_by_user_id: STATE.activeUser,
+  }).select().single();
+  if (error){ errorEl.textContent = 'Aanmaken mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
+  closeModal();
+  openBattleDetail(data.id);
+  return false;
+}
+
+/* ---- battle-detail modal: stemmen + reveal ---- */
+function renderBattleDetailHtml(battle){
+  const counts = getBattleVoteCounts(battle.id);
+  const myVote = getMyVoteInBattle(battle.id);
+  const isOpen = battle.status === 'open';
+  const isDraw = battle.status === 'draw';
+  const isFinished = battle.status === 'finished';
+
+  const sideCard = (side, text, personName, businessUnit) => {
+    const isMine = myVote === side;
+    const isWinner = isFinished && battle.winnerNicknameId === (side === 'a' ? battle.nicknameAId : battle.nicknameBId);
+    const voteCount = side === 'a' ? counts.votesA : counts.votesB;
+    return `
+      <div class="battle-side-card ${!isOpen && isWinner ? 'battle-winner' : ''} ${!isOpen && !isDraw && !isWinner ? 'battle-loser' : ''}">
+        <div class="battle-side-nickname">${escapeHtml(text)}</div>
+        ${personName ? `<div class="battle-side-person">${escapeHtml(personName)}${businessUnit ? ' · ' + escapeHtml(businessUnit) : ''}</div>` : ''}
+        ${isOpen
+          ? `<button type="button" class="btn ${isMine ? 'btn-primary' : 'btn-secondary'} btn-sm" onclick="toggleBattleVote('${battle.id}','${side}')">${isMine ? '✓ Your vote' : 'Vote'}</button>`
+          : `<div class="battle-side-votes">${voteCount} vote${voteCount === 1 ? '' : 's'}</div>${isWinner ? `<span class="badge yellow">🏆 WINNER</span>` : ''}`}
+      </div>
+    `;
+  };
+
+  return `
+    <div data-battle-detail-id="${battle.id}">
+      <div style="display:flex; justify-content:flex-end;"><button type="button" class="btn btn-ghost btn-sm" onclick="closeModal()">✕ Sluiten</button></div>
+      <h3 style="text-align:center;">⚔️ NICKNAME BATTLE</h3>
+      <div class="battle-vs-layout">
+        ${sideCard('a', battle.nicknameAText, battle.nicknameAPersonName, battle.nicknameABusinessUnit)}
+        <div class="battle-vs-divider">VS</div>
+        ${sideCard('b', battle.nicknameBText, battle.nicknameBPersonName, battle.nicknameBBusinessUnit)}
+      </div>
+      ${isOpen ? `
+        <div style="text-align:center; margin-top:12px;">
+          <span class="stat-chip">${counts.totalVotes}/3 votes received</span>
+          ${myVote ? `<div style="margin-top:6px; font-size:12.5px; color:#6b5c4d;">Your vote: ${escapeHtml(myVote === 'a' ? battle.nicknameAText : battle.nicknameBText)}</div>` : ''}
+        </div>
+        <div style="text-align:center; margin-top:10px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="confirmForceCloseBattle('${battle.id}')">Force Close</button>
+        </div>
+      ` : isDraw ? `
+        <div style="text-align:center; margin-top:14px;">
+          <div class="badge grey" style="font-size:16px; padding:8px 16px;">⚔️ DRAW</div>
+          <div style="margin-top:10px;"><button type="button" class="btn btn-primary btn-sm" onclick="startRematch('${battle.id}')">🔁 Rematch</button></div>
+        </div>
+      ` : `
+        <div style="text-align:center; margin-top:14px; font-weight:800;">🏆 WINNER: ${escapeHtml(battle.winnerNicknameText).toUpperCase()}</div>
+      `}
+      <div style="text-align:center; margin-top:16px;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="confirmDeleteBattle('${battle.id}')">🗑️ Delete Battle</button>
+      </div>
+    </div>
+  `;
+}
+
+function openBattleDetail(id){
+  const battle = APP_DATA.nicknameBattles.find(b => b.id === id);
+  if (!battle) return;
+  openModal(renderBattleDetailHtml(battle));
+}
+
+function refreshOpenBattleDetailModal(){
+  const openEl = document.querySelector('[data-battle-detail-id]');
+  if (!openEl) return;
+  const id = openEl.getAttribute('data-battle-detail-id');
+  const fresh = APP_DATA.nicknameBattles.find(b => b.id === id);
+  if (fresh) openModal(renderBattleDetailHtml(fresh));
+  else closeModal();
+}
+
+async function toggleBattleVote(battleId, side){
+  await sb.from('nickname_battle_votes').upsert(
+    { battle_id: battleId, user_id: STATE.activeUser, voted_side: side, updated_at: new Date().toISOString() },
+    { onConflict: 'battle_id,user_id' }
+  );
+  await refreshAppData();
+  refreshOpenBattleDetailModal();
+  checkAndShowBattleReveal(battleId);
+  renderPage();
+}
+
+function confirmForceCloseBattle(battleId){
+  openModal(`
+    <h3>⚔️ Force close this battle?</h3>
+    <p>This resolves the battle using whatever votes exist right now. If it's tied, the battle ends in a draw.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="openBattleDetail('${battleId}')">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="forceCloseBattle('${battleId}')">Force Close</button>
+    </div>
+  `);
+}
+
+async function forceCloseBattle(battleId){
+  await sb.rpc('close_nickname_battle_early', { p_battle_id: battleId });
+  await refreshAppData();
+  refreshOpenBattleDetailModal();
+  checkAndShowBattleReveal(battleId);
+  renderPage();
+}
+
+async function startRematch(battleId){
+  const old = APP_DATA.nicknameBattles.find(b => b.id === battleId);
+  if (!old) return;
+  const { data, error } = await sb.from('nickname_battles').insert({
+    nickname_a_id: old.nicknameAId, nickname_a_text: old.nicknameAText, nickname_a_person_name: old.nicknameAPersonName, nickname_a_business_unit: old.nicknameABusinessUnit,
+    nickname_b_id: old.nicknameBId, nickname_b_text: old.nicknameBText, nickname_b_person_name: old.nicknameBPersonName, nickname_b_business_unit: old.nicknameBBusinessUnit,
+    created_by_user_id: STATE.activeUser,
+  }).select().single();
+  if (error) return;
+  await refreshAppData();
+  closeModal();
+  openBattleDetail(data.id);
+}
+
+function confirmDeleteBattle(battleId){
+  openModal(`
+    <h3>🗑️ Delete this battle?</h3>
+    <p>This permanently removes the battle and its votes. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="openBattleDetail('${battleId}')">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="performDeleteBattle('${battleId}')">Delete</button>
+    </div>
+  `);
+}
+
+async function performDeleteBattle(battleId){
+  await sb.from('nickname_battles').delete().eq('id', battleId);
+  await refreshAppData();
+  closeModal();
+  renderPage();
+}
+
+/* =============================================================
    NICKNAMES MODULE — render helpers + event handlers
    -------------------------------------------------------------
    Kaart is herbruikbaar op drie plekken: Nicknames-pagina, Home
@@ -4664,6 +5197,21 @@ function renderNicknameCard(n, opts = {}){
           <span class="stat-chip">📅 ${n.createdAt}</span>
           <span class="stat-chip">👤 ${resolveUserLabel(n.createdByUserId)}</span>
         </div>
+
+        ${(() => {
+          const record = getNicknameBattleRecord(n.id);
+          if (!record.played) return '';
+          return `
+            <div class="section-head" style="margin-top:14px; margin-bottom:8px;"><h3 style="font-size:15px;">⚔️ Battle Record</h3></div>
+            <div class="beer-stats">
+              <div class="beer-stat"><div class="num">${record.played}</div><div class="label">Battles</div></div>
+              <div class="beer-stat"><div class="num">🏆 ${record.wins}</div><div class="label">Wins</div></div>
+              <div class="beer-stat"><div class="num">💀 ${record.losses}</div><div class="label">Losses</div></div>
+              <div class="beer-stat"><div class="num">🔥 ${record.winRate}%</div><div class="label">Win Rate</div></div>
+              <div class="beer-stat"><div class="num">⚔️ ${record.currentStreak}</div><div class="label">Current Streak</div></div>
+            </div>
+          `;
+        })()}
 
         <div class="nickname-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="openLogUsageModal('${n.id}')">➕ Gebruik registreren</button>
