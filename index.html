@@ -2403,11 +2403,13 @@ const BEER_STATE = {
    formDraft.avatarPhoto bij People). */
 let beerFormPhoto = null;
 
-/* Draft voor het nieuwe-sessie-formulier: welke bieren/deelnemers
-   zijn aangevinkt, en de al ingevulde score/review/aantal per
-   bier×deelnemer-combinatie (zodat die niet verloren gaan als de
-   matrix opnieuw wordt opgebouwd na een selectie-wijziging). */
-let SESSION_DRAFT = { beerIds: [], participantIds: [], entries: {} };
+/* Draft voor het nieuwe-sessie-formulier / bewerk-formulier: welke
+   deelnemers zijn aangevinkt, en PER DEELNEMER een eigen lijst van
+   bierregels ({beerId, quantity, score, review}). Bewust per-deelnemer
+   (niet als bier×deelnemer-matrix) — een bierregel bestaat alleen als
+   hij expliciet via "+ Add beer for X" is toegevoegd voor precies die
+   ene deelnemer, nooit automatisch voor de rest van de sessie. */
+let SESSION_DRAFT = { participantIds: [], perParticipant: {} };
 
 /* Tijdelijke "draft" voor het avatar-gedeelte van het formulier.
    Los van de rest van het formulier gehouden zodat we swatches/foto's
@@ -6129,22 +6131,31 @@ function renderSessionDetailPage(data){
     </section>
 
     <section class="section">
-      <div class="section-head"><h3>📋 Scores in deze sessie</h3></div>
-      <div class="row-list">
-        ${session.entries.map(e => {
-          const u = findUser(e.userId);
-          const b = APP_DATA.beers.find(x => x.id === e.beerId);
-          return `
-            <div class="row-item" style="cursor:default;">
-              <div class="avatar" style="background:${u ? u.avatarColor : 'var(--mint)'}">${u ? u.avatarEmoji : '❓'}</div>
-              <div class="info">
-                <div class="name">${resolveUserLabel(e.userId)} — ${b ? escapeHtml(b.name) : '(verwijderd bier)'}: ${e.score}/10${e.quantity !== 1 ? ` (${e.quantity}×)` : ''}${e.firstTime ? ' 🆕' : ''}</div>
-                <div class="sub">${e.review ? escapeHtml(e.review) : 'Geen review'}</div>
-              </div>
+      <div class="section-head"><h3>📋 Bieren gedronken tijdens deze sessie</h3></div>
+      <p style="font-size:12.5px; color:#8a7a6b; font-weight:700; margin-bottom:12px;">Per bier alleen de deelnemers die het effectief dronken/beoordeelden — niet automatisch iedereen.</p>
+      ${session.beerIds.length ? session.beerIds.map(beerId => {
+        const b = APP_DATA.beers.find(x => x.id === beerId);
+        const drinkers = session.entries.filter(e => e.beerId === beerId);
+        return `
+          <div class="sticker-card" style="margin-bottom:12px;">
+            <div class="lore-item-title" style="margin-bottom:8px;">🍺 ${b ? escapeHtml(b.name) : '(verwijderd bier)'}</div>
+            <div class="row-list">
+              ${drinkers.map(e => {
+                const u = findUser(e.userId);
+                return `
+                  <div class="row-item" style="cursor:default;">
+                    <div class="avatar" style="background:${u ? u.avatarColor : 'var(--mint)'}">${u ? u.avatarEmoji : '❓'}</div>
+                    <div class="info">
+                      <div class="name">${resolveUserLabel(e.userId)}${e.quantity ? ` — ${e.quantity}×` : ''}${typeof e.score === 'number' && e.score > 0 ? ` · ${e.score}/10` : ''}${e.firstTime ? ' 🆕' : ''}</div>
+                      <div class="sub">${e.review ? escapeHtml(e.review) : 'Geen review'}</div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
             </div>
-          `;
-        }).join('')}
-      </div>
+          </div>
+        `;
+      }).join('') : emptyState('Nog geen bieren geregistreerd in deze sessie.')}
     </section>
   `;
 }
@@ -6179,13 +6190,15 @@ function openSessionForm(mode, sessionId){
   BEER_STATE.sessionFormEditId = editMode ? sessionId : null;
 
   if (editMode){
-    const entries = {};
-    session.entries.forEach(e => {
-      entries[`${e.beerId}__${e.userId}`] = { score: e.score || 0, review: e.review || '', quantity: e.quantity || 0, firstTime: e.firstTime };
+    const perParticipant = {};
+    session.participantIds.forEach(userId => {
+      perParticipant[userId] = session.entries
+        .filter(e => e.userId === userId)
+        .map(e => ({ beerId: e.beerId, quantity: e.quantity || 0, score: e.score || 0, review: e.review || '' }));
     });
-    SESSION_DRAFT = { beerIds: [...session.beerIds], participantIds: [...session.participantIds], entries };
+    SESSION_DRAFT = { participantIds: [...session.participantIds], perParticipant };
   } else {
-    SESSION_DRAFT = { beerIds: [], participantIds: [], entries: {} };
+    SESSION_DRAFT = { participantIds: [], perParticipant: {} };
   }
 
   BEER_STATE.view = 'sessionForm';
@@ -6225,22 +6238,14 @@ function renderSessionFormPage(data){
       </div>
 
       <div class="form-field" style="margin-top:14px;">
-        <label class="form-label">Welke bier(en)? *</label>
-        <div class="lore-type-toggle" style="flex-wrap:wrap;">
-          ${data.beers.map(b => `<button type="button" class="btn ${SESSION_DRAFT.beerIds.includes(b.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionBeer('${b.id}', this)">🍺 ${escapeHtml(b.name)}</button>`).join('')}
-        </div>
-        ${!data.beers.length ? emptyState('Voeg eerst een bier toe via de Beer Database.') : ''}
-      </div>
-
-      <div class="form-field" style="margin-top:14px;">
         <label class="form-label">Wie neemt deel? *</label>
         <div class="lore-type-toggle">
           ${data.users.map(u => `<button type="button" class="btn ${SESSION_DRAFT.participantIds.includes(u.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionParticipant('${u.id}', this)">${u.avatarEmoji} ${u.displayName}</button>`).join('')}
         </div>
       </div>
 
-      <div id="session-matrix" style="margin-top:16px;">
-        ${buildSessionMatrixHtml()}
+      <div id="session-participant-beers" style="margin-top:16px;">
+        ${buildParticipantBeerListsHtml()}
       </div>
 
       <div id="sf-error" class="form-error"></div>
@@ -6252,73 +6257,154 @@ function renderSessionFormPage(data){
   `;
 }
 
-function toggleSessionBeer(beerId, btn){
-  const idx = SESSION_DRAFT.beerIds.indexOf(beerId);
-  if (idx === -1) SESSION_DRAFT.beerIds.push(beerId); else SESSION_DRAFT.beerIds.splice(idx, 1);
-  btn.classList.toggle('btn-primary');
-  btn.classList.toggle('btn-ghost');
-  renderSessionMatrix();
-}
-
 function toggleSessionParticipant(userId, btn){
   const idx = SESSION_DRAFT.participantIds.indexOf(userId);
-  if (idx === -1) SESSION_DRAFT.participantIds.push(userId); else SESSION_DRAFT.participantIds.splice(idx, 1);
+  if (idx === -1){
+    SESSION_DRAFT.participantIds.push(userId);
+    if (!SESSION_DRAFT.perParticipant[userId]) SESSION_DRAFT.perParticipant[userId] = [];
+  } else {
+    SESSION_DRAFT.participantIds.splice(idx, 1);
+  }
   btn.classList.toggle('btn-primary');
   btn.classList.toggle('btn-ghost');
-  renderSessionMatrix();
+  renderParticipantBeerLists();
 }
 
-/* Bouwt de score-matrix (bier × deelnemer) als HTML-string — gebruikt
-   zowel bij de initiële paginarender (add: leeg, edit: vooraf gevuld)
-   als bij reactieve updates via renderSessionMatrix() hieronder,
-   zonder de rest van het formulier (datum/locatie/knoppen) opnieuw
-   te renderen -- zo blijft alles wat al is ingevuld bewaard. */
-function buildSessionMatrixHtml(){
-  if (!SESSION_DRAFT.beerIds.length || !SESSION_DRAFT.participantIds.length){
-    return emptyState('Kies minstens één bier en één deelnemer om scores in te vullen.');
+/* Per-deelnemer kaarten met hun eigen bierregels + "+ Add beer for X"
+   -- bewust GEEN bier×deelnemer-matrix meer. Een bierregel bestaat
+   alleen als hij expliciet voor die ene deelnemer is toegevoegd, dus
+   een bier toevoegen voor Nick kan nooit een regel voor Elien/Atti
+   aanmaken (de bug die dit vervangt). */
+function buildParticipantBeerListsHtml(){
+  if (!SESSION_DRAFT.participantIds.length){
+    return emptyState('Kies minstens één deelnemer om bieren te registreren.');
   }
 
-  let html = '';
-  SESSION_DRAFT.beerIds.forEach(beerId => {
-    const beer = APP_DATA.beers.find(b => b.id === beerId);
-    if (!beer) return;
-    html += `<div class="section-head" style="margin:14px 0 8px;"><h3 style="font-size:15px;">🍺 ${escapeHtml(beer.name)}</h3></div>`;
-    html += `<div class="grid cols-auto-wide">`;
-    SESSION_DRAFT.participantIds.forEach(userId => {
-      const u = findUser(userId);
-      const key = `${beerId}__${userId}`;
-      const existing = SESSION_DRAFT.entries[key] || { score: 7, review: '', quantity: 1, firstTime: false };
-      html += `
-        <div class="sticker-card" style="text-align:left;">
-          <div class="nickname-person" style="margin-bottom:8px;">${u.avatarEmoji}<span>${escapeHtml(u.displayName)}</span></div>
-          <div class="form-field">
-            <label class="form-label">Score (0-10)</label>
-            <input class="form-input" type="number" min="0" max="10" step="0.5" id="entry-score-${key}" value="${existing.score}">
+  return SESSION_DRAFT.participantIds.map(userId => {
+    const u = findUser(userId);
+    const lines = SESSION_DRAFT.perParticipant[userId] || [];
+    const isMe = userId === STATE.activeUser;
+    return `
+      <div class="sticker-card" style="text-align:left; margin-bottom:12px;">
+        <div class="nickname-person" style="margin-bottom:10px;">${u.avatarEmoji}<span>${escapeHtml(u.displayName)}</span></div>
+        ${lines.length ? `
+          <div class="row-list" style="margin-bottom:10px;">
+            ${lines.map((line, idx) => {
+              const beer = APP_DATA.beers.find(b => b.id === line.beerId);
+              return `
+                <div class="row-item" style="cursor:pointer;" onclick="openAddBeerLineModal('${userId}', ${idx})">
+                  <div class="avatar" style="background:var(--peach)">🍺</div>
+                  <div class="info">
+                    <div class="name">${beer ? escapeHtml(beer.name) : '(onbekend bier)'} — ${line.quantity}×${line.score > 0 ? ` · ${line.score}/10` : ''}</div>
+                    <div class="sub">${line.review ? escapeHtml(line.review) : 'Klik om te bewerken'}</div>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm" onclick="event.stopPropagation(); removeBeerLine('${userId}', ${idx})">🗑</button>
+                </div>
+              `;
+            }).join('')}
           </div>
-          <div class="form-field" style="margin-top:8px;">
-            <label class="form-label">Review</label>
-            <input class="form-input" type="text" id="entry-review-${key}" value="${escapeHtml(existing.review)}" placeholder="Optioneel">
-          </div>
-          <div class="form-field" style="margin-top:8px;">
-            <label class="form-label">Aantal</label>
-            <input class="form-input" type="number" min="0" step="1" id="entry-quantity-${key}" value="${existing.quantity}">
-          </div>
-          <label style="display:flex; align-items:center; gap:6px; margin-top:8px; font-size:12.5px; font-weight:700;">
-            <input type="checkbox" id="entry-firsttime-${key}" ${existing.firstTime ? 'checked' : ''}> Eerste keer geprobeerd
-          </label>
-        </div>
-      `;
-    });
-    html += `</div>`;
-  });
-
-  return html;
+        ` : ''}
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openAddBeerLineModal('${userId}')">+ Add beer ${isMe ? 'I drank' : 'for ' + escapeHtml(u.displayName)}</button>
+      </div>
+    `;
+  }).join('');
 }
 
-function renderSessionMatrix(){
-  const mount = document.getElementById('session-matrix');
+function renderParticipantBeerLists(){
+  const mount = document.getElementById('session-participant-beers');
   if (!mount) return;
-  mount.innerHTML = buildSessionMatrixHtml();
+  mount.innerHTML = buildParticipantBeerListsHtml();
+}
+
+/* ---- "+ Add beer for X" / bierregel bewerken -- altijd voor precies
+   één deelnemer, nooit voor de rest van de sessie. lineIndex meegeven
+   = bestaande regel rechtstreeks bewerken (zet de waarden); weglaten
+   = "voeg bier toe"-modus, die het aantal VERHOOGT i.p.v. een
+   duplicaat te maken als dat bier al op de lijst van deze deelnemer
+   staat. ---- */
+function openAddBeerLineModal(userId, lineIndex){
+  const u = findUser(userId);
+  const isEdit = typeof lineIndex === 'number';
+  const line = isEdit ? SESSION_DRAFT.perParticipant[userId][lineIndex] : null;
+
+  openModal(`
+    <h3>🍺 ${isEdit ? 'Bier bewerken' : 'Bier toevoegen'} — ${escapeHtml(u.displayName)}</h3>
+    <form data-user-id="${userId}" data-line-index="${isEdit ? lineIndex : ''}" onsubmit="return submitAddBeerLine(event)">
+      <div class="form-field">
+        <label class="form-label" for="abl-beer">Bier *</label>
+        <select class="form-input" id="abl-beer" required>
+          <option value="" ${!line ? 'selected' : ''} disabled>— kies een bier —</option>
+          ${APP_DATA.beers.map(b => `<option value="${b.id}" ${line && line.beerId === b.id ? 'selected' : ''}>${escapeHtml(b.name)}</option>`).join('')}
+        </select>
+        ${!APP_DATA.beers.length ? emptyState('Voeg eerst een bier toe via de Beer Database.') : ''}
+      </div>
+      <div class="form-grid" style="margin-top:10px;">
+        <div class="form-field">
+          <label class="form-label" for="abl-quantity">Aantal *</label>
+          <input class="form-input" id="abl-quantity" type="number" min="1" step="1" value="${isEdit ? line.quantity : 1}" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="abl-score">Score (0-10)</label>
+          <input class="form-input" id="abl-score" type="number" min="0" max="10" step="0.5" value="${isEdit && line.score > 0 ? line.score : ''}" placeholder="Optioneel">
+        </div>
+      </div>
+      <div class="form-field" style="margin-top:10px;">
+        <label class="form-label" for="abl-review">Review</label>
+        <input class="form-input" id="abl-review" type="text" value="${isEdit ? escapeHtml(line.review) : ''}" placeholder="Optioneel">
+      </div>
+      <div id="abl-error" class="form-error"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="submit" class="btn btn-primary">${isEdit ? 'Opslaan' : 'Toevoegen'}</button>
+      </div>
+    </form>
+  `);
+}
+
+function submitAddBeerLine(event){
+  event.preventDefault();
+  const form = event.target;
+  const userId = form.dataset.userId;
+  const lineIndexRaw = form.dataset.lineIndex;
+  const isEdit = lineIndexRaw !== '';
+  const errorEl = document.getElementById('abl-error');
+
+  const beerId = document.getElementById('abl-beer').value;
+  const quantity = Math.max(1, parseInt(document.getElementById('abl-quantity').value, 10) || 1);
+  const scoreRaw = document.getElementById('abl-score').value;
+  const score = scoreRaw === '' ? 0 : Math.max(0, Math.min(10, parseFloat(scoreRaw) || 0));
+  const review = document.getElementById('abl-review').value.trim();
+
+  if (!beerId){ errorEl.textContent = 'Kies een bier.'; return false; }
+
+  if (!SESSION_DRAFT.perParticipant[userId]) SESSION_DRAFT.perParticipant[userId] = [];
+  const lines = SESSION_DRAFT.perParticipant[userId];
+
+  if (isEdit){
+    lines[parseInt(lineIndexRaw, 10)] = { beerId, quantity, score, review };
+  } else {
+    const existingIdx = lines.findIndex(l => l.beerId === beerId);
+    if (existingIdx !== -1){
+      // zelfde bier nogmaals toegevoegd voor deze ene deelnemer -> aantal verhogen, geen duplicaat
+      lines[existingIdx] = {
+        beerId, quantity: lines[existingIdx].quantity + quantity,
+        score: score > 0 ? score : lines[existingIdx].score,
+        review: review || lines[existingIdx].review,
+      };
+    } else {
+      lines.push({ beerId, quantity, score, review });
+    }
+  }
+
+  closeModal();
+  renderParticipantBeerLists();
+  return false;
+}
+
+function removeBeerLine(userId, lineIndex){
+  if (!SESSION_DRAFT.perParticipant[userId]) return;
+  SESSION_DRAFT.perParticipant[userId].splice(lineIndex, 1);
+  renderParticipantBeerLists();
 }
 
 async function submitSessionForm(){
@@ -6328,10 +6414,6 @@ async function submitSessionForm(){
 
   if (!date){
     errorEl.textContent = 'Kies een datum.';
-    return;
-  }
-  if (!SESSION_DRAFT.beerIds.length){
-    errorEl.textContent = 'Kies minstens één bier.';
     return;
   }
   if (!SESSION_DRAFT.participantIds.length){
@@ -6355,23 +6437,6 @@ async function submitSessionForm(){
     return;
   }
 
-  const ratingRows = [];
-  const consumptionRows = [];
-  SESSION_DRAFT.beerIds.forEach(beerId => {
-    SESSION_DRAFT.participantIds.forEach(userId => {
-      const key = `${beerId}__${userId}`;
-      const scoreEl = document.getElementById(`entry-score-${key}`);
-      const reviewEl = document.getElementById(`entry-review-${key}`);
-      const quantityEl = document.getElementById(`entry-quantity-${key}`);
-      const score = Math.max(0, Math.min(10, parseFloat(scoreEl?.value) || 0));
-      const review = (reviewEl?.value || '').trim();
-      const quantity = Math.max(0, parseInt(quantityEl?.value, 10) || 0);
-      // lege cellen (geen score en geen aantal) worden niet opgeslagen
-      if (score > 0) ratingRows.push({ beer_id: beerId, user_id: userId, rating: score, review });
-      if (quantity > 0) consumptionRows.push({ beer_id: beerId, user_id: userId, quantity });
-    });
-  });
-
   const { data: session, error: sessionError } = await sb.from('beer_sessions').insert({
     session_date: date, location, created_by_user_id: STATE.activeUser,
   }).select().single();
@@ -6380,6 +6445,15 @@ async function submitSessionForm(){
   await sb.from('beer_session_participants').insert(
     SESSION_DRAFT.participantIds.map(userId => ({ session_id: session.id, user_id: userId }))
   );
+
+  const ratingRows = [];
+  const consumptionRows = [];
+  SESSION_DRAFT.participantIds.forEach(userId => {
+    (SESSION_DRAFT.perParticipant[userId] || []).forEach(line => {
+      if (line.score > 0) ratingRows.push({ beer_id: line.beerId, user_id: userId, rating: line.score, review: line.review });
+      if (line.quantity > 0) consumptionRows.push({ beer_id: line.beerId, user_id: userId, quantity: line.quantity });
+    });
+  });
   if (ratingRows.length){
     await sb.from('beer_ratings').insert(ratingRows.map(r => ({ ...r, session_id: session.id })));
   }
@@ -6392,16 +6466,19 @@ async function submitSessionForm(){
   renderPage();
 }
 
-/* ---- bestaande sessie bewerken: diff tegen wat er al in de DB staat,
-   zodat XP nooit dubbel toegekend wordt --------------------------------
-   - nieuwe rating/consumptie -> insert (triggert de bestaande XP-regels)
-   - bestaande rating gewijzigd -> update, GEEN nieuwe rating-XP
-   - bestaande consumptie-aantal gewijzigd -> update, XP-trigger kent
-     alleen het verschil toe (zie 0005_beer_session_editing.sql)
-   - cel leeggemaakt -> delete (ruimt ook de bijhorende XP op, zie
-     0003_xp_cleanup_triggers.sql)
-   - deelnemer/bier volledig uit de sessie gehaald -> hun/zijn rijen
-     voor deze sessie verwijderen */
+/* ---- bestaande sessie bewerken: diff PER DEELNEMER tegen wat er al
+   in de DB staat (nooit globaal per bier), zodat:
+   - een bierregel die alleen voor deelnemer X bestond nooit records
+     voor andere deelnemers aanmaakt of verwijdert (de kern van deze bugfix)
+   - XP nooit dubbel toegekend wordt:
+     - nieuwe rating/consumptie -> insert (triggert bestaande XP-regels)
+     - bestaande rating gewijzigd -> update, GEEN nieuwe rating-XP
+     - bestaand aantal gewijzigd -> update, delta-XP-trigger kent
+       alleen het verschil toe (zie 0005_beer_session_editing.sql)
+     - regel verwijderd -> delete (ruimt ook de bijhorende XP op, zie
+       0003_xp_cleanup_triggers.sql)
+   - deelnemer volledig uit de sessie gehaald -> al zijn/haar rijen
+     voor deze sessie verwijderen (nooit die van anderen) */
 async function saveEditedSession(sessionId, date, location){
   const existingSession = APP_DATA.beerSessions.find(s => s.id === sessionId);
   if (!existingSession) return false;
@@ -6425,44 +6502,38 @@ async function saveEditedSession(sessionId, date, location){
     await sb.from('beer_session_participants').insert(addedParticipants.map(userId => ({ session_id: sessionId, user_id: userId })));
   }
 
-  const oldBeerIds = existingSession.beerIds;
-  const newBeerIds = SESSION_DRAFT.beerIds;
-  const removedBeerIds = oldBeerIds.filter(id => !newBeerIds.includes(id));
-  if (removedBeerIds.length){
-    await sb.from('beer_ratings').delete().eq('session_id', sessionId).in('beer_id', removedBeerIds);
-    await sb.from('beer_consumption').delete().eq('session_id', sessionId).in('beer_id', removedBeerIds);
-  }
+  for (const userId of newParticipants){
+    const draftLines = SESSION_DRAFT.perParticipant[userId] || [];
+    const existingLines = existingSession.entries.filter(e => e.userId === userId);
 
-  for (const beerId of newBeerIds){
-    for (const userId of newParticipants){
-      const key = `${beerId}__${userId}`;
-      const scoreEl = document.getElementById(`entry-score-${key}`);
-      const reviewEl = document.getElementById(`entry-review-${key}`);
-      const quantityEl = document.getElementById(`entry-quantity-${key}`);
-      const score = Math.max(0, Math.min(10, parseFloat(scoreEl?.value) || 0));
-      const review = (reviewEl?.value || '').trim();
-      const quantity = Math.max(0, parseInt(quantityEl?.value, 10) || 0);
+    // bieren die deze ene deelnemer niet meer heeft -> enkel HAAR/ZIJN rij verwijderen
+    const removedBeerIds = existingLines.map(e => e.beerId).filter(bid => !draftLines.some(l => l.beerId === bid));
+    if (removedBeerIds.length){
+      await sb.from('beer_ratings').delete().eq('session_id', sessionId).eq('user_id', userId).in('beer_id', removedBeerIds);
+      await sb.from('beer_consumption').delete().eq('session_id', sessionId).eq('user_id', userId).in('beer_id', removedBeerIds);
+    }
 
-      const existingEntry = existingSession.entries.find(e => e.beerId === beerId && e.userId === userId);
+    for (const line of draftLines){
+      const existingEntry = existingLines.find(e => e.beerId === line.beerId);
       const hadRating = !!existingEntry && typeof existingEntry.score === 'number' && existingEntry.score > 0;
       const hadConsumption = !!existingEntry && existingEntry.quantity > 0;
 
-      if (score > 0 && !hadRating){
-        await sb.from('beer_ratings').insert({ beer_id: beerId, session_id: sessionId, user_id: userId, rating: score, review });
-      } else if (score > 0 && hadRating){
-        if (score !== existingEntry.score || review !== (existingEntry.review || '')){
-          await sb.from('beer_ratings').update({ rating: score, review }).eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      if (line.score > 0 && !hadRating){
+        await sb.from('beer_ratings').insert({ beer_id: line.beerId, session_id: sessionId, user_id: userId, rating: line.score, review: line.review });
+      } else if (line.score > 0 && hadRating){
+        if (line.score !== existingEntry.score || line.review !== (existingEntry.review || '')){
+          await sb.from('beer_ratings').update({ rating: line.score, review: line.review }).eq('beer_id', line.beerId).eq('session_id', sessionId).eq('user_id', userId);
         }
-      } else if (score <= 0 && hadRating){
-        await sb.from('beer_ratings').delete().eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      } else if (line.score <= 0 && hadRating){
+        await sb.from('beer_ratings').delete().eq('beer_id', line.beerId).eq('session_id', sessionId).eq('user_id', userId);
       }
 
-      if (quantity > 0 && !hadConsumption){
-        await sb.from('beer_consumption').insert({ beer_id: beerId, session_id: sessionId, user_id: userId, quantity });
-      } else if (quantity > 0 && hadConsumption && quantity !== existingEntry.quantity){
-        await sb.from('beer_consumption').update({ quantity }).eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
-      } else if (quantity <= 0 && hadConsumption){
-        await sb.from('beer_consumption').delete().eq('beer_id', beerId).eq('session_id', sessionId).eq('user_id', userId);
+      if (line.quantity > 0 && !hadConsumption){
+        await sb.from('beer_consumption').insert({ beer_id: line.beerId, session_id: sessionId, user_id: userId, quantity: line.quantity });
+      } else if (line.quantity > 0 && hadConsumption && line.quantity !== existingEntry.quantity){
+        await sb.from('beer_consumption').update({ quantity: line.quantity }).eq('beer_id', line.beerId).eq('session_id', sessionId).eq('user_id', userId);
+      } else if (line.quantity <= 0 && hadConsumption){
+        await sb.from('beer_consumption').delete().eq('beer_id', line.beerId).eq('session_id', sessionId).eq('user_id', userId);
       }
     }
   }
