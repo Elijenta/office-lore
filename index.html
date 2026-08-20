@@ -4873,6 +4873,7 @@ function renderCounterHistoryPage(data){
                   <div class="sub">${formatDateTime(h.at)}${h.note ? ' · ' + escapeHtml(h.note) : ''}</div>
                 </div>
                 <span class="badge ${h.delta > 0 ? 'mint' : 'peach'}">${h.delta > 0 ? '+1' : '−1'}</span>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="confirmDeleteCounterEvent('${h.id}')">🗑</button>
               </div>
             `;
           }).join('')}
@@ -5000,6 +5001,24 @@ async function performDeleteCounter(id){
     COUNTER_STATE.view = 'list';
     COUNTER_STATE.historyCounterId = null;
   }
+  renderPage();
+}
+
+function confirmDeleteCounterEvent(eventId){
+  openModal(`
+    <h3>🗑️ Registratie verwijderen?</h3>
+    <p>Deze +1/-1 registratie wordt definitief verwijderd. Dit kan niet ongedaan gemaakt worden.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button type="button" class="btn btn-danger" onclick="performDeleteCounterEvent('${eventId}')">Ja, verwijderen</button>
+    </div>
+  `);
+}
+
+async function performDeleteCounterEvent(eventId){
+  await sb.from('counter_events').delete().eq('id', eventId);
+  await refreshAppData();
+  closeModal();
   renderPage();
 }
 
@@ -5901,16 +5920,34 @@ async function submitBeerForm(event){
   return false;
 }
 
-function confirmDeleteBeer(id){
+async function confirmDeleteBeer(id){
   const b = APP_DATA.beers.find(x => x.id === id);
   if (!b) return;
+
+  const [{ count: consumptionCount }, { count: ratingCount }] = await Promise.all([
+    sb.from('beer_consumption').select('id', { count: 'exact', head: true }).eq('beer_id', id),
+    sb.from('beer_ratings').select('id', { count: 'exact', head: true }).eq('beer_id', id),
+  ]);
+  const sessionCount = new Set(
+    APP_DATA.beerSessions.filter(s => s.beerIds.includes(id)).map(s => s.id)
+  ).size;
+  const inUse = (consumptionCount || 0) > 0 || (ratingCount || 0) > 0;
+
   openModal(`
     <h3>🗑️ Bier verwijderen?</h3>
-    <p>"${escapeHtml(b.name)}" wordt definitief verwijderd, inclusief alle scores/reviews in sessies. Dit kan niet ongedaan gemaakt worden.</p>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
-      <button type="button" class="btn btn-danger" onclick="performDeleteBeer('${id}')">Ja, verwijderen</button>
-    </div>
+    ${inUse ? `
+      <p>"${escapeHtml(b.name)}" is al ${consumptionCount || 0}× geregistreerd${sessionCount ? ` in ${sessionCount} sessie${sessionCount === 1 ? '' : 's'}` : ''} met ${ratingCount || 0} rating${ratingCount === 1 ? '' : 's'}. Verwijderen wist al die consumptie, ratings en de bijhorende XP definitief. Dit kan niet ongedaan gemaakt worden.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="button" class="btn btn-danger" onclick="performDeleteBeer('${id}')">Bier en alle gerelateerde data verwijderen</button>
+      </div>
+    ` : `
+      <p>"${escapeHtml(b.name)}" wordt definitief verwijderd. Dit bier is nog niet gebruikt in een sessie of rating.</p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="button" class="btn btn-danger" onclick="performDeleteBeer('${id}')">Ja, verwijderen</button>
+      </div>
+    `}
   `);
 }
 
@@ -6091,6 +6128,7 @@ function renderSessionDetailPage(data){
         </div>
         <div class="detail-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="openSessionForm('edit', '${session.id}')">✏️ Edit Session</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteSession('${session.id}')">🗑️ Delete Session</button>
         </div>
       </div>
       <div class="detail-meta-row">
@@ -6194,7 +6232,7 @@ function openSessionForm(mode, sessionId){
     session.participantIds.forEach(userId => {
       perParticipant[userId] = session.entries
         .filter(e => e.userId === userId)
-        .map(e => ({ beerId: e.beerId, quantity: e.quantity || 0, score: e.score || 0, review: e.review || '' }));
+        .map(e => ({ beerId: e.beerId, quantity: e.quantity || 0, score: e.score || 0, review: e.review || '', persisted: true }));
     });
     SESSION_DRAFT = { participantIds: [...session.participantIds], perParticipant };
   } else {
@@ -6249,9 +6287,12 @@ function renderSessionFormPage(data){
       </div>
 
       <div id="sf-error" class="form-error"></div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" onclick="cancelSessionForm()">Annuleren</button>
-        <button type="button" class="btn btn-primary" onclick="submitSessionForm()">${editMode ? 'Wijzigingen opslaan' : 'Sessie opslaan'}</button>
+      <div class="form-actions" style="justify-content:space-between;">
+        ${editMode ? `<button type="button" class="btn btn-danger" onclick="confirmDeleteSession('${session.id}')">🗑️ Delete Session</button>` : '<span></span>'}
+        <div style="display:flex; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="cancelSessionForm()">Annuleren</button>
+          <button type="button" class="btn btn-primary" onclick="submitSessionForm()">${editMode ? 'Wijzigingen opslaan' : 'Sessie opslaan'}</button>
+        </div>
       </div>
     </section>
   `;
@@ -6262,12 +6303,57 @@ function toggleSessionParticipant(userId, btn){
   if (idx === -1){
     SESSION_DRAFT.participantIds.push(userId);
     if (!SESSION_DRAFT.perParticipant[userId]) SESSION_DRAFT.perParticipant[userId] = [];
-  } else {
-    SESSION_DRAFT.participantIds.splice(idx, 1);
+    btn.classList.toggle('btn-primary');
+    btn.classList.toggle('btn-ghost');
+    renderParticipantBeerLists();
+    return;
   }
+
+  // deelnemer met al bestaande (persisted) sessiedata mag niet zomaar
+  // stilzwijgend verdwijnen -> bevestiging met échte aantallen tonen
+  const lines = SESSION_DRAFT.perParticipant[userId] || [];
+  const hasPersistedData = lines.some(l => l.persisted);
+  if (hasPersistedData && BEER_STATE.sessionFormMode === 'edit'){
+    confirmRemoveParticipant(userId);
+    return;
+  }
+
+  SESSION_DRAFT.participantIds.splice(idx, 1);
   btn.classList.toggle('btn-primary');
   btn.classList.toggle('btn-ghost');
   renderParticipantBeerLists();
+}
+
+function confirmRemoveParticipant(userId){
+  const u = findUser(userId);
+  const lines = SESSION_DRAFT.perParticipant[userId] || [];
+  const beerCount = lines.reduce((sum, l) => sum + (l.quantity || 0), 0);
+  const ratingCount = lines.filter(l => l.score > 0).length;
+
+  openModal(`
+    <h3>🗑️ Deelnemer verwijderen?</h3>
+    <p>${escapeHtml(u.displayName)} heeft al ${beerCount} bier${beerCount === 1 ? '' : 'en'} en ${ratingCount} rating${ratingCount === 1 ? '' : 's'} in deze sessie. Als je ${escapeHtml(u.displayName)} verwijdert, verdwijnt al die data mee — dit kan niet ongedaan gemaakt worden.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button type="button" class="btn btn-danger" onclick="performRemoveParticipant('${userId}')">${escapeHtml(u.displayName)} en hun data verwijderen</button>
+    </div>
+  `);
+}
+
+async function performRemoveParticipant(userId){
+  const sessionId = BEER_STATE.sessionFormEditId;
+  await sb.from('beer_session_participants').delete().eq('session_id', sessionId).eq('user_id', userId);
+  await sb.from('beer_ratings').delete().eq('session_id', sessionId).eq('user_id', userId);
+  await sb.from('beer_consumption').delete().eq('session_id', sessionId).eq('user_id', userId);
+
+  await refreshAppData();
+  closeModal();
+
+  const idx = SESSION_DRAFT.participantIds.indexOf(userId);
+  if (idx !== -1) SESSION_DRAFT.participantIds.splice(idx, 1);
+  delete SESSION_DRAFT.perParticipant[userId];
+
+  renderPage();
 }
 
 /* Per-deelnemer kaarten met hun eigen bierregels + "+ Add beer for X"
@@ -6341,7 +6427,8 @@ function openAddBeerLineModal(userId, lineIndex){
       <div class="form-grid" style="margin-top:10px;">
         <div class="form-field">
           <label class="form-label" for="abl-quantity">Aantal *</label>
-          <input class="form-input" id="abl-quantity" type="number" min="1" step="1" value="${isEdit ? line.quantity : 1}" required>
+          <input class="form-input" id="abl-quantity" type="number" min="${isEdit ? 0 : 1}" step="1" value="${isEdit ? line.quantity : 1}" required>
+          ${isEdit ? '<div class="form-hint" style="font-size:11.5px; color:#8a7a6b; margin-top:4px;">0 invullen verwijdert dit bier uit de sessie.</div>' : ''}
         </div>
         <div class="form-field">
           <label class="form-label" for="abl-score">Score (0-10)</label>
@@ -6370,7 +6457,8 @@ function submitAddBeerLine(event){
   const errorEl = document.getElementById('abl-error');
 
   const beerId = document.getElementById('abl-beer').value;
-  const quantity = Math.max(1, parseInt(document.getElementById('abl-quantity').value, 10) || 1);
+  const quantityInput = parseInt(document.getElementById('abl-quantity').value, 10);
+  const quantity = isNaN(quantityInput) ? (isEdit ? 0 : 1) : Math.max(0, quantityInput);
   const scoreRaw = document.getElementById('abl-score').value;
   const score = scoreRaw === '' ? 0 : Math.max(0, Math.min(10, parseFloat(scoreRaw) || 0));
   const review = document.getElementById('abl-review').value.trim();
@@ -6381,8 +6469,24 @@ function submitAddBeerLine(event){
   const lines = SESSION_DRAFT.perParticipant[userId];
 
   if (isEdit){
-    lines[parseInt(lineIndexRaw, 10)] = { beerId, quantity, score, review };
+    const idx = parseInt(lineIndexRaw, 10);
+    const existingLine = lines[idx];
+    if (quantity === 0){
+      // aantal op 0 zetten is hetzelfde als verwijderen: voor een
+      // reeds opgeslagen regel via de bevestigde delete-flow, voor een
+      // nog niet opgeslagen regel gewoon lokaal weg (niets te verliezen)
+      closeModal();
+      if (existingLine && existingLine.persisted){
+        confirmRemoveBeerLine(BEER_STATE.sessionFormEditId, userId, existingLine.beerId);
+      } else if (existingLine){
+        lines.splice(idx, 1);
+        renderParticipantBeerLists();
+      }
+      return false;
+    }
+    lines[idx] = { ...existingLine, beerId, quantity, score, review };
   } else {
+    if (quantity < 1){ errorEl.textContent = 'Vul een aantal in.'; return false; }
     const existingIdx = lines.findIndex(l => l.beerId === beerId);
     if (existingIdx !== -1){
       // zelfde bier nogmaals toegevoegd voor deze ene deelnemer -> aantal verhogen, geen duplicaat
@@ -6402,9 +6506,66 @@ function submitAddBeerLine(event){
 }
 
 function removeBeerLine(userId, lineIndex){
-  if (!SESSION_DRAFT.perParticipant[userId]) return;
-  SESSION_DRAFT.perParticipant[userId].splice(lineIndex, 1);
+  const lines = SESSION_DRAFT.perParticipant[userId];
+  if (!lines || !lines[lineIndex]) return;
+  const line = lines[lineIndex];
+
+  // een regel die al in de DB staat mag niet zomaar stilzwijgend
+  // verdwijnen -> bevestigen en meteen verwijderen (los van "Wijzigingen
+  // opslaan"), een nog niet opgeslagen regel mag gewoon lokaal weg
+  if (line.persisted){
+    confirmRemoveBeerLine(BEER_STATE.sessionFormEditId, userId, line.beerId);
+    return;
+  }
+  lines.splice(lineIndex, 1);
   renderParticipantBeerLists();
+}
+
+function confirmRemoveBeerLine(sessionId, userId, beerId){
+  const u = findUser(userId);
+  const beer = APP_DATA.beers.find(b => b.id === beerId);
+  const session = APP_DATA.beerSessions.find(s => s.id === sessionId);
+  const entry = session ? session.entries.find(e => e.userId === userId && e.beerId === beerId) : null;
+  const hasRating = !!entry && typeof entry.score === 'number' && entry.score > 0;
+
+  openModal(`
+    <h3>🗑️ Bier verwijderen uit sessie?</h3>
+    <p>Weet je zeker dat je <strong>${beer ? escapeHtml(beer.name) : 'dit bier'}</strong> wilt verwijderen uit ${escapeHtml(u.displayName)}'s consumptie in deze sessie?</p>
+    ${hasRating ? `
+      <label style="display:flex; align-items:center; gap:8px; margin:12px 0; font-size:13px; font-weight:700;">
+        <input type="checkbox" id="rbl-remove-rating"> Ook de sessie-rating verwijderen (${entry.score}/10)
+      </label>
+    ` : ''}
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+      <button type="button" class="btn btn-danger" onclick="performRemoveBeerLine('${sessionId}','${userId}','${beerId}')">Verwijderen</button>
+    </div>
+  `);
+}
+
+async function performRemoveBeerLine(sessionId, userId, beerId){
+  const removeRatingCheckbox = document.getElementById('rbl-remove-rating');
+  const alsoRemoveRating = removeRatingCheckbox ? removeRatingCheckbox.checked : false;
+
+  await sb.from('beer_consumption').delete().eq('session_id', sessionId).eq('user_id', userId).eq('beer_id', beerId);
+  if (alsoRemoveRating){
+    await sb.from('beer_ratings').delete().eq('session_id', sessionId).eq('user_id', userId).eq('beer_id', beerId);
+  }
+
+  await refreshAppData();
+  closeModal();
+
+  // draft-regels van deze ene deelnemer herbouwen vanuit de verse data,
+  // zodat een bewaarde rating (checkbox uit) correct als losse regel
+  // blijft staan i.p.v. de hele regel lokaal te laten verdwijnen
+  const freshSession = APP_DATA.beerSessions.find(s => s.id === sessionId);
+  if (freshSession){
+    SESSION_DRAFT.perParticipant[userId] = freshSession.entries
+      .filter(e => e.userId === userId)
+      .map(e => ({ beerId: e.beerId, quantity: e.quantity || 0, score: e.score || 0, review: e.review || '', persisted: true }));
+  }
+
+  renderPage();
 }
 
 async function submitSessionForm(){
@@ -6539,6 +6700,29 @@ async function saveEditedSession(sessionId, date, location){
   }
 
   return true;
+}
+
+function confirmDeleteSession(sessionId){
+  openModal(`
+    <h3>🗑️ Delete Beer Session?</h3>
+    <p>This will remove the session and all consumption, session ratings, Perfect Pours and related session data. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="performDeleteSession('${sessionId}')">Delete Session</button>
+    </div>
+  `);
+}
+
+async function performDeleteSession(sessionId){
+  await sb.from('beer_sessions').delete().eq('id', sessionId);
+  await refreshAppData();
+  closeModal();
+
+  BEER_STATE.sessionFormMode = null;
+  BEER_STATE.sessionFormEditId = null;
+  BEER_STATE.sessionDetailId = null;
+  BEER_STATE.view = 'sessions';
+  renderPage();
 }
 
 /* ---------- 6. RENDER: profielmenu (My Profile / Switch User) ----------
