@@ -1661,6 +1661,57 @@
   }
 
   /* =========================================================
+     11d. POETRY CHALLENGES — compact prompt card, kept small per
+     spec (must not push the rest of the Wall below the fold on
+     mobile), same playful Caveat handwritten quote style as the
+     rest of Poetry Wall.
+  ========================================================= */
+  .challenge-card{
+    text-align:center;
+    background: linear-gradient(160deg, var(--lilac) 0%, var(--sky) 100%);
+    border: var(--outline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    padding: 16px 16px 18px;
+  }
+  .challenge-card-label{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+  .challenge-prompt-text{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--ink);
+    margin: 8px auto 4px;
+    max-width: 480px;
+  }
+  .challenge-card-actions{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top: 12px;
+  }
+  .challenge-accepted-banner{
+    text-align:center;
+    background: var(--lilac);
+    border: var(--outline-thin);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+  }
+  .challenge-accepted-label{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 12.5px;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .challenge-accepted-banner .challenge-prompt-text{ font-size: 18px; margin: 0; }
+
+  /* =========================================================
      11c. NICKNAME BATTLES — VS layout stacks vertically on mobile
      by default (flex-wrap), reveal reuses the Abt Dynasty overlay
      mechanism as-is (see JS).
@@ -2074,6 +2125,7 @@ let APP_DATA = {
   nicknameBattles: [],
   nicknameBattleVotes: [],
   nicknameBattleVoteCounts: [],
+  poetryPrompts: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2097,6 +2149,7 @@ async function loadAppData(){
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
+    poetryPromptsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2121,6 +2174,7 @@ async function loadAppData(){
     sb.from('nickname_battles').select('*'),
     sb.from('nickname_battle_votes').select('*'),
     sb.from('nickname_battle_vote_counts').select('*'),
+    sb.from('poetry_prompts').select('*'),
   ]);
 
   for (const res of [
@@ -2131,6 +2185,7 @@ async function loadAppData(){
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
+    poetryPromptsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2337,6 +2392,10 @@ async function loadAppData(){
     createdAt: p.created_at,
     updatedAt: p.updated_at,
     reactions: buildPoemReactions(poemReactionsRes.data || [], p.id),
+    promptId: p.prompt_id,
+    promptTextSnapshot: p.prompt_text_snapshot || '',
+    promptCategorySnapshot: p.prompt_category_snapshot || null,
+    isChallengePoem: !!p.is_challenge_poem,
   }));
 
   const poetLaureateReigns = (poetLaureateReignsRes.data || []).map(r => ({
@@ -2369,10 +2428,22 @@ async function loadAppData(){
     battleId: c.battle_id, totalVotes: c.total_votes, votesA: c.votes_a, votesB: c.votes_b,
   }));
 
+  const poetryPrompts = (poetryPromptsRes.data || []).map(p => ({
+    id: p.id,
+    promptText: p.prompt_text,
+    category: p.category,
+    isDailyEligible: p.is_daily_eligible,
+    isSurpriseEligible: p.is_surprise_eligible,
+    isActive: p.is_active,
+    createdByUserId: p.created_by_user_id,
+    createdAt: p.created_at,
+  }));
+
   APP_DATA = {
     users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
     poems, poemReactions, poetLaureateReigns,
     nicknameBattles, nicknameBattleVotes, nicknameBattleVoteCounts,
+    poetryPrompts,
   };
 }
 
@@ -2396,6 +2467,7 @@ const REALTIME_TABLES = [
   'abt_reigns',
   'poems', 'poem_reactions', 'poet_laureate_reigns',
   'nickname_battles', 'nickname_battle_votes',
+  'poetry_prompts',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -4380,6 +4452,23 @@ function renderUserLorePage(data){
         <div class="beer-stat"><div class="num">${timesPoemOfTheMonth}</div><div class="label">Poem of the Month</div></div>
       </div>
     </section>
+
+    ${(() => {
+      const challengeStats = getChallengeStats(user.id);
+      if (!challengeStats.completed) return '';
+      const favCat = challengeStats.favouriteCategory ? getChallengeCategoryDef(challengeStats.favouriteCategory) : null;
+      return `
+        <section class="section">
+          <div class="section-head"><h3>🎯 Poetry Challenges</h3></div>
+          <div class="beer-stats">
+            <div class="beer-stat"><div class="num">${challengeStats.completed}</div><div class="label">Completed</div></div>
+            <div class="beer-stat"><div class="num">${favCat ? favCat.icon : '—'}</div><div class="label">${favCat ? favCat.label : 'Nog geen favoriet'}</div></div>
+            <div class="beer-stat"><div class="num">${challengeStats.reactionsReceived}</div><div class="label">Reactions op Challenges</div></div>
+          </div>
+          ${challengeStats.mostSuccessful ? `<p style="font-size:12.5px; color:#6b5c4d; font-weight:700; margin-top:10px;">Most successful challenge: "${escapeHtml(challengeStats.mostSuccessful.promptTextSnapshot)}"</p>` : ''}
+        </section>
+      `;
+    })()}
 
     ${renderUserAbtHistorySection(user)}
 
@@ -7836,6 +7925,132 @@ function getPoemOfTheMonth(){
   return scored[0].poem;
 }
 
+/* =============================================================
+   POETRY CHALLENGES — schrijfopdrachten bovenop de Poetry Wall.
+   Prompts leven in een echte tabel (poetry_prompts, later eventueel
+   zelf toe te voegen door de 3 users), niet hardcoded in JS. Een
+   challenge-gedicht is gewoon een normaal gedicht met prompt_id +
+   een bevroren snapshot van de prompt-tekst/categorie (zelfde
+   "denormaliseer naast de FK"-patroon als nickname_battles, zodat de
+   weergave klopt blijft ook als de prompt later wijzigt/verdwijnt).
+   Challenge-XP zit in de bestaande poem-publish-trigger (0012), dus
+   hier is geen aparte XP-boekhouding nodig.
+   ============================================================= */
+const POETRY_CHALLENGE_CATEGORIES = [
+  { id: 'romantic',          icon: '❤️', label: 'Romantic' },
+  { id: 'tragic',            icon: '🥀', label: 'Tragic' },
+  { id: 'office_nonsense',   icon: '🏢', label: 'Office Nonsense' },
+  { id: 'beer_inspired',     icon: '🍺', label: 'Beer Inspired' },
+  { id: 'absolute_nonsense', icon: '🤪', label: 'Absolute Nonsense' },
+  { id: 'dramatic',          icon: '🎭', label: 'Dramatic' },
+  { id: 'abt_dynasty',       icon: '👑', label: 'Abt Dynasty' },
+];
+
+function getChallengeCategoryDef(categoryId){
+  return POETRY_CHALLENGE_CATEGORIES.find(c => c.id === categoryId) || { id: categoryId, icon: '📝', label: categoryId || 'Onbekend' };
+}
+
+/* huidig getoonde prompt op de Wall -- puur sessie-state, wordt nooit
+   door refreshAppData/realtime aangeraakt (zelfde als BEER_STATE etc.) */
+const POETRY_CHALLENGE_STATE = { currentPrompt: null };
+
+/* voorkomt dat dezelfde prompt telkens opnieuw verschijnt binnen één
+   sessie -- niet persistent, hoeft niet meer te zijn dan dat */
+let recentlyShownPromptIds = [];
+function getRandomPrompt(pool){
+  if (!pool.length) return null;
+  const eligible = pool.filter(p => !recentlyShownPromptIds.includes(p.id));
+  const choices = eligible.length ? eligible : pool;
+  const picked = choices[Math.floor(Math.random() * choices.length)];
+  recentlyShownPromptIds.push(picked.id);
+  if (recentlyShownPromptIds.length > 5) recentlyShownPromptIds.shift();
+  return picked;
+}
+
+function shufflePoetryChallenge(){
+  const pool = APP_DATA.poetryPrompts.filter(p => p.isActive);
+  POETRY_CHALLENGE_STATE.currentPrompt = getRandomPrompt(pool);
+  rerenderPoetryChallengeCard();
+}
+
+function surprisePoetryChallenge(){
+  const pool = APP_DATA.poetryPrompts.filter(p => p.isActive && p.isSurpriseEligible);
+  POETRY_CHALLENGE_STATE.currentPrompt = getRandomPrompt(pool);
+  rerenderPoetryChallengeCard();
+}
+
+function rerenderPoetryChallengeCard(){
+  const mount = document.getElementById('poetry-challenge-card-mount');
+  if (mount) mount.innerHTML = renderPoetryChallengeCardHtml();
+}
+
+/* deterministisch, niet opgeslagen -- zelfde filosofie als Quote of
+   the Week/Nickname of the Month: een simpele hash van de datum kiest
+   een index in de (stabiel gesorteerde) daily-eligible prompts, dus
+   elke client berekent onafhankelijk exact dezelfde prompt voor
+   dezelfde kalenderdag, zonder een "vandaag's keuze"-tabel of cron. */
+function simpleStringHash(str){
+  let hash = 0;
+  for (let i = 0; i < str.length; i++){
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+function getDailyChallenge(){
+  const eligible = APP_DATA.poetryPrompts.filter(p => p.isActive && p.isDailyEligible).sort((a, b) => a.id.localeCompare(b.id));
+  if (!eligible.length) return null;
+  return eligible[simpleStringHash(todayISO()) % eligible.length];
+}
+
+/* wie van de 3 users vandaag al een gedicht schreef voor déze exacte
+   daily-prompt-instantie (niet "ooit", scoped op vandaag) */
+function getDailyChallengeCompletion(dailyPrompt){
+  if (!dailyPrompt) return [];
+  const todayPrefix = todayISO();
+  return APP_DATA.users.map(u => {
+    const poem = APP_DATA.poems.find(p => p.authorUserId === u.id && p.isChallengePoem && p.promptId === dailyPrompt.id && p.createdAt.slice(0, 10) === todayPrefix);
+    return { user: u, completed: !!poem, poem };
+  });
+}
+
+function getChallengeStats(userId){
+  const challengePoems = APP_DATA.poems.filter(p => p.authorUserId === userId && p.isChallengePoem);
+  const completed = challengePoems.length;
+
+  const byCategory = {};
+  challengePoems.forEach(p => {
+    if (!p.promptCategorySnapshot) return;
+    byCategory[p.promptCategorySnapshot] = (byCategory[p.promptCategorySnapshot] || 0) + 1;
+  });
+  const favouriteCategory = Object.entries(byCategory).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+  const reactionCount = (p) => POEM_REACTION_TYPES.reduce((sum, r) => sum + (p.reactions[r.id] || []).length, 0);
+  const reactionsReceived = challengePoems.reduce((sum, p) => sum + reactionCount(p), 0);
+  const mostSuccessful = [...challengePoems].sort((a, b) => reactionCount(b) - reactionCount(a))[0] || null;
+
+  return { completed, favouriteCategory, reactionsReceived, mostSuccessful };
+}
+
+function getChallengeLeaderboard(){
+  const reactionCount = (p) => POEM_REACTION_TYPES.reduce((sum, r) => sum + (p.reactions[r.id] || []).length, 0);
+  const countByCategory = (userId, categories) => APP_DATA.poems.filter(p => p.authorUserId === userId && p.isChallengePoem && categories.includes(p.promptCategorySnapshot)).length;
+
+  const mostCompleted = APP_DATA.users
+    .map(u => ({ user: u, value: getChallengeStats(u.id).completed }))
+    .filter(e => e.value > 0).sort((a, b) => b.value - a.value);
+
+  const bestChallengePoem = APP_DATA.poems
+    .filter(p => p.isChallengePoem && reactionCount(p) > 0)
+    .sort((a, b) => reactionCount(b) - reactionCount(a));
+
+  const masterOfNonsense = APP_DATA.users.map(u => ({ user: u, value: countByCategory(u.id, ['absolute_nonsense']) })).filter(e => e.value > 0).sort((a, b) => b.value - a.value);
+  const officeTragedian = APP_DATA.users.map(u => ({ user: u, value: countByCategory(u.id, ['tragic', 'office_nonsense']) })).filter(e => e.value > 0).sort((a, b) => b.value - a.value);
+  const drunkenBard = APP_DATA.users.map(u => ({ user: u, value: countByCategory(u.id, ['beer_inspired']) })).filter(e => e.value > 0).sort((a, b) => b.value - a.value);
+
+  return { mostCompleted, bestChallengePoem, masterOfNonsense, officeTragedian, drunkenBard };
+}
+
 /* ---- compacte klassementen, zelfde {id,icon,title,build()}-vorm als LEADERBOARD_DEFS ---- */
 const POEM_LEADERBOARD_DEFS = [
   {
@@ -7866,11 +8081,121 @@ const POEM_LEADERBOARD_DEFS = [
 
 /* ---- de Wall zelf: POTM-banner, Laureate-kaart, compacte
    leaderboard-sectie, "+ Write a Poem" en de kaartengrid ---- */
+/* ---- 🎲 Poetry Challenge: compacte prompt-kaart bovenaan de Wall ---- */
+function renderPoetryChallengeCardHtml(){
+  const prompt = POETRY_CHALLENGE_STATE.currentPrompt;
+  if (!prompt){
+    return `<div class="challenge-card">${emptyState('Nog geen prompts beschikbaar.')}</div>`;
+  }
+  const cat = getChallengeCategoryDef(prompt.category);
+  return `
+    <div class="challenge-card">
+      <div class="challenge-card-label">🎲 POETRY CHALLENGE</div>
+      <div class="badge poem-mood-badge" style="margin:6px 0;">${cat.icon} ${cat.label.toUpperCase()}</div>
+      <div class="challenge-prompt-text">"${escapeHtml(prompt.promptText)}"</div>
+      <div class="challenge-card-actions">
+        <button type="button" class="btn btn-primary" onclick="acceptPoetryChallenge('${prompt.id}')">✒️ Accept Challenge</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="shufflePoetryChallenge()">🎲 Give Me Another</button>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="surprisePoetryChallenge()">🔥 Give Me Something Stupid</button>
+      </div>
+    </div>
+  `;
+}
+
+function acceptPoetryChallenge(promptId){
+  const prompt = APP_DATA.poetryPrompts.find(p => p.id === promptId);
+  if (!prompt) return;
+  openPoemForm('add', null, prompt);
+}
+
+/* ---- 📜 Challenge of the Day: zelfde prompt voor alle 3 users ---- */
+function renderDailyChallengeSection(){
+  const daily = getDailyChallenge();
+  if (!daily) return '';
+  const cat = getChallengeCategoryDef(daily.category);
+  const completion = getDailyChallengeCompletion(daily);
+  const completedPoems = completion.filter(c => c.completed);
+
+  return `
+    <section class="section">
+      <div class="section-head"><h3>📜 Today's Poetry Challenge</h3></div>
+      <div class="challenge-card">
+        <div class="badge poem-mood-badge" style="margin-bottom:6px;">${cat.icon} ${cat.label.toUpperCase()}</div>
+        <div class="challenge-prompt-text">"${escapeHtml(daily.promptText)}"</div>
+        <div class="row-list" style="margin-top:14px; text-align:left;">
+          ${completion.map(c => `
+            <div class="row-item" style="cursor:default;">
+              ${avatarHtml(c.user, 28)}
+              <div class="info"><div class="name">${escapeHtml(c.user.displayName)}</div></div>
+              <span class="badge ${c.completed ? 'mint' : 'grey'}">${c.completed ? '✅ Completed' : '⏳ Not attempted'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ${completedPoems.length >= 2 ? `
+        <div style="text-align:center; margin:18px 0 10px; font-family:var(--font-display); font-weight:800;">⚔️ SAME PROMPT. DIFFERENT POETS.</div>
+        <div class="grid cols-auto">${completedPoems.map(c => renderPoemCard(c.poem)).join('')}</div>
+      ` : ''}
+    </section>
+  `;
+}
+
+/* ---- 🎯 Challenge Board: compacte klassementen ---- */
+function renderChallengeBoardSection(){
+  const h = getChallengeLeaderboard();
+  const board = (title, icon, entries, formatValue) => `
+    <div class="sticker-card" style="text-align:left;">
+      <div class="lore-item-title" style="margin-bottom:8px;">${icon} ${title}</div>
+      ${entries.length ? `
+        <div class="row-list">
+          ${entries.slice(0, 3).map((e, idx) => `
+            <div class="row-item" style="cursor:default;">
+              <div class="rank">#${idx + 1}</div>
+              ${avatarHtml(e.user, 32)}
+              <div class="info"><div class="name">${escapeHtml(e.user.displayName)}</div></div>
+              <div class="value">${formatValue(e)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : emptyState('Nog geen data.')}
+    </div>
+  `;
+  const bestPoemBoard = `
+    <div class="sticker-card" style="text-align:left;">
+      <div class="lore-item-title" style="margin-bottom:8px;">🏆 Best Challenge Poem</div>
+      ${h.bestChallengePoem.length ? renderPoemCard(h.bestChallengePoem[0]) : emptyState('Nog geen data.')}
+    </div>
+  `;
+  return `
+    <section class="section">
+      <div class="section-head"><h3>🎯 Challenge Board</h3></div>
+      <div class="grid cols-auto">
+        ${board('Most Challenges Completed', '🎯', h.mostCompleted, e => `${e.value} completed`)}
+        ${bestPoemBoard}
+        ${board('Master of Nonsense', '🤪', h.masterOfNonsense, e => `${e.value}×`)}
+        ${board('Office Tragedian', '🥀', h.officeTragedian, e => `${e.value}×`)}
+        ${board('Drunken Bard', '🍺', h.drunkenBard, e => `${e.value}×`)}
+      </div>
+    </section>
+  `;
+}
+
 function renderPoetryWallPage(data){
   const potm = getPoemOfTheMonth();
   const laureateId = POET_LAUREATE_STATE.currentLaureateId;
   const laureate = laureateId ? findUser(laureateId) : null;
   const sortedPoems = [...data.poems].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  if (!POETRY_CHALLENGE_STATE.currentPrompt){
+    POETRY_CHALLENGE_STATE.currentPrompt = getRandomPrompt(data.poetryPrompts.filter(p => p.isActive));
+  }
+  const challengeCardSection = `
+    <section class="section">
+      <div id="poetry-challenge-card-mount">${renderPoetryChallengeCardHtml()}</div>
+    </section>
+  `;
+  const dailyChallengeSection = renderDailyChallengeSection();
+  const challengeBoardSection = renderChallengeBoardSection();
 
   const potmSection = potm ? `
     <section class="section">
@@ -7922,7 +8247,7 @@ function renderPoetryWallPage(data){
     </section>
   `;
 
-  return potmSection + laureateSection + leaderboardSection + wallSection;
+  return challengeCardSection + dailyChallengeSection + challengeBoardSection + potmSection + laureateSection + leaderboardSection + wallSection;
 }
 
 /* ---- kaart op de Wall: preview + "Read full poem" bij langere tekst ---- */
@@ -7996,6 +8321,7 @@ function renderPoemDetailPage(data){
         <div>
           <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
           ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
+          ${poem.isChallengePoem ? `<span class="badge lilac">🎯 Challenge Poem</span>` : ''}
           <h2 class="poem-title-detail">${escapeHtml(poem.title)}</h2>
           <div class="nickname-person" style="margin-top:6px;">
             ${author ? avatarHtml(author, 26) : ''}
@@ -8013,6 +8339,12 @@ function renderPoemDetailPage(data){
     </section>
 
     <section class="section">
+      ${poem.isChallengePoem && poem.promptTextSnapshot ? `
+        <div class="challenge-accepted-banner" style="margin-bottom:14px;">
+          <div class="challenge-accepted-label">🎯 POETRY CHALLENGE</div>
+          <div class="challenge-prompt-text">"${escapeHtml(poem.promptTextSnapshot)}"</div>
+        </div>
+      ` : ''}
       <div class="poem-body">${escapeHtml(poem.content)}</div>
       ${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}
     </section>
@@ -8066,11 +8398,24 @@ async function togglePoemReaction(poemId, reactionType){
 }
 
 /* ---- "Write a Poem" (modal, zelfde patroon als Lore) ---- */
-function renderPoemFormHtml(mode, poem){
+function renderPoemFormHtml(mode, poem, prompt){
   const selectedMood = poem ? poem.mood : 'other';
+  // bij add: prompt komt uit acceptPoetryChallenge(); bij edit: een
+  // bestaand challenge-gedicht toont zijn eigen bevroren snapshot,
+  // alleen ter info, niet meer wijzigbaar
+  const challengePromptId = prompt ? prompt.id : (poem?.promptId || '');
+  const challengePromptText = prompt ? prompt.promptText : (poem?.promptTextSnapshot || '');
+  const challengePromptCategory = prompt ? prompt.category : (poem?.promptCategorySnapshot || '');
+  const challengeBanner = challengePromptText ? `
+    <div class="challenge-accepted-banner">
+      <div class="challenge-accepted-label">🎯 CHALLENGE ACCEPTED</div>
+      <div class="challenge-prompt-text">"${escapeHtml(challengePromptText)}"</div>
+    </div>
+  ` : '';
   return `
     <h3>${mode === 'edit' ? '✏️ Gedicht bewerken' : '✒️ Write a Poem'}</h3>
-    <form data-mode="${mode}" data-id="${poem?.id || ''}" onsubmit="return submitPoemForm(event)">
+    <form data-mode="${mode}" data-id="${poem?.id || ''}" data-prompt-id="${challengePromptId}" data-prompt-text="${escapeHtml(challengePromptText)}" data-prompt-category="${challengePromptCategory}" onsubmit="return submitPoemForm(event)">
+      ${challengeBanner}
       <div class="form-field">
         <label class="form-label" for="pf-title">Title *</label>
         <input class="form-input" id="pf-title" type="text" value="${poem ? escapeHtml(poem.title) : ''}" placeholder="Give it a title" required>
@@ -8107,10 +8452,10 @@ function selectPoemMood(moodId, btn){
   });
 }
 
-function openPoemForm(mode, poemId){
+function openPoemForm(mode, poemId, prompt){
   const poem = mode === 'edit' ? APP_DATA.poems.find(p => p.id === poemId) : null;
   if (mode === 'edit' && !poem) return;
-  openModal(renderPoemFormHtml(mode, poem));
+  openModal(renderPoemFormHtml(mode, poem, prompt));
 }
 
 async function submitPoemForm(event){
@@ -8135,10 +8480,18 @@ async function submitPoemForm(event){
 
   let error;
   if (mode === 'edit'){
+    // prompt_id/is_challenge_poem worden bij edit NOOIT aangepast --
+    // vastgelegd bij aanmaak, net als de bestaande publish-XP-trigger
+    // enkel op INSERT reageert
     ({ error } = await sb.from('poems').update({ title, content, mood, context: context || null }).eq('id', editId));
   } else {
+    const promptId = form.dataset.promptId || null;
     ({ error } = await sb.from('poems').insert({
       author_user_id: STATE.activeUser, title, content, mood, context: context || null,
+      prompt_id: promptId || null,
+      prompt_text_snapshot: promptId ? form.dataset.promptText : null,
+      prompt_category_snapshot: promptId ? form.dataset.promptCategory : null,
+      is_challenge_poem: !!promptId,
     }));
   }
 
