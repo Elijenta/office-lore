@@ -6,7 +6,7 @@
 <title>Office Lore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* =========================================================
@@ -1536,6 +1536,131 @@
   .dynasty-hero .section:last-child{ margin-bottom: 0; }
 
   /* =========================================================
+     11b. POETRY WALL — paper-card look, kept light so it still
+     reads as the same cartoon app: a faint lined-paper texture,
+     a serif poem body, small pen/feather accents. Reuses
+     .vote-btn/.vote-row/.lore-type-toggle/.stat-chip as-is for
+     mood picker + the 9 reaction chips.
+  ========================================================= */
+  .poem-card{
+    cursor: pointer;
+    text-align: left;
+    background:
+      repeating-linear-gradient(180deg, transparent 0 27px, rgba(43,35,32,.05) 27px 28px),
+      linear-gradient(165deg, #fffdf6 0%, #fff8ef 100%);
+    position: relative;
+    transition: transform .15s ease;
+  }
+  .poem-card:hover{ transform: translateY(-2px); }
+  .poem-card::before{
+    content: '🖋️';
+    position: absolute;
+    top: -10px;
+    right: 14px;
+    font-size: 20px;
+    transform: rotate(18deg);
+  }
+  .poem-card-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .poem-title{
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 19px;
+    margin-bottom: 6px;
+  }
+  .poem-title-detail{
+    font-family: 'Lora', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 8px 0 2px;
+  }
+  .poem-body{
+    font-family: 'Lora', serif;
+    font-size: 15px;
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    color: var(--ink);
+  }
+  .poem-body-preview{
+    color: #4a3f38;
+    max-height: 4.6em;
+    overflow: hidden;
+  }
+  .poem-read-more{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--peach-deep);
+    margin-top: 2px;
+  }
+  .poem-context{
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b5c4d;
+    margin-top: 14px;
+  }
+  .poem-mood-badge{ background: var(--lilac); }
+  .poem-textarea{
+    resize: vertical;
+    min-height: 140px;
+    font-family: 'Lora', serif;
+    line-height: 1.6;
+  }
+
+  .potm-banner{
+    background: linear-gradient(160deg, var(--yellow) 0%, var(--peach) 100%);
+    border: var(--outline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    padding: 16px 16px 4px;
+  }
+  .potm-banner-label{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .potm-banner .poem-card{ box-shadow: none; cursor: pointer; }
+
+  .laureate-card{
+    text-align: center;
+    background: linear-gradient(165deg, var(--lilac) 0%, var(--sky) 100%);
+    border: var(--outline);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-pop);
+    padding: 22px 18px 18px;
+  }
+  .laureate-label{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+  .laureate-name{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-family: var(--font-display);
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+  .laureate-stats{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px;
+    font-weight: 800;
+    font-size: 12.5px;
+    color: #4a3f6b;
+    margin-bottom: 10px;
+  }
+  .laureate-subtitle{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 19px;
+    color: #4a3f6b;
+  }
+
+  /* =========================================================
      12. PERFECT POUR / MASTER OF THE POUR
      (speelse bier-/schuim-animaties op de winnende podiumplek
      en op de stemknoppen in de sessiedetailpagina)
@@ -1901,6 +2026,9 @@ let APP_DATA = {
   beerSessions: [],
   abtReigns: [],
   standaloneBeerEntries: [],
+  poems: [],
+  poemReactions: [],
+  poetLaureateReigns: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -1922,6 +2050,7 @@ async function loadAppData(){
     countersRes, counterEventsRes,
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
     abtReignsRes,
+    poemsRes, poemReactionsRes, poetLaureateReignsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -1940,6 +2069,9 @@ async function loadAppData(){
     sb.from('beer_consumption').select('*'),
     sb.from('perfect_pours').select('*'),
     sb.from('abt_reigns').select('*'),
+    sb.from('poems').select('*'),
+    sb.from('poem_reactions').select('*'),
+    sb.from('poet_laureate_reigns').select('*'),
   ]);
 
   for (const res of [
@@ -1948,6 +2080,7 @@ async function loadAppData(){
     countersRes, counterEventsRes,
     beersRes, beerSessionsRes, participantsRes, ratingsRes, consumptionRes, pourRes,
     abtReignsRes,
+    poemsRes, poemReactionsRes, poetLaureateReignsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2128,7 +2261,45 @@ async function loadAppData(){
   });
   const standaloneBeerEntries = [...standaloneRatings, ...standaloneConsumption];
 
-  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries };
+  /* Poetry Wall: elke reaction-rij hoort bij precies één poem, zelfde
+     "child rows join client-side" patroon als quotes/anecdotes
+     (buildReactions hierboven), maar met 9 mogelijke reaction_types
+     i.p.v. 3 -> geseed vanuit POEM_REACTION_TYPES i.p.v. hardcoded. */
+  function buildPoemReactions(rows, poemId){
+    const reactions = {};
+    POEM_REACTION_TYPES.forEach(r => { reactions[r.id] = []; });
+    rows.filter(r => r.poem_id === poemId).forEach(r => { if (reactions[r.reaction_type]) reactions[r.reaction_type].push(r.user_id); });
+    return reactions;
+  }
+
+  const poemReactions = (poemReactionsRes.data || []).map(r => ({
+    id: r.id, poemId: r.poem_id, userId: r.user_id, reactionType: r.reaction_type, createdAt: r.created_at,
+  }));
+
+  const poems = (poemsRes.data || []).map(p => ({
+    id: p.id,
+    authorUserId: p.author_user_id,
+    title: p.title,
+    content: p.content,
+    mood: p.mood,
+    context: p.context || '',
+    actuallyGoodBonusAwarded: p.actually_good_bonus_awarded,
+    createdAt: p.created_at,
+    updatedAt: p.updated_at,
+    reactions: buildPoemReactions(poemReactionsRes.data || [], p.id),
+  }));
+
+  const poetLaureateReigns = (poetLaureateReignsRes.data || []).map(r => ({
+    id: r.id,
+    userId: r.user_id,
+    startedAt: r.started_at,
+    endedAt: r.ended_at,
+    startingPoetryXp: r.starting_poetry_xp,
+    endingPoetryXp: r.ending_poetry_xp,
+    dethronedByUserId: r.dethroned_by_user_id,
+  }));
+
+  APP_DATA = { users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries, poems, poemReactions, poetLaureateReigns };
 }
 
 /* Debounced "refetch everything + redraw" — used after every mutation
@@ -2149,6 +2320,7 @@ const REALTIME_TABLES = [
   'counters', 'counter_events',
   'beers', 'beer_sessions', 'beer_session_participants', 'beer_ratings', 'beer_consumption', 'perfect_pours',
   'abt_reigns',
+  'poems', 'poem_reactions', 'poet_laureate_reigns',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -2397,6 +2569,14 @@ const BEER_STATE = {
   sessionDetailId: null,
   sessionFormMode: null, // 'add' | 'edit', zelfde patroon als openBeerForm(mode, id)
   sessionFormEditId: null,
+};
+
+/* Poetry Wall-module: eigen substate voor de Wall/detail-weergave.
+   "Write a Poem" gaat via de generieke modal (openModal/closeModal),
+   net als Nicknames/Lore, dus geen apart formulier-view nodig. */
+const POETRY_STATE = {
+  view: 'wall', // 'wall' | 'poemDetail'
+  poemDetailId: null,
 };
 
 /* Draft voor de foto in het bier-formulier (zelfde patroon als
@@ -3425,6 +3605,7 @@ const NAV_ITEMS = [
   { id: 'lore',         label: 'Lore',         emoji: '📖' },
   { id: 'counters',     label: 'Counters',     emoji: '🔢' },
   { id: 'beerclub',     label: 'Beer Club',    emoji: '🍺' },
+  { id: 'poetrywall',   label: 'Poetry Wall',  emoji: '✒️' },
   { id: 'leaderboards', label: 'Leaderboards', emoji: '🏆' },
 ];
 
@@ -3640,9 +3821,52 @@ const MODULES = {
         </section>
       `;
 
+      const potmHome = getPoemOfTheMonth();
+      const newestPoem = [...data.poems].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+      const homeLaureate = POET_LAUREATE_STATE.currentLaureateId ? findUser(POET_LAUREATE_STATE.currentLaureateId) : null;
+      const poetryWallSection = `
+        <section class="section">
+          <div class="section-head">
+            <h3>✒️ From the Poetry Wall</h3>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="goToPage('poetrywall')">Visit Poetry Wall →</button>
+          </div>
+          ${data.poems.length ? `
+            <div class="row-list">
+              ${potmHome ? `
+                <div class="row-item" style="cursor:pointer;" onclick="goToPage('poetrywall')">
+                  <div class="avatar-emoji" style="width:34px;height:34px;background:var(--yellow);font-size:16px;">🏆</div>
+                  <div class="info">
+                    <div class="name">Poem of the Month: ${escapeHtml(potmHome.title)}</div>
+                    <div class="sub">door ${resolveUserLabel(potmHome.authorUserId)}</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${newestPoem ? `
+                <div class="row-item" style="cursor:pointer;" onclick="POETRY_STATE.view='poemDetail'; POETRY_STATE.poemDetailId='${newestPoem.id}'; goToPage('poetrywall');">
+                  <div class="avatar-emoji" style="width:34px;height:34px;background:var(--sky);font-size:16px;">📜</div>
+                  <div class="info">
+                    <div class="name">Newest: ${escapeHtml(newestPoem.title)}</div>
+                    <div class="sub">door ${resolveUserLabel(newestPoem.authorUserId)}</div>
+                  </div>
+                </div>
+              ` : ''}
+              ${homeLaureate ? `
+                <div class="row-item" style="cursor:pointer;" onclick="goToPage('poetrywall')">
+                  <div class="avatar-emoji" style="width:34px;height:34px;background:var(--lilac);font-size:16px;">🪶</div>
+                  <div class="info">
+                    <div class="name">Current Poet Laureate: ${escapeHtml(homeLaureate.displayName)}</div>
+                    <div class="sub">${computePoemXp(homeLaureate.id)} Poetry XP</div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+          ` : emptyState('Nog geen gedichten. Wees de eerste dichter van het kantoor.')}
+        </section>
+      `;
+
       return headerSection + nicknameWallSection + todayAtOfficeSection + quoteOfTheWeekSection
         + nicknameOfTheMonthSection + abtLordSection + latestBeerSessionSection
-        + top3LoreSection + top3BeerXpSection + activeCountersSection;
+        + top3LoreSection + top3BeerXpSection + activeCountersSection + poetryWallSection;
     }
   },
 
@@ -3773,6 +3997,16 @@ const MODULES = {
     }
   },
 
+  poetrywall: {
+    title: 'Poetry Wall',
+    subtitle: 'Waar collega\'s plots ook dichters bleken te zijn.',
+    emoji: '✒️',
+    render(data){
+      if (POETRY_STATE.view === 'poemDetail') return renderPoemDetailPage(data);
+      return renderPoetryWallPage(data);
+    }
+  },
+
   leaderboards: {
     title: 'Leaderboards',
     subtitle: 'Automatisch berekende klassementen op basis van alle Office Lore-data.',
@@ -3801,7 +4035,23 @@ const MODULES = {
         </section>
       `;
 
-      return loreBoards + beerPointer;
+      /* Zelfde doorverwijzing als bij Beer: de Poetry-klassementen
+         (Poet Laureate, Most Published, Actually Good, ...) wonen op
+         de Poetry Wall zelf, niet dubbel hier. */
+      const poetryPointer = `
+        <section class="section">
+          <div class="sticker-card" style="text-align:center; padding:26px 18px;">
+            <div style="font-size:34px;">✒️🏆</div>
+            <h3 style="margin:8px 0 4px;">Poetry Leaderboard</h3>
+            <p style="font-size:13px; color:#6b5c4d; max-width:440px; margin:0 auto 14px;">
+              The Poet Laureate, Most Published, Actually Good en nog meer klassementen wonen samen op de Poetry Wall.
+            </p>
+            <button type="button" class="btn btn-primary" onclick="goToPage('poetrywall')">✒️ Bekijk Poetry Wall</button>
+          </div>
+        </section>
+      `;
+
+      return loreBoards + beerPointer + poetryPointer;
     }
   },
 };
@@ -3836,10 +4086,19 @@ function renderUserLorePage(data){
   const isFallenAbt = !isAbtLord && ABT_LORD_STATE.fallenAbtId === user.id;
   const pourRows = getMasterOfThePourRows();
   const isMasterOfPour = pourRows[0] && pourRows[0].total > 0 && pourRows[0].user.id === user.id;
+  const isPoetLaureate = POET_LAUREATE_STATE.currentLaureateId === user.id;
   const awards = [];
   if (isAbtLord) awards.push({ icon: '👑', label: 'The Abt Lord' });
   if (isFallenAbt) awards.push({ icon: '💀', label: 'The Fallen Abt' });
   if (isMasterOfPour) awards.push({ icon: '🏆', label: 'Master of the Pour' });
+  if (isPoetLaureate) awards.push({ icon: '🪶', label: 'The Poet Laureate' });
+
+  const poemXp = computePoemXp(user.id);
+  const poemLevel = getPoemLevelInfo(poemXp).level;
+  const userPoems = data.poems.filter(p => p.authorUserId === user.id);
+  const totalReactionsReceived = POEM_REACTION_TYPES.reduce((sum, r) => sum + countReceivedReactions(user.id, r.id), 0);
+  const mostReceivedReaction = getMostReceivedReaction(user.id);
+  const timesPoemOfTheMonth = userPoems.filter(p => getPoemOfTheMonth()?.id === p.id).length;
 
   return `
     <section class="section">
@@ -3885,6 +4144,18 @@ function renderUserLorePage(data){
         <div class="beer-stat"><div class="num">${beerStats.totalQuantity}</div><div class="label">Bieren gedronken</div></div>
         <div class="beer-stat"><div class="num">${beerStats.avgRating !== null ? beerStats.avgRating : '—'}</div><div class="label">Gem. score</div></div>
         <div class="beer-stat"><div class="num">${beerStats.perfectPours}</div><div class="label">Perfect Pours</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3>✒️ Poetry</h3></div>
+      <div class="beer-stats">
+        <div class="beer-stat"><div class="num">${poemXp}</div><div class="label">Poetry XP</div></div>
+        <div class="beer-stat"><div class="num">${poemLevel.icon}</div><div class="label">${poemLevel.label}</div></div>
+        <div class="beer-stat"><div class="num">${userPoems.length}</div><div class="label">Gedichten</div></div>
+        <div class="beer-stat"><div class="num">${totalReactionsReceived}</div><div class="label">Reactions ontvangen</div></div>
+        <div class="beer-stat"><div class="num">${mostReceivedReaction ? mostReceivedReaction.icon : '—'}</div><div class="label">${mostReceivedReaction ? mostReceivedReaction.label : 'Nog geen reactions'}</div></div>
+        <div class="beer-stat"><div class="num">${timesPoemOfTheMonth}</div><div class="label">Poem of the Month</div></div>
       </div>
     </section>
 
@@ -6725,6 +6996,467 @@ async function performDeleteSession(sessionId){
   renderPage();
 }
 
+/* =============================================================
+   POETRY WALL MODULE — config, XP, Poet Laureate, render helpers
+   -------------------------------------------------------------
+   Eigen XP-economie (xp_type='poetry'), los van Lore XP/Beer XP,
+   zelfde "puur afgeleid uit APP_DATA" filosofie als computeBeerXp/
+   computeLoreScore hierboven. The Poet Laureate volgt exact hetzelfde
+   patroon als The Abt Dynasty (0004_abt_dynasty.sql): een
+   poet_laureate_reigns-tabel + server-side trigger is de enige bron
+   van waarheid, de client leest enkel APP_DATA.poetLaureateReigns.
+   ============================================================= */
+
+const POEM_MOODS = [
+  { id: 'romantic',      icon: '❤️', label: 'Romantic' },
+  { id: 'melancholic',   icon: '🥀', label: 'Melancholic' },
+  { id: 'comedy',        icon: '😂', label: 'Comedy' },
+  { id: 'deep_thoughts', icon: '🧠', label: 'Deep Thoughts' },
+  { id: 'beer_inspired', icon: '🍺', label: 'Beer Inspired' },
+  { id: 'office_tragedy',icon: '🏢', label: 'Office Tragedy' },
+  { id: 'wholesome',     icon: '✨', label: 'Wholesome' },
+  { id: 'nonsense',      icon: '🤪', label: 'Absolute Nonsense' },
+  { id: 'dramatic',      icon: '🎭', label: 'Dramatic' },
+  { id: 'other',         icon: '📝', label: 'Other' },
+];
+
+const POEM_REACTION_TYPES = [
+  { id: 'charming',              icon: '🥰', label: 'Charming' },
+  { id: 'creative',              icon: '🎨', label: 'Creative' },
+  { id: 'tragic',                icon: '🥀', label: 'Tragic' },
+  { id: 'comedy_gold',           icon: '😂', label: 'Comedy Gold' },
+  { id: 'deep',                  icon: '🧠', label: 'Deep' },
+  { id: 'beer_inspired',         icon: '🍺', label: 'Beer Inspired' },
+  { id: 'what_did_i_just_read',  icon: '🤨', label: 'What Did I Just Read?' },
+  { id: 'actually_good',         icon: '🔥', label: 'Actually Good' },
+  { id: 'emotional_damage',      icon: '💀', label: 'Emotional Damage' },
+];
+
+const POEM_XP_RULES = {
+  published: 5,          // gedicht publiceren (nooit opnieuw bij bewerken, alleen bij INSERT)
+  reactionReceived: 1,    // elke ontvangen reaction, ongeacht type
+  actuallyGoodBonus: 5,   // eenmalig: beide andere users gaven Actually Good
+};
+
+const POEM_LEVELS = [
+  { min: 0,   max: 19,       label: 'The Scribbler',          icon: '✏️' },
+  { min: 20,  max: 49,       label: 'The Poet',                icon: '📜' },
+  { min: 50,  max: 99,       label: 'Wordsmith',               icon: '🪶' },
+  { min: 100, max: 199,      label: 'The Bard',                icon: '🎭' },
+  { min: 200, max: Infinity, label: 'Poet Laureate Material',  icon: '👑' },
+];
+
+function getPoemLevelInfo(xp){
+  const idx = POEM_LEVELS.findIndex(l => xp >= l.min && xp <= l.max);
+  const level = POEM_LEVELS[idx === -1 ? POEM_LEVELS.length - 1 : idx];
+  const next = POEM_LEVELS[POEM_LEVELS.indexOf(level) + 1] || null;
+  if (!next) return { level, next: null, progressPct: 100, xpToNext: 0 };
+  const span = next.min - level.min;
+  const progressPct = Math.max(0, Math.min(100, Math.round(((xp - level.min) / span) * 100)));
+  return { level, next, progressPct, xpToNext: next.min - xp };
+}
+
+function computePoemXp(userId){
+  let xp = 0;
+  APP_DATA.poems.filter(p => p.authorUserId === userId).forEach(p => {
+    xp += POEM_XP_RULES.published;
+    xp += POEM_REACTION_TYPES.reduce((sum, r) => sum + (p.reactions[r.id] || []).length, 0) * POEM_XP_RULES.reactionReceived;
+    if (p.actuallyGoodBonusAwarded) xp += POEM_XP_RULES.actuallyGoodBonus;
+  });
+  return xp;
+}
+
+function countReceivedReactions(userId, reactionType){
+  return APP_DATA.poems.filter(p => p.authorUserId === userId)
+    .reduce((sum, p) => sum + (p.reactions[reactionType] || []).length, 0);
+}
+
+function getMostReceivedReaction(userId){
+  const totals = POEM_REACTION_TYPES.map(r => ({ ...r, count: countReceivedReactions(userId, r.id) }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count);
+  return totals[0] || null;
+}
+
+/* ---------- THE POET LAUREATE: persisted reign history ----------
+   Wie de Poet Laureate is (en elke reign ervoor) wordt volledig
+   server-side bepaald — zie supabase/0009_poetry_wall.sql,
+   check_poet_laureate_throne, het enige dat ooit naar
+   poet_laureate_reigns schrijft. Bewust lichter dan The Abt Dynasty
+   (geen dethronement-overlay, geen Sacred Records-sectie, geen aparte
+   history-tab) -- maar de reign-tabel is er al, dus die uitbreiding
+   kan later zonder migratie. */
+const POET_LAUREATE_STATE = { currentLaureateId: null };
+
+function refreshPoetLaureateState(){
+  const current = APP_DATA.poetLaureateReigns.find(r => !r.endedAt);
+  POET_LAUREATE_STATE.currentLaureateId = current ? current.userId : null;
+}
+
+/* ---------- Poem of the Month ----------
+   Puur afgeleid, zelfde filosofie als getQuoteOfTheWeek/
+   getNicknameOfTheMonth: geen opslag, dus "POTM-status verwijderen"
+   bij het weggooien van een gedicht gebeurt vanzelf bij de volgende
+   herberekening. */
+function getPoemOfTheMonth(){
+  const monthPrefix = todayISO().slice(0, 7);
+  const candidates = APP_DATA.poems.filter(p => p.createdAt.slice(0, 7) === monthPrefix);
+  if (!candidates.length) return null;
+  const scored = candidates.map(p => {
+    let score = 0;
+    const uniqueUsers = new Set();
+    POEM_REACTION_TYPES.forEach(r => {
+      const perPoint = (r.id === 'actually_good' || r.id === 'creative') ? 2 : 1;
+      (p.reactions[r.id] || []).forEach(uid => { score += perPoint; uniqueUsers.add(uid); });
+    });
+    return { poem: p, score, uniqueUserCount: uniqueUsers.size };
+  });
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.uniqueUserCount !== a.uniqueUserCount) return b.uniqueUserCount - a.uniqueUserCount;
+    return a.poem.createdAt.localeCompare(b.poem.createdAt); // tie -> oudste gedicht van de maand wint
+  });
+  return scored[0].poem;
+}
+
+/* ---- compacte klassementen, zelfde {id,icon,title,build()}-vorm als LEADERBOARD_DEFS ---- */
+const POEM_LEADERBOARD_DEFS = [
+  {
+    id: 'poet-laureate', icon: '🪶', title: 'Poet Laureate', crown: true,
+    build(){ return rankUsersBy(u => computePoemXp(u.id)).map(e => userEntry(e.user, e.value, v => `${v} XP`)); },
+  },
+  {
+    id: 'most-published', icon: '📜', title: 'Most Published',
+    build(){ return rankUsersBy(u => APP_DATA.poems.filter(p => p.authorUserId === u.id).length).map(e => userEntry(e.user, e.value, v => `${v} gedichten`)); },
+  },
+  {
+    id: 'most-creative', icon: '🎨', title: 'Most Creative',
+    build(){ return rankUsersBy(u => countReceivedReactions(u.id, 'creative')).map(e => userEntry(e.user, e.value, v => `${v}× Creative`)); },
+  },
+  {
+    id: 'actually-good', icon: '🔥', title: 'Actually Good',
+    build(){ return rankUsersBy(u => countReceivedReactions(u.id, 'actually_good')).map(e => userEntry(e.user, e.value, v => `${v}× Actually Good`)); },
+  },
+  {
+    id: 'comedy-genius', icon: '😂', title: 'Comedy Genius',
+    build(){ return rankUsersBy(u => countReceivedReactions(u.id, 'comedy_gold')).map(e => userEntry(e.user, e.value, v => `${v}× Comedy Gold`)); },
+  },
+  {
+    id: 'emotional-destroyer', icon: '💀', title: 'Emotional Destroyer',
+    build(){ return rankUsersBy(u => countReceivedReactions(u.id, 'emotional_damage')).map(e => userEntry(e.user, e.value, v => `${v}× Emotional Damage`)); },
+  },
+];
+
+/* ---- de Wall zelf: POTM-banner, Laureate-kaart, compacte
+   leaderboard-sectie, "+ Write a Poem" en de kaartengrid ---- */
+function renderPoetryWallPage(data){
+  const potm = getPoemOfTheMonth();
+  const laureateId = POET_LAUREATE_STATE.currentLaureateId;
+  const laureate = laureateId ? findUser(laureateId) : null;
+  const sortedPoems = [...data.poems].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  const potmSection = potm ? `
+    <section class="section">
+      <div class="potm-banner">
+        <div class="potm-banner-label">🏆 POEM OF THE MONTH</div>
+        ${renderPoemCard(potm)}
+      </div>
+    </section>
+  ` : '';
+
+  const laureateSection = laureate ? `
+    <section class="section">
+      <div class="laureate-card">
+        <div class="laureate-label">🪶 CURRENT POET LAUREATE</div>
+        <div class="laureate-name">${avatarHtml(laureate, 40)}<span>${escapeHtml(laureate.displayName.toUpperCase())}</span></div>
+        <div class="laureate-stats">
+          <span>${computePoemXp(laureate.id)} Poetry XP</span>
+          <span>${data.poems.filter(p => p.authorUserId === laureate.id).length} Poems Published</span>
+          <span>${countReceivedReactions(laureate.id, 'creative')}× Creative</span>
+          <span>${countReceivedReactions(laureate.id, 'actually_good')}× Actually Good</span>
+        </div>
+        <div class="laureate-subtitle">"Against all expectations, culture has entered the workplace."</div>
+      </div>
+    </section>
+  ` : `<section class="section">${emptyState('Nog geen Poet Laureate — publiceer het eerste gedicht om de troon te openen.')}</section>`;
+
+  const leaderboardSection = `
+    <section class="section">
+      <div class="section-head"><h3>🏆 Poetry Leaderboard</h3></div>
+      <div class="grid cols-auto">
+        ${POEM_LEADERBOARD_DEFS.map(def => `
+          <div class="sticker-card" style="text-align:left;">
+            <div class="lore-item-title" style="margin-bottom:8px;">${def.icon} ${def.title}</div>
+            ${renderPodium(def.build().slice(0, 3), { compact: true, restLimit: 0 })}
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+
+  const wallSection = `
+    <section class="section">
+      <div class="section-head">
+        <h3>✒️ The Wall</h3>
+        <span class="count-chip">${data.poems.length}</span>
+      </div>
+      <button type="button" class="btn btn-primary" style="margin-bottom:16px;" onclick="openPoemForm('add')">+ Write a Poem</button>
+      ${sortedPoems.length ? `<div class="grid cols-auto">${sortedPoems.map(p => renderPoemCard(p)).join('')}</div>` : emptyState('Nog geen gedichten op de Wall. Wees de eerste.')}
+    </section>
+  `;
+
+  return potmSection + laureateSection + leaderboardSection + wallSection;
+}
+
+/* ---- kaart op de Wall: preview + "Read full poem" bij langere tekst ---- */
+function renderPoemCard(poem){
+  const author = findUser(poem.authorUserId);
+  const mood = POEM_MOODS.find(m => m.id === poem.mood) || POEM_MOODS[POEM_MOODS.length - 1];
+  const totalReactions = POEM_REACTION_TYPES.reduce((sum, r) => sum + (poem.reactions[r.id] || []).length, 0);
+  const topReactions = POEM_REACTION_TYPES
+    .map(r => ({ ...r, count: (poem.reactions[r.id] || []).length }))
+    .filter(r => r.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+  const isPotm = getPoemOfTheMonth()?.id === poem.id;
+  const lines = poem.content.split('\n');
+  const isTruncated = lines.length > 3 || poem.content.length > 220;
+  const preview = lines.slice(0, 3).join('\n').slice(0, 220);
+
+  return `
+    <div class="sticker-card poem-card" onclick="openPoemDetail('${poem.id}')">
+      <div class="poem-card-top">
+        <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
+        ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
+      </div>
+      <div class="poem-title">${escapeHtml(poem.title)}</div>
+      <div class="poem-body poem-body-preview">${escapeHtml(preview)}${isTruncated ? '…' : ''}</div>
+      ${isTruncated ? `<div class="poem-read-more">Read full poem →</div>` : ''}
+      <div class="nickname-person" style="margin-top:10px;">
+        ${author ? avatarHtml(author, 22) : ''}
+        <span>${author ? escapeHtml(author.displayName) : 'onbekend'}</span>
+      </div>
+      <div class="nickname-meta-row">
+        <span class="stat-chip">📅 ${poem.createdAt.slice(0, 10)}</span>
+        ${topReactions.map(r => `<span class="stat-chip">${r.icon} ${r.count}</span>`).join('')}
+        <span class="stat-chip">💬 ${totalReactions}</span>
+      </div>
+    </div>
+  `;
+}
+
+function openPoemDetail(id){
+  POETRY_STATE.view = 'poemDetail';
+  POETRY_STATE.poemDetailId = id;
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToPoetryWall(){
+  POETRY_STATE.view = 'wall';
+  renderPage();
+}
+
+/* ---- detail: volledig gedicht (line breaks bewaard via CSS
+   white-space:pre-wrap op escapeHtml()'d tekst — nooit <br> in
+   geëscapete tekst injecteren), reactions, edit/delete voor de auteur ---- */
+function renderPoemDetailPage(data){
+  const poem = data.poems.find(p => p.id === POETRY_STATE.poemDetailId);
+  if (!poem){
+    return `<section class="section">${emptyState('Dit gedicht bestaat niet (meer).')}<div style="margin-top:14px;"><button type="button" class="btn btn-secondary" onclick="backToPoetryWall()">← Terug naar Poetry Wall</button></div></section>`;
+  }
+  const author = findUser(poem.authorUserId);
+  const mood = POEM_MOODS.find(m => m.id === poem.mood) || POEM_MOODS[POEM_MOODS.length - 1];
+  const isAuthor = poem.authorUserId === STATE.activeUser;
+  const isPotm = getPoemOfTheMonth()?.id === poem.id;
+  const totalReactions = POEM_REACTION_TYPES.reduce((sum, r) => sum + (poem.reactions[r.id] || []).length, 0);
+  const myDistinctReactions = POEM_REACTION_TYPES.filter(r => (poem.reactions[r.id] || []).includes(STATE.activeUser)).length;
+
+  return `
+    <section class="section">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="backToPoetryWall()">← Terug naar Poetry Wall</button>
+      <div class="detail-header" style="margin-top:8px;">
+        <div>
+          <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
+          ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
+          <h2 class="poem-title-detail">${escapeHtml(poem.title)}</h2>
+          <div class="nickname-person" style="margin-top:6px;">
+            ${author ? avatarHtml(author, 26) : ''}
+            <span>${author ? escapeHtml(author.displayName) : 'onbekend'}</span>
+          </div>
+          <div class="detail-subline">${formatDateTime(poem.createdAt)}</div>
+        </div>
+        ${isAuthor ? `
+          <div class="detail-actions">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="openPoemForm('edit','${poem.id}')">✏️ Edit</button>
+            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeletePoem('${poem.id}')">🗑️ Delete</button>
+          </div>
+        ` : ''}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="poem-body">${escapeHtml(poem.content)}</div>
+      ${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3>💬 Reactions</h3><span class="count-chip">${totalReactions}</span></div>
+      ${isAuthor ? emptyState('Je kan niet reageren op je eigen gedicht.') : `
+        <p style="font-size:12.5px; color:#8a7a6b; font-weight:700; margin-bottom:10px;">Klik nogmaals op je eigen reaction om ze in te trekken. Maximaal 3 verschillende reactions per gedicht.</p>
+        <div class="vote-row">
+          ${POEM_REACTION_TYPES.map(r => {
+            const givers = poem.reactions[r.id] || [];
+            const voted = givers.includes(STATE.activeUser);
+            const blocked = !voted && myDistinctReactions >= 3;
+            return `<button type="button" class="vote-btn ${voted ? 'voted' : ''}" ${blocked ? 'style="opacity:.4; cursor:not-allowed;" disabled' : ''} onclick="togglePoemReaction('${poem.id}','${r.id}')">${r.icon} ${r.label} <span>${givers.length}</span></button>`;
+          }).join('')}
+        </div>
+      `}
+      ${totalReactions ? `
+        <div class="row-list" style="margin-top:14px;">
+          ${POEM_REACTION_TYPES.filter(r => (poem.reactions[r.id] || []).length).map(r => `
+            <div class="row-item" style="cursor:default;">
+              <div class="avatar-emoji" style="width:32px;height:32px;background:var(--lilac);font-size:15px;">${r.icon}</div>
+              <div class="info">
+                <div class="name">${r.label}</div>
+                <div class="sub">${poem.reactions[r.id].map(uid => resolveUserLabel(uid)).join(', ')}</div>
+              </div>
+              <span class="badge lilac">${poem.reactions[r.id].length}</span>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </section>
+  `;
+}
+
+async function togglePoemReaction(poemId, reactionType){
+  const poem = APP_DATA.poems.find(p => p.id === poemId);
+  if (!poem || poem.authorUserId === STATE.activeUser) return;
+  const givers = poem.reactions[reactionType] || [];
+  const alreadyGiven = givers.includes(STATE.activeUser);
+
+  if (alreadyGiven){
+    await sb.from('poem_reactions').delete().eq('poem_id', poemId).eq('user_id', STATE.activeUser).eq('reaction_type', reactionType);
+  } else {
+    const distinctGiven = POEM_REACTION_TYPES.filter(r => (poem.reactions[r.id] || []).includes(STATE.activeUser)).length;
+    if (distinctGiven >= 3) return; // UI-side spiegel van de DB's max-3-trigger
+    await sb.from('poem_reactions').insert({ poem_id: poemId, user_id: STATE.activeUser, reaction_type: reactionType });
+  }
+  await refreshAppData();
+  renderPage();
+}
+
+/* ---- "Write a Poem" (modal, zelfde patroon als Lore) ---- */
+function renderPoemFormHtml(mode, poem){
+  const selectedMood = poem ? poem.mood : 'other';
+  return `
+    <h3>${mode === 'edit' ? '✏️ Gedicht bewerken' : '✒️ Write a Poem'}</h3>
+    <form data-mode="${mode}" data-id="${poem?.id || ''}" onsubmit="return submitPoemForm(event)">
+      <div class="form-field">
+        <label class="form-label" for="pf-title">Title *</label>
+        <input class="form-input" id="pf-title" type="text" value="${poem ? escapeHtml(poem.title) : ''}" placeholder="Give it a title" required>
+      </div>
+      <div class="form-field" style="margin-top:10px;">
+        <label class="form-label" for="pf-content">Poem *</label>
+        <textarea class="form-input poem-textarea" id="pf-content" rows="8" placeholder="Write your masterpiece...">${poem ? escapeHtml(poem.content) : ''}</textarea>
+      </div>
+      <div class="form-field" style="margin-top:10px;">
+        <label class="form-label">Mood *</label>
+        <div class="lore-type-toggle" id="pf-mood-toggle">
+          ${POEM_MOODS.map(m => `<button type="button" class="btn ${selectedMood === m.id ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="selectPoemMood('${m.id}', this)">${m.icon} ${m.label}</button>`).join('')}
+        </div>
+        <input type="hidden" id="pf-mood" value="${selectedMood}">
+      </div>
+      <div class="form-field" style="margin-top:10px;">
+        <label class="form-label" for="pf-context">Context (optioneel)</label>
+        <input class="form-input" id="pf-context" type="text" value="${poem ? escapeHtml(poem.context) : ''}" placeholder="Wat inspireerde dit gedicht?">
+      </div>
+      <div id="pf-error" class="form-error"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
+        <button type="submit" class="btn btn-primary">${mode === 'edit' ? 'Opslaan' : 'Publiceren'}</button>
+      </div>
+    </form>
+  `;
+}
+
+function selectPoemMood(moodId, btn){
+  document.getElementById('pf-mood').value = moodId;
+  document.querySelectorAll('#pf-mood-toggle button').forEach(b => {
+    b.classList.toggle('btn-primary', b === btn);
+    b.classList.toggle('btn-ghost', b !== btn);
+  });
+}
+
+function openPoemForm(mode, poemId){
+  const poem = mode === 'edit' ? APP_DATA.poems.find(p => p.id === poemId) : null;
+  if (mode === 'edit' && !poem) return;
+  openModal(renderPoemFormHtml(mode, poem));
+}
+
+async function submitPoemForm(event){
+  event.preventDefault();
+  const form = event.target;
+  const mode = form.dataset.mode;
+  const editId = form.dataset.id;
+  const errorEl = document.getElementById('pf-error');
+
+  const title = document.getElementById('pf-title').value.trim();
+  // content NIET trimmen: de auteur's exacte line breaks/witruimte
+  // moeten bewaard blijven zoals ingevoerd
+  const content = document.getElementById('pf-content').value;
+  const mood = document.getElementById('pf-mood').value;
+  const context = document.getElementById('pf-context').value.trim();
+
+  if (!title || !content.trim()){
+    errorEl.textContent = 'Vul een titel en een gedicht in.';
+    return false;
+  }
+  errorEl.textContent = '';
+
+  let error;
+  if (mode === 'edit'){
+    ({ error } = await sb.from('poems').update({ title, content, mood, context: context || null }).eq('id', editId));
+  } else {
+    ({ error } = await sb.from('poems').insert({
+      author_user_id: STATE.activeUser, title, content, mood, context: context || null,
+    }));
+  }
+
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+
+  await refreshAppData();
+  closeModal();
+  renderPage();
+  return false;
+}
+
+function confirmDeletePoem(id){
+  const poem = APP_DATA.poems.find(p => p.id === id);
+  if (!poem) return;
+  openModal(`
+    <h3>🗑️ Delete this poem?</h3>
+    <p>This will permanently remove the poem, its reactions and related Poetry XP.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="performDeletePoem('${id}')">Delete</button>
+    </div>
+  `);
+}
+
+async function performDeletePoem(id){
+  await sb.from('poems').delete().eq('id', id);
+  await refreshAppData();
+  closeModal();
+  if (POETRY_STATE.poemDetailId === id){
+    POETRY_STATE.view = 'wall';
+    POETRY_STATE.poemDetailId = null;
+  }
+  renderPage();
+}
+
 /* ---------- 6. RENDER: profielmenu (My Profile / Switch User) ----------
    Vervangt de oude 3-pill "Wie ben ik?"-switcher: er is nu maar één
    actieve user tegelijk (gekozen via het "Who enters the Lore?"-gate-
@@ -6921,6 +7653,7 @@ function renderNav(){
 /* ---------- 8. RENDER: active page ---------- */
 function renderPage(){
   refreshAbtLordState(); // altijd actueel: The Abt Lord + The Fallen Abt
+  refreshPoetLaureateState(); // altijd actueel: The Poet Laureate
   const root = document.getElementById('page-root');
   const mod = MODULES[STATE.activePage];
   if (!mod){
