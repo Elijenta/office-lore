@@ -643,6 +643,12 @@
     outline:none;
     box-shadow: 0 0 0 3px var(--yellow);
   }
+  .form-input-locked{
+    background: #f2ede4;
+    color: #8a7a6b;
+    cursor: not-allowed;
+  }
+  .lock-icon{ font-size: 11px; }
   .form-textarea{
     resize: vertical;
     min-height: 70px;
@@ -2218,6 +2224,7 @@ async function loadAppData(){
       createdAt: n.created_at,
       updatedAt: n.updated_at,
       createdByUserId: n.created_by_user_id,
+      updatedByUserId: n.updated_by_user_id,
       description: n.description,
       anecdote: n.anecdote,
       status: n.status,
@@ -2898,18 +2905,20 @@ function avatarHtml(person, size){
    Gebruikt in de Nickname/Quote/Anecdote/Counter-formulieren. Er is
    bewust GEEN people- of colleagues-tabel: dit zijn gewoon twee
    losse tekstvelden die rechtstreeks op het record terechtkomen. */
-function renderRealNameFieldsHtml(prefix, selectedName, selectedBusinessUnit, question){
+function renderRealNameFieldsHtml(prefix, selectedName, selectedBusinessUnit, question, locked){
   const knownNames = getKnownRealNames();
+  const lockedAttr = locked ? 'disabled title="Only the person who created this nickname can change this field."' : '';
+  const lockIconHtml = locked ? ` <span class="lock-icon" title="Only the person who created this nickname can change this field.">🔒</span>` : '';
   return `
     <div class="form-grid">
       <div class="form-field">
-        <label class="form-label">${question}</label>
-        <input class="form-input" id="${prefix}-realname" type="text" list="${prefix}-realname-options" value="${escapeHtml(selectedName || '')}" placeholder="Bv. Atti">
+        <label class="form-label">${question}${lockIconHtml}</label>
+        <input class="form-input ${locked ? 'form-input-locked' : ''}" id="${prefix}-realname" type="text" list="${prefix}-realname-options" value="${escapeHtml(selectedName || '')}" placeholder="Bv. Atti" ${lockedAttr}>
         <datalist id="${prefix}-realname-options">${knownNames.map(n => `<option value="${escapeHtml(n)}">`).join('')}</datalist>
       </div>
       <div class="form-field">
-        <label class="form-label">Business Unit (optioneel)</label>
-        <input class="form-input" id="${prefix}-businessunit" type="text" list="${prefix}-bu-options" value="${escapeHtml(selectedBusinessUnit || '')}" placeholder="Bv. Marketing">
+        <label class="form-label">Business Unit (optioneel)${lockIconHtml}</label>
+        <input class="form-input ${locked ? 'form-input-locked' : ''}" id="${prefix}-businessunit" type="text" list="${prefix}-bu-options" value="${escapeHtml(selectedBusinessUnit || '')}" placeholder="Bv. Marketing" ${lockedAttr}>
         <datalist id="${prefix}-bu-options">${BUSINESS_UNITS.map(b => `<option value="${b}">`).join('')}</datalist>
       </div>
     </div>
@@ -5285,6 +5294,7 @@ function renderNicknameCard(n, opts = {}){
           <span class="stat-chip">🔁 ${n.usageCount}× gebruikt</span>
           <span class="stat-chip">📅 ${n.createdAt}</span>
           <span class="stat-chip">👤 ${resolveUserLabel(n.createdByUserId)}</span>
+          ${n.updatedByUserId && n.updatedByUserId !== n.createdByUserId ? `<span class="stat-chip">✏️ ${resolveUserLabel(n.updatedByUserId)}</span>` : ''}
         </div>
 
         ${(() => {
@@ -5312,18 +5322,30 @@ function renderNicknameCard(n, opts = {}){
   `;
 }
 
-/* ---- add/edit formulier (in een modal) ---- */
+/* ---- add/edit formulier (in een modal) ----
+   Twee flows: de maker (created_by_user_id) mag alles wijzigen via de
+   gewone volledige update; iedereen anders ziet dezelfde vorm maar met
+   nickname/naam/Business Unit/status als read-only, en mag enkel
+   uitleg + anekdote opslaan (via de veilige RPC, zie submitNicknameForm).
+   isOwner bepaalt puur de UI-vertakking -- de echte beveiliging zit
+   server-side (RLS + de RPC's eigen kolom-scope), dus DOM-manipulatie
+   kan hier niets omzeilen. */
 function renderNicknameFormHtml(mode, nickname, presetRealName){
   const selectedName = nickname?.personRealName ?? presetRealName ?? '';
   const selectedBusinessUnit = nickname?.businessUnit ?? '';
+  const isOwner = mode !== 'edit' || nickname.createdByUserId === STATE.activeUser;
+  const lockedAttr = isOwner ? '' : 'disabled title="Only the person who created this nickname can change this field."';
+  const lockIconHtml = isOwner ? '' : ` <span class="lock-icon" title="Only the person who created this nickname can change this field.">🔒</span>`;
+  const showLastEdited = mode === 'edit' && nickname.updatedByUserId && nickname.updatedByUserId !== nickname.createdByUserId;
 
   return `
     <h3>${mode === 'edit' ? '✏️ Nickname bewerken' : '➕ Nieuwe nickname'}</h3>
-    <form data-mode="${mode}" data-id="${nickname?.id || ''}" onsubmit="return submitNicknameForm(event)">
-      ${renderRealNameFieldsHtml('nf', selectedName, selectedBusinessUnit, 'Echte naam *')}
+    ${mode === 'edit' && !isOwner ? `<p class="form-meta" style="margin-top:0; margin-bottom:12px;">🔒 Alleen ${escapeHtml(resolveUserLabel(nickname.createdByUserId))} kan de nickname, naam en Business Unit wijzigen — jij kan wel de uitleg en anekdote aanpassen.</p>` : ''}
+    <form data-mode="${mode}" data-id="${nickname?.id || ''}" data-owner="${isOwner}" onsubmit="return submitNicknameForm(event)">
+      ${renderRealNameFieldsHtml('nf', selectedName, selectedBusinessUnit, 'Echte naam *', !isOwner)}
       <div class="form-field" style="margin-top:10px;">
-        <label class="form-label" for="nf-text">Nickname *</label>
-        <input class="form-input" id="nf-text" type="text" value="${escapeHtml(nickname?.text || '')}" required>
+        <label class="form-label" for="nf-text">Nickname *${lockIconHtml}</label>
+        <input class="form-input ${isOwner ? '' : 'form-input-locked'}" id="nf-text" type="text" value="${escapeHtml(nickname?.text || '')}" ${lockedAttr} required>
       </div>
       <div class="form-field" style="margin-top:10px;">
         <label class="form-label" for="nf-origin">Korte uitleg / oorsprong</label>
@@ -5334,16 +5356,19 @@ function renderNicknameFormHtml(mode, nickname, presetRealName){
         <textarea class="form-input form-textarea" id="nf-anecdote" rows="2">${escapeHtml(nickname?.anecdote || '')}</textarea>
       </div>
       <div class="form-field" style="margin-top:10px;">
-        <label class="form-label" for="nf-status">Status</label>
-        <select class="form-input" id="nf-status">
+        <label class="form-label" for="nf-status">Status${lockIconHtml}</label>
+        <select class="form-input ${isOwner ? '' : 'form-input-locked'}" id="nf-status" ${lockedAttr}>
           ${NICKNAME_STATUSES.map(s => `<option value="${s}" ${(nickname?.status || 'Actief') === s ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
       </div>
-      ${mode === 'edit' ? `<div class="form-meta">Toegevoegd op ${nickname.createdAt} door ${resolveUserLabel(nickname.createdByUserId)}</div>` : ''}
+      ${mode === 'edit' ? `
+        <div class="form-meta">Toegevoegd op ${nickname.createdAt} door ${resolveUserLabel(nickname.createdByUserId)}</div>
+        ${showLastEdited ? `<div class="form-meta">Last edited by ${resolveUserLabel(nickname.updatedByUserId)} · ${formatDateTime(nickname.updatedAt)}</div>` : ''}
+      ` : ''}
       <div id="nf-error" class="form-error"></div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
-        <button type="submit" class="btn btn-primary">${mode === 'edit' ? 'Wijzigingen opslaan' : 'Nickname toevoegen (+10 XP)'}</button>
+        <button type="submit" class="btn btn-primary">${mode === 'edit' ? 'Save Changes' : 'Nickname toevoegen (+10 XP)'}</button>
       </div>
     </form>
   `;
@@ -5411,14 +5436,35 @@ async function submitNicknameForm(event){
   const form = event.target;
   const mode = form.dataset.mode;
   const editId = form.dataset.id;
+  const isOwner = form.dataset.owner === 'true';
+  const errorEl = document.getElementById('nf-error');
+
+  const description = document.getElementById('nf-origin').value.trim();
+  const anecdote = document.getElementById('nf-anecdote').value.trim();
+
+  // niet-maker: enkel uitleg + anekdote, via de veilige RPC (nooit een
+  // rechtstreekse .update() -- RLS staat een niet-maker sowieso niet
+  // toe, dit is de bedoelde, geteste weg zodat het ook echt opslaat)
+  if (mode === 'edit' && !isOwner){
+    errorEl.textContent = '';
+    const { error } = await sb.rpc('update_nickname_collaborative_fields', {
+      p_nickname_id: editId, p_description: description, p_anecdote: anecdote,
+    });
+    if (error){
+      console.error('update_nickname_collaborative_fields failed:', error);
+      errorEl.textContent = 'Could not save changes. Please try again.';
+      return false;
+    }
+    await refreshAppData();
+    closeModal();
+    renderPage();
+    return false;
+  }
 
   const personRealName = document.getElementById('nf-realname').value.trim();
   const businessUnit = document.getElementById('nf-businessunit').value.trim();
   const text = document.getElementById('nf-text').value.trim();
-  const description = document.getElementById('nf-origin').value.trim();
-  const anecdote = document.getElementById('nf-anecdote').value.trim();
   const status = document.getElementById('nf-status').value;
-  const errorEl = document.getElementById('nf-error');
 
   if (!personRealName || !text){
     errorEl.textContent = 'Vul de echte naam van de persoon en een nickname in.';
@@ -5441,7 +5487,11 @@ async function submitNicknameForm(event){
     }));
   }
 
-  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+  if (error){
+    console.error('submitNicknameForm failed:', error);
+    errorEl.textContent = 'Could not save changes. Please try again.';
+    return false;
+  }
 
   await refreshAppData();
   closeModal();
