@@ -1716,6 +1716,12 @@
     margin-bottom: 4px;
   }
   .challenge-accepted-banner .challenge-prompt-text{ font-size: 18px; margin: 0; }
+  .challenge-subject-line{
+    font-weight: 800;
+    font-size: 12.5px;
+    color: #6b5c4d;
+    margin: 2px 0;
+  }
 
   /* =========================================================
      11c. NICKNAME BATTLES — VS layout stacks vertically on mobile
@@ -2132,6 +2138,7 @@ let APP_DATA = {
   nicknameBattleVotes: [],
   nicknameBattleVoteCounts: [],
   poetryPrompts: [],
+  dailyPoetryChallenges: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2147,6 +2154,14 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
    rest of the app expects. Called once after login, then again after
    every mutation and on every realtime event (see bottom of file). */
 async function loadAppData(){
+  // eerst: garandeer dat vandaag's Daily Challenge bestaat, VOORDAT de
+  // rest parallel opgehaald wordt -- anders zou de parallelle select
+  // op daily_poetry_challenges hieronder een race kunnen hebben met
+  // deze insert (Promise.all start alles tegelijk, geen garantie dat
+  // de RPC's insert al gecommit is als de select uitgevoerd wordt)
+  const dailyChallengeRpcRes = await sb.rpc('get_or_create_daily_challenge');
+  if (dailyChallengeRpcRes.error){ console.error('Supabase load error:', dailyChallengeRpcRes.error); throw dailyChallengeRpcRes.error; }
+
   const [
     profilesRes, nicknamesRes, nicknameEventsRes, nicknameVotesRes,
     quotesRes, quoteReactionsRes, anecdotesRes, anecdoteReactionsRes,
@@ -2155,7 +2170,7 @@ async function loadAppData(){
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
-    poetryPromptsRes,
+    poetryPromptsRes, dailyPoetryChallengesRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2181,6 +2196,7 @@ async function loadAppData(){
     sb.from('nickname_battle_votes').select('*'),
     sb.from('nickname_battle_vote_counts').select('*'),
     sb.from('poetry_prompts').select('*'),
+    sb.from('daily_poetry_challenges').select('*'),
   ]);
 
   for (const res of [
@@ -2191,7 +2207,7 @@ async function loadAppData(){
     abtReignsRes,
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
-    poetryPromptsRes,
+    poetryPromptsRes, dailyPoetryChallengesRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2403,6 +2419,8 @@ async function loadAppData(){
     promptTextSnapshot: p.prompt_text_snapshot || '',
     promptCategorySnapshot: p.prompt_category_snapshot || null,
     isChallengePoem: !!p.is_challenge_poem,
+    dailyChallengeId: p.daily_challenge_id,
+    isDailyChallenge: !!p.is_daily_challenge,
   }));
 
   const poetLaureateReigns = (poetLaureateReignsRes.data || []).map(r => ({
@@ -2446,11 +2464,23 @@ async function loadAppData(){
     createdAt: p.created_at,
   }));
 
+  const dailyPoetryChallenges = (dailyPoetryChallengesRes.data || []).map(c => ({
+    id: c.id,
+    challengeDate: c.challenge_date,
+    subjectType: c.subject_type,
+    nicknameId: c.nickname_id,
+    userId: c.user_id,
+    subjectText: c.subject_text,
+    category: c.category,
+    promptText: c.prompt_text,
+    createdAt: c.created_at,
+  }));
+
   APP_DATA = {
     users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
     poems, poemReactions, poetLaureateReigns,
     nicknameBattles, nicknameBattleVotes, nicknameBattleVoteCounts,
-    poetryPrompts,
+    poetryPrompts, dailyPoetryChallenges,
   };
 }
 
@@ -2474,7 +2504,7 @@ const REALTIME_TABLES = [
   'abt_reigns',
   'poems', 'poem_reactions', 'poet_laureate_reigns',
   'nickname_battles', 'nickname_battle_votes',
-  'poetry_prompts',
+  'poetry_prompts', 'daily_poetry_challenges',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -2580,7 +2610,17 @@ async function initAuth(){
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'PASSWORD_RECOVERY'){ AUTH_STATE.mode = 'recovery'; renderApp(); return; }
     if (event === 'SIGNED_OUT'){ STATE.activeUser = null; renderApp(); return; }
-    if (session && event === 'SIGNED_IN'){ handleSignedIn(session); }
+    if (session && event === 'SIGNED_IN'){
+      // Supabase re-fires SIGNED_IN on token refresh, tab-refocus and
+      // multi-tab session sync -- not just on a genuine new login. If
+      // we're already signed in as this exact user, this is a
+      // redundant re-fire, not a real login, and must NOT re-run the
+      // login bootstrap (which includes restoreNavState()) -- doing
+      // so was silently yanking the user back to whatever page was
+      // last saved, mid-session, for no reason visible to them.
+      if (STATE.activeUser === session.user.id) return;
+      handleSignedIn(session);
+    }
   });
 
   const { data: { session } } = await sb.auth.getSession();
@@ -2605,8 +2645,9 @@ async function initAuth(){
    back to their parent list, since the record they pointed at may no
    longer exist by the time the user comes back. */
 const NAV_STATE_STORAGE_KEY = 'officeLoreNavState';
-const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'leaderboards', 'myprofile'];
+const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'poetrywall', 'leaderboards', 'myprofile'];
 const PERSISTABLE_BEER_VIEWS = ['database', 'sessions', 'leaderboards'];
+const PERSISTABLE_NICKNAME_TABS = ['nicknames', 'battles'];
 
 /* deep-link views normaliseren naar hun bovenliggende tab (het record
    waar ze naar wijzen bestaat mogelijk niet meer bij terugkomst) */
@@ -2622,6 +2663,9 @@ function saveNavState(){
   if (STATE.activePage === 'beerclub'){
     navState.beerView = normalizeBeerViewForPersistence(BEER_STATE.view);
   }
+  if (STATE.activePage === 'nicknames'){
+    navState.nicknameTab = NICKNAME_PAGE_STATE.tab;
+  }
   try { localStorage.setItem(NAV_STATE_STORAGE_KEY, JSON.stringify(navState)); } catch (e) { /* storage unavailable (private browsing etc.) -> just skip persisting */ }
 }
 
@@ -2633,6 +2677,9 @@ function restoreNavState(){
     STATE.activePage = saved.page;
     if (saved.page === 'beerclub' && PERSISTABLE_BEER_VIEWS.includes(saved.beerView)){
       BEER_STATE.view = saved.beerView;
+    }
+    if (saved.page === 'nicknames' && PERSISTABLE_NICKNAME_TABS.includes(saved.nicknameTab)){
+      NICKNAME_PAGE_STATE.tab = saved.nicknameTab;
     }
   } else {
     STATE.activePage = 'home'; // onbekende/niet-meer-bestaande route -> terug naar Home
@@ -7994,6 +8041,8 @@ const POETRY_CHALLENGE_CATEGORIES = [
   { id: 'absolute_nonsense', icon: '🤪', label: 'Absolute Nonsense' },
   { id: 'dramatic',          icon: '🎭', label: 'Dramatic' },
   { id: 'abt_dynasty',       icon: '👑', label: 'Abt Dynasty' },
+  { id: 'deep_thoughts',     icon: '🧠', label: 'Deep Thoughts' },
+  { id: 'wholesome',         icon: '✨', label: 'Wholesome' },
 ];
 
 function getChallengeCategoryDef(categoryId){
@@ -8034,34 +8083,34 @@ function rerenderPoetryChallengeCard(){
   if (mount) mount.innerHTML = renderPoetryChallengeCardHtml();
 }
 
-/* deterministisch, niet opgeslagen -- zelfde filosofie als Quote of
-   the Week/Nickname of the Month: een simpele hash van de datum kiest
-   een index in de (stabiel gesorteerde) daily-eligible prompts, dus
-   elke client berekent onafhankelijk exact dezelfde prompt voor
-   dezelfde kalenderdag, zonder een "vandaag's keuze"-tabel of cron. */
-function simpleStringHash(str){
-  let hash = 0;
-  for (let i = 0; i < str.length; i++){
-    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
-  }
-  return Math.abs(hash);
-}
-
-function getDailyChallenge(){
-  const eligible = APP_DATA.poetryPrompts.filter(p => p.isActive && p.isDailyEligible).sort((a, b) => a.id.localeCompare(b.id));
-  if (!eligible.length) return null;
-  return eligible[simpleStringHash(todayISO()) % eligible.length];
-}
-
-/* wie van de 3 users vandaag al een gedicht schreef voor déze exacte
-   daily-prompt-instantie (niet "ooit", scoped op vandaag) */
-function getDailyChallengeCompletion(dailyPrompt){
-  if (!dailyPrompt) return [];
+/* Vandaag's Daily Challenge -- écht gedeeld en opgeslagen (niet puur
+   client-side afgeleid): get_or_create_daily_challenge() (aangeroepen
+   in loadAppData(), vóór de rest parallel opgehaald wordt) garandeert
+   dat er altijd al een rij voor vandaag bestaat tegen de tijd dat dit
+   gelezen wordt, dus alle clients zien exact dezelfde rij -- geen
+   race, geen her-generatie bij refresh/realtime/opnieuw inloggen. */
+function getTodaysDailyChallenge(){
   const todayPrefix = todayISO();
+  return APP_DATA.dailyPoetryChallenges.find(c => c.challengeDate === todayPrefix) || null;
+}
+
+/* wie van de 3 users al een gedicht schreef voor déze specifieke
+   daily challenge-rij (werkt voor elke datum, niet enkel vandaag --
+   nodig om ook een oudere Daily Challenge's status correct te tonen) */
+function getDailyChallengeCompletion(dailyChallenge){
+  if (!dailyChallenge) return [];
   return APP_DATA.users.map(u => {
-    const poem = APP_DATA.poems.find(p => p.authorUserId === u.id && p.isChallengePoem && p.promptId === dailyPrompt.id && p.createdAt.slice(0, 10) === todayPrefix);
+    const poem = APP_DATA.poems.find(p => p.authorUserId === u.id && p.isDailyChallenge && p.dailyChallengeId === dailyChallenge.id);
     return { user: u, completed: !!poem, poem };
   });
+}
+
+/* eigen inzending voor een specifieke daily challenge, indien die
+   bestaat -- bepaalt of "Write Today's Poem" of "View/Edit My Entry"
+   getoond wordt */
+function getMyDailyChallengeEntry(dailyChallengeId){
+  if (!dailyChallengeId) return null;
+  return APP_DATA.poems.find(p => p.dailyChallengeId === dailyChallengeId && p.authorUserId === STATE.activeUser) || null;
 }
 
 function getChallengeStats(userId){
@@ -8158,20 +8207,32 @@ function acceptPoetryChallenge(promptId){
   openPoemForm('add', null, prompt);
 }
 
-/* ---- 📜 Challenge of the Day: zelfde prompt voor alle 3 users ---- */
+/* ---- 📜 Challenge of the Day: zelfde prompt voor alle 3 users,
+   altijd rond een bestaande nickname of Elien/Nick/Atti (zie
+   get_or_create_daily_challenge() in 0014). ---- */
 function renderDailyChallengeSection(){
-  const daily = getDailyChallenge();
+  const daily = getTodaysDailyChallenge();
   if (!daily) return '';
   const cat = getChallengeCategoryDef(daily.category);
   const completion = getDailyChallengeCompletion(daily);
   const completedPoems = completion.filter(c => c.completed);
+  const myEntry = getMyDailyChallengeEntry(daily.id);
 
   return `
     <section class="section">
       <div class="section-head"><h3>📜 Today's Poetry Challenge</h3></div>
       <div class="challenge-card">
         <div class="badge poem-mood-badge" style="margin-bottom:6px;">${cat.icon} ${cat.label.toUpperCase()}</div>
+        <div class="challenge-subject-line">Subject: ${escapeHtml(daily.subjectText)}</div>
         <div class="challenge-prompt-text">"${escapeHtml(daily.promptText)}"</div>
+        <div class="challenge-card-actions">
+          ${myEntry
+            ? `
+              <button type="button" class="btn btn-primary" onclick="openPoemDetail('${myEntry.id}')">📜 View My Entry</button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openPoemForm('edit','${myEntry.id}')">✏️ Edit My Entry</button>
+            `
+            : `<button type="button" class="btn btn-primary" onclick="openTodaysDailyChallengeForm()">✒️ Write Today's Poem</button>`}
+        </div>
         <div class="row-list" style="margin-top:14px; text-align:left;">
           ${completion.map(c => `
             <div class="row-item" style="cursor:default;">
@@ -8188,6 +8249,12 @@ function renderDailyChallengeSection(){
       ` : ''}
     </section>
   `;
+}
+
+function openTodaysDailyChallengeForm(){
+  const daily = getTodaysDailyChallenge();
+  if (!daily) return;
+  openPoemForm('add', null, null, daily);
 }
 
 /* ---- 🎯 Challenge Board: compacte klassementen ---- */
@@ -8320,6 +8387,7 @@ function renderPoemCard(poem){
       <div class="poem-card-top">
         <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
         ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
+        ${poem.isDailyChallenge ? `<span class="badge lilac">📜 Daily Challenge</span>` : (poem.isChallengePoem ? `<span class="badge lilac">🎯 Challenge Poem</span>` : '')}
       </div>
       <div class="poem-title">${escapeHtml(poem.title)}</div>
       <div class="poem-body poem-body-preview">${escapeHtml(preview)}${isTruncated ? '…' : ''}</div>
@@ -8363,6 +8431,8 @@ function renderPoemDetailPage(data){
   const isPotm = getPoemOfTheMonth()?.id === poem.id;
   const totalReactions = POEM_REACTION_TYPES.reduce((sum, r) => sum + (poem.reactions[r.id] || []).length, 0);
   const myDistinctReactions = POEM_REACTION_TYPES.filter(r => (poem.reactions[r.id] || []).includes(STATE.activeUser)).length;
+  const linkedDailyChallenge = poem.isDailyChallenge ? data.dailyPoetryChallenges.find(c => c.id === poem.dailyChallengeId) : null;
+  const isTodaysDaily = linkedDailyChallenge && linkedDailyChallenge.challengeDate === todayISO();
 
   return `
     <section class="section">
@@ -8371,7 +8441,7 @@ function renderPoemDetailPage(data){
         <div>
           <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
           ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
-          ${poem.isChallengePoem ? `<span class="badge lilac">🎯 Challenge Poem</span>` : ''}
+          ${poem.isDailyChallenge ? `<span class="badge lilac">📜 Daily Challenge</span>` : (poem.isChallengePoem ? `<span class="badge lilac">🎯 Challenge Poem</span>` : '')}
           <h2 class="poem-title-detail">${escapeHtml(poem.title)}</h2>
           <div class="nickname-person" style="margin-top:6px;">
             ${author ? avatarHtml(author, 26) : ''}
@@ -8389,12 +8459,19 @@ function renderPoemDetailPage(data){
     </section>
 
     <section class="section">
-      ${poem.isChallengePoem && poem.promptTextSnapshot ? `
+      ${linkedDailyChallenge ? `
+        <div class="challenge-accepted-banner" style="margin-bottom:14px;">
+          <div class="challenge-accepted-label">📜 ${isTodaysDaily ? "TODAY'S" : ''} DAILY POETRY CHALLENGE</div>
+          <div class="challenge-subject-line">Challenge date: ${formatNiceDate(linkedDailyChallenge.challengeDate)}</div>
+          <div class="challenge-subject-line">Subject: ${escapeHtml(linkedDailyChallenge.subjectText)}</div>
+          <div class="challenge-prompt-text">"${escapeHtml(linkedDailyChallenge.promptText)}"</div>
+        </div>
+      ` : (poem.isChallengePoem && poem.promptTextSnapshot ? `
         <div class="challenge-accepted-banner" style="margin-bottom:14px;">
           <div class="challenge-accepted-label">🎯 POETRY CHALLENGE</div>
           <div class="challenge-prompt-text">"${escapeHtml(poem.promptTextSnapshot)}"</div>
         </div>
-      ` : ''}
+      ` : '')}
       <div class="poem-body">${escapeHtml(poem.content)}</div>
       ${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}
     </section>
@@ -8448,23 +8525,42 @@ async function togglePoemReaction(poemId, reactionType){
 }
 
 /* ---- "Write a Poem" (modal, zelfde patroon als Lore) ---- */
-function renderPoemFormHtml(mode, poem, prompt){
+function renderPoemFormHtml(mode, poem, prompt, dailyChallenge){
   const selectedMood = poem ? poem.mood : 'other';
   // bij add: prompt komt uit acceptPoetryChallenge(); bij edit: een
   // bestaand challenge-gedicht toont zijn eigen bevroren snapshot,
-  // alleen ter info, niet meer wijzigbaar
+  // alleen ter info, niet meer wijzigbaar. dailyChallenge en prompt
+  // zijn elkaar altijd uitsluitend (nooit allebei tegelijk).
   const challengePromptId = prompt ? prompt.id : (poem?.promptId || '');
   const challengePromptText = prompt ? prompt.promptText : (poem?.promptTextSnapshot || '');
   const challengePromptCategory = prompt ? prompt.category : (poem?.promptCategorySnapshot || '');
-  const challengeBanner = challengePromptText ? `
-    <div class="challenge-accepted-banner">
-      <div class="challenge-accepted-label">🎯 CHALLENGE ACCEPTED</div>
-      <div class="challenge-prompt-text">"${escapeHtml(challengePromptText)}"</div>
-    </div>
-  ` : '';
+  const isDailyEdit = mode === 'edit' && poem?.isDailyChallenge;
+  const dailyChallengeId = dailyChallenge ? dailyChallenge.id : (isDailyEdit ? poem.dailyChallengeId : '');
+  const dailyChallengeForBanner = dailyChallenge || (isDailyEdit ? APP_DATA.dailyPoetryChallenges.find(c => c.id === poem.dailyChallengeId) : null);
+
+  let challengeBanner = '';
+  if (dailyChallengeForBanner){
+    const cat = getChallengeCategoryDef(dailyChallengeForBanner.category);
+    challengeBanner = `
+      <div class="challenge-accepted-banner">
+        <div class="challenge-accepted-label">📜 DAILY CHALLENGE</div>
+        <div class="badge poem-mood-badge" style="margin:6px 0;">${cat.icon} ${cat.label.toUpperCase()}</div>
+        <div class="challenge-subject-line">Subject: ${escapeHtml(dailyChallengeForBanner.subjectText)}</div>
+        <div class="challenge-prompt-text">"${escapeHtml(dailyChallengeForBanner.promptText)}"</div>
+      </div>
+    `;
+  } else if (challengePromptText){
+    challengeBanner = `
+      <div class="challenge-accepted-banner">
+        <div class="challenge-accepted-label">🎯 CHALLENGE ACCEPTED</div>
+        <div class="challenge-prompt-text">"${escapeHtml(challengePromptText)}"</div>
+      </div>
+    `;
+  }
+
   return `
     <h3>${mode === 'edit' ? '✏️ Gedicht bewerken' : '✒️ Write a Poem'}</h3>
-    <form data-mode="${mode}" data-id="${poem?.id || ''}" data-prompt-id="${challengePromptId}" data-prompt-text="${escapeHtml(challengePromptText)}" data-prompt-category="${challengePromptCategory}" onsubmit="return submitPoemForm(event)">
+    <form data-mode="${mode}" data-id="${poem?.id || ''}" data-prompt-id="${challengePromptId}" data-prompt-text="${escapeHtml(challengePromptText)}" data-prompt-category="${challengePromptCategory}" data-daily-challenge-id="${dailyChallengeId || ''}" onsubmit="return submitPoemForm(event)">
       ${challengeBanner}
       <div class="form-field">
         <label class="form-label" for="pf-title">Title *</label>
@@ -8502,10 +8598,10 @@ function selectPoemMood(moodId, btn){
   });
 }
 
-function openPoemForm(mode, poemId, prompt){
+function openPoemForm(mode, poemId, prompt, dailyChallenge){
   const poem = mode === 'edit' ? APP_DATA.poems.find(p => p.id === poemId) : null;
   if (mode === 'edit' && !poem) return;
-  openModal(renderPoemFormHtml(mode, poem, prompt));
+  openModal(renderPoemFormHtml(mode, poem, prompt, dailyChallenge));
 }
 
 async function submitPoemForm(event){
@@ -8530,22 +8626,29 @@ async function submitPoemForm(event){
 
   let error;
   if (mode === 'edit'){
-    // prompt_id/is_challenge_poem worden bij edit NOOIT aangepast --
-    // vastgelegd bij aanmaak, net als de bestaande publish-XP-trigger
-    // enkel op INSERT reageert
+    // prompt_id/daily_challenge_id/is_challenge_poem/is_daily_challenge
+    // worden bij edit NOOIT aangepast -- vastgelegd bij aanmaak, net
+    // als de bestaande publish-XP-trigger enkel op INSERT reageert
     ({ error } = await sb.from('poems').update({ title, content, mood, context: context || null }).eq('id', editId));
   } else {
     const promptId = form.dataset.promptId || null;
+    const dailyChallengeId = form.dataset.dailyChallengeId || null;
     ({ error } = await sb.from('poems').insert({
       author_user_id: STATE.activeUser, title, content, mood, context: context || null,
       prompt_id: promptId || null,
       prompt_text_snapshot: promptId ? form.dataset.promptText : null,
       prompt_category_snapshot: promptId ? form.dataset.promptCategory : null,
-      is_challenge_poem: !!promptId,
+      daily_challenge_id: dailyChallengeId || null,
+      is_daily_challenge: !!dailyChallengeId,
+      is_challenge_poem: !!promptId || !!dailyChallengeId,
     }));
   }
 
-  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return false; }
+  if (error){
+    console.error('submitPoemForm failed:', error);
+    errorEl.textContent = 'Could not save changes. Please try again.';
+    return false;
+  }
 
   await refreshAppData();
   closeModal();
