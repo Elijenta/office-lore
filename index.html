@@ -2149,6 +2149,11 @@ const SUPABASE_URL = 'https://pldhdsopdwmgvuvwdsta.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_BqEilTRoa09-UtJ_fNPheA_mhXqapM_';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+/* Same Supabase project is shared with an unrelated second app
+   (QuestNest). This identifies which app's signup/membership a given
+   auth user belongs to -- see supabase/0015_app_memberships.sql. */
+const APP_ID = 'officelore';
+
 /* ---------- 1c. SUPABASE DATA LAYER ----------
    Fetches every table and reassembles APP_DATA in the exact shape the
    rest of the app expects. Called once after login, then again after
@@ -2601,6 +2606,7 @@ const AUTH_STATE = {
   mode: 'login',        // 'login' | 'signup' | 'forgot' | 'recovery'
   forgotSent: false,
   signupSent: false,    // true once signUp succeeded and we're waiting on email confirmation
+  accessDenied: false,  // true once a signed-in session has been confirmed NOT an officelore member
 };
 
 async function initAuth(){
@@ -2609,7 +2615,7 @@ async function initAuth(){
 
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'PASSWORD_RECOVERY'){ AUTH_STATE.mode = 'recovery'; renderApp(); return; }
-    if (event === 'SIGNED_OUT'){ STATE.activeUser = null; renderApp(); return; }
+    if (event === 'SIGNED_OUT'){ STATE.activeUser = null; AUTH_STATE.accessDenied = false; renderApp(); return; }
     if (session && event === 'SIGNED_IN'){
       // Supabase re-fires SIGNED_IN on token refresh, tab-refocus and
       // multi-tab session sync -- not just on a genuine new login. If
@@ -2690,7 +2696,27 @@ function clearNavState(){
   try { localStorage.removeItem(NAV_STATE_STORAGE_KEY); } catch (e) { /* ignore */ }
 }
 
+async function isOfficeLoreMember(userId){
+  const { data, error } = await sb
+    .from('app_memberships')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('app_id', APP_ID)
+    .eq('is_active', true)
+    .limit(1);
+  if (error){ console.error('Membership check failed:', error); return false; }
+  return (data || []).length > 0;
+}
+
 async function handleSignedIn(session){
+  AUTH_STATE.accessDenied = false;
+  const isMember = await isOfficeLoreMember(session.user.id);
+  if (!isMember){
+    AUTH_STATE.accessDenied = true;
+    STATE.activeUser = null;
+    renderApp();
+    return;
+  }
   await refreshAppData();
   STATE.activeUser = session.user.id;
   restoreNavState();
@@ -2716,7 +2742,7 @@ async function submitSignupForm(event){
   const password = form.password.value;
   AUTH_STATE.error = '';
   if (password.length < 6){ AUTH_STATE.error = 'Wachtwoord moet minstens 6 tekens hebben.'; renderApp(); return; }
-  const { data, error } = await sb.auth.signUp({ email, password });
+  const { data, error } = await sb.auth.signUp({ email, password, options: { data: { app: APP_ID } } });
   if (error){ AUTH_STATE.error = 'Registreren mislukt: ' + (error.message === 'User already registered' ? 'dit e-mailadres heeft al een account.' : 'probeer opnieuw.'); renderApp(); return; }
   if (data.session){
     // e-mailbevestiging staat uit in dit project -> meteen ingelogd
@@ -8729,6 +8755,24 @@ function renderGateScreen(){
 
   if (AUTH_STATE.loading){
     root.innerHTML = `<div class="gate-screen"><p class="gate-sub">Bezig met laden…</p></div>`;
+    return;
+  }
+
+  if (AUTH_STATE.accessDenied){
+    root.innerHTML = `
+      <div class="gate-screen">
+        <div class="gate-header">
+          <div class="logo-badge" style="margin:0 auto;">🗂️</div>
+          <h1>Nog geen toegang</h1>
+          <p class="gate-sub">Je account bestaat, maar je hebt nog geen toegang tot Office Lore. Vraag een admin om je toe te voegen.</p>
+        </div>
+        <div class="modal-box" style="text-align:left; max-width:360px;">
+          <div class="form-actions" style="justify-content:center;">
+            <button type="button" class="btn" onclick="logout()">Uitloggen</button>
+          </div>
+        </div>
+      </div>
+    `;
     return;
   }
 
