@@ -218,6 +218,15 @@
 
   .nav-btn .emoji{ font-size: 16px; }
 
+  .nav-badge-dot{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--pink-deep);
+    box-shadow: 0 0 0 2px var(--card);
+  }
+  .nav-btn.active .nav-badge-dot{ background: #fff; box-shadow: 0 0 0 2px var(--pink-deep); }
+
   /* =========================================================
      4. PAGE / SECTION SCAFFOLDING
   ========================================================= */
@@ -549,6 +558,36 @@
   .btn-ghost{ background: transparent; box-shadow: none; }
   .btn-ghost:hover{ box-shadow: none; }
   .btn-sm{ padding: 6px 12px; font-size: 12px; }
+  .btn-lg{ padding: 16px 14px; font-size: 15px; flex: 1 1 0; justify-content: center; }
+
+  /* ---- Terrace Planner ---- */
+  .terrace-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .terrace-card-meta{
+    font-size: 13px;
+    font-weight: 700;
+    color: #6b5c4d;
+    margin-top: 2px;
+  }
+  .terrace-vote-buttons{
+    display:flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .terrace-card-nudge{
+    margin-top: 10px;
+    padding: 8px 10px;
+    background: var(--yellow);
+    border: var(--outline-thin);
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 800;
+  }
 
   /* ---- people toolbar ---- */
   .people-toolbar{
@@ -1179,6 +1218,7 @@
   /* ranglijst-rijen (4+) mogen ook klikbaar zijn, zelfde .row-item */
   .row-item.clickable{ cursor:pointer; transition: transform .15s ease; }
   .row-item.clickable:hover{ transform: translateY(-2px); }
+  .sticker-card.clickable{ cursor:pointer; }
 
   /* =========================================================
      11. BEER XP / ABT LORD TROON (overdreven ceremonieel, Home)
@@ -2139,6 +2179,14 @@ let APP_DATA = {
   nicknameBattleVoteCounts: [],
   poetryPrompts: [],
   dailyPoetryChallenges: [],
+  terraceLocations: [],
+  terraceLocationFavorites: [],
+  terraceEvents: [],
+  terraceEventOptions: [],
+  terraceAvailability: [],
+  terraceLocationVotes: [],
+  terraceAttendance: [],
+  terraceLocationRatings: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2176,6 +2224,8 @@ async function loadAppData(){
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
     poetryPromptsRes, dailyPoetryChallengesRes,
+    terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
+    terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2202,6 +2252,14 @@ async function loadAppData(){
     sb.from('nickname_battle_vote_counts').select('*'),
     sb.from('poetry_prompts').select('*'),
     sb.from('daily_poetry_challenges').select('*'),
+    sb.from('terrace_locations').select('*'),
+    sb.from('terrace_location_favorites').select('*'),
+    sb.from('terrace_events').select('*'),
+    sb.from('terrace_event_options').select('*'),
+    sb.from('terrace_availability').select('*'),
+    sb.from('terrace_location_votes').select('*'),
+    sb.from('terrace_attendance').select('*'),
+    sb.from('terrace_location_ratings').select('*'),
   ]);
 
   for (const res of [
@@ -2213,6 +2271,8 @@ async function loadAppData(){
     poemsRes, poemReactionsRes, poetLaureateReignsRes,
     nicknameBattlesRes, nicknameBattleVotesRes, nicknameBattleVoteCountsRes,
     poetryPromptsRes, dailyPoetryChallengesRes,
+    terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
+    terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2249,6 +2309,7 @@ async function loadAppData(){
       description: n.description,
       anecdote: n.anecdote,
       status: n.status,
+      terraceEventId: n.terrace_event_id,
       xp: 10 + events.reduce((sum, e) => sum + e.xp_value, 0),
       usageCount: events.length,
       usageLog: events.map(e => ({ id: e.id, type: e.event_type, xp: e.xp_value, date: e.created_at, loggedBy: e.created_by_user_id })),
@@ -2273,6 +2334,7 @@ async function loadAppData(){
     reactions: buildReactions(quoteReactionsRes.data || [], q.id, 'quote_id'),
     points: 5 + (q.all_three_bonus_awarded ? 5 : 0),
     allThreeBonusAwarded: q.all_three_bonus_awarded,
+    terraceEventId: q.terrace_event_id,
   }));
 
   const anecdotes = (anecdotesRes.data || []).map(a => ({
@@ -2481,11 +2543,80 @@ async function loadAppData(){
     createdAt: c.created_at,
   }));
 
+  const terraceLocations = (terraceLocationsRes.data || []).map(l => ({
+    id: l.id,
+    name: l.name,
+    city: l.city,
+    note: l.note,
+    websiteUrl: l.website_url,
+    hasTerrace: !!l.has_terrace,
+    createdByUserId: l.created_by_user_id,
+    createdAt: l.created_at,
+  }));
+
+  const terraceLocationFavorites = (terraceLocationFavoritesRes.data || []).map(f => ({
+    id: f.id, locationId: f.location_id, userId: f.user_id, createdAt: f.created_at,
+  }));
+
+  const terraceEvents = (terraceEventsRes.data || []).map(e => ({
+    id: e.id,
+    title: e.title,
+    createdByUserId: e.created_by_user_id,
+    status: e.status,
+    note: e.note,
+    confirmedOptionId: e.confirmed_option_id,
+    linkedBeerSessionId: e.linked_beer_session_id,
+    invitedUserIds: e.invited_user_ids || [],
+    createdAt: e.created_at,
+    updatedAt: e.updated_at,
+  }));
+
+  const terraceEventOptions = (terraceEventOptionsRes.data || []).map(o => ({
+    id: o.id,
+    terraceEventId: o.terrace_event_id,
+    eventDate: o.event_date,
+    eventTime: o.event_time,
+    locationId: o.location_id,
+    manualLocation: o.manual_location,
+    createdAt: o.created_at,
+  }));
+
+  const terraceAvailability = (terraceAvailabilityRes.data || []).map(a => ({
+    id: a.id,
+    terraceEventId: a.terrace_event_id,
+    optionId: a.option_id,
+    userId: a.user_id,
+    status: a.status,
+    needsReconfirmation: !!a.needs_reconfirmation,
+    updatedAt: a.updated_at,
+  }));
+
+  const terraceLocationVotes = (terraceLocationVotesRes.data || []).map(v => ({
+    id: v.id, terraceEventId: v.terrace_event_id, optionId: v.option_id, userId: v.user_id, createdAt: v.created_at,
+  }));
+
+  const terraceAttendance = (terraceAttendanceRes.data || []).map(a => ({
+    id: a.id, terraceEventId: a.terrace_event_id, userId: a.user_id, attended: !!a.attended, recordedAt: a.recorded_at,
+  }));
+
+  const terraceLocationRatings = (terraceLocationRatingsRes.data || []).map(r => ({
+    id: r.id,
+    terraceEventId: r.terrace_event_id,
+    locationId: r.location_id,
+    userId: r.user_id,
+    terraceRating: r.terrace_rating,
+    beerSelectionRating: r.beer_selection_rating,
+    vibeRating: r.vibe_rating,
+    createdAt: r.created_at,
+  }));
+
   APP_DATA = {
     users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
     poems, poemReactions, poetLaureateReigns,
     nicknameBattles, nicknameBattleVotes, nicknameBattleVoteCounts,
     poetryPrompts, dailyPoetryChallenges,
+    terraceLocations, terraceLocationFavorites, terraceEvents, terraceEventOptions,
+    terraceAvailability, terraceLocationVotes, terraceAttendance, terraceLocationRatings,
   };
 }
 
@@ -2510,6 +2641,8 @@ const REALTIME_TABLES = [
   'poems', 'poem_reactions', 'poet_laureate_reigns',
   'nickname_battles', 'nickname_battle_votes',
   'poetry_prompts', 'daily_poetry_challenges',
+  'terrace_locations', 'terrace_location_favorites', 'terrace_events', 'terrace_event_options',
+  'terrace_availability', 'terrace_location_votes', 'terrace_attendance', 'terrace_location_ratings',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -2651,7 +2784,7 @@ async function initAuth(){
    back to their parent list, since the record they pointed at may no
    longer exist by the time the user comes back. */
 const NAV_STATE_STORAGE_KEY = 'officeLoreNavState';
-const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'poetrywall', 'leaderboards', 'myprofile'];
+const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'poetrywall', 'terrace', 'leaderboards', 'myprofile'];
 const PERSISTABLE_BEER_VIEWS = ['database', 'sessions', 'leaderboards'];
 const PERSISTABLE_NICKNAME_TABS = ['nicknames', 'battles'];
 
@@ -2890,7 +3023,7 @@ let beerFormPhoto = null;
    (niet als bier×deelnemer-matrix) — een bierregel bestaat alleen als
    hij expliciet via "+ Add beer for X" is toegevoegd voor precies die
    ene deelnemer, nooit automatisch voor de rest van de sessie. */
-let SESSION_DRAFT = { participantIds: [], perParticipant: {} };
+let SESSION_DRAFT = { participantIds: [], perParticipant: {}, prefillDate: null, prefillLocation: null, terraceEventId: null };
 
 /* Tijdelijke "draft" voor het avatar-gedeelte van het formulier.
    Los van de rest van het formulier gehouden zodat we swatches/foto's
@@ -3963,6 +4096,7 @@ const NAV_ITEMS = [
   { id: 'counters',     label: 'Counters',     emoji: '🔢' },
   { id: 'beerclub',     label: 'Beer Club',    emoji: '🍺' },
   { id: 'poetrywall',   label: 'Poetry Wall',  emoji: '✒️' },
+  { id: 'terrace',      label: 'Terrace',      emoji: '🍻' },
   { id: 'leaderboards', label: 'Leaderboards', emoji: '🏆' },
 ];
 
@@ -4221,9 +4355,29 @@ const MODULES = {
         </section>
       `;
 
+      const nextTerraceEvent = getUpcomingTerraceEvents().filter(e => e.status !== 'cancelled')[0] || null;
+      const nextTerraceSection = `
+        <section class="section">
+          <div class="section-head">
+            <h3>🍻 Next Terrace</h3>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="goToPage('terrace')">Visit Terrace →</button>
+          </div>
+          ${nextTerraceEvent ? `
+            <div class="sticker-card terrace-card clickable" onclick="openTerraceEventDetail('${nextTerraceEvent.id}')">
+              ${renderTerraceHomeCardBody(nextTerraceEvent)}
+            </div>
+          ` : `
+            <div class="empty-state">
+              No drinks planned. This seems irresponsible.
+              <div style="margin-top:10px;"><button type="button" class="btn btn-primary btn-sm" onclick="openTerraceEventForm('add')">+ Plan Something</button></div>
+            </div>
+          `}
+        </section>
+      `;
+
       return headerSection + nicknameWallSection + todayAtOfficeSection + quoteOfTheWeekSection
         + nicknameOfTheMonthSection + abtLordSection + latestBeerSessionSection
-        + top3LoreSection + top3BeerXpSection + activeCountersSection + poetryWallSection;
+        + top3LoreSection + top3BeerXpSection + activeCountersSection + poetryWallSection + nextTerraceSection;
     }
   },
 
@@ -4380,6 +4534,18 @@ const MODULES = {
     render(data){
       if (POETRY_STATE.view === 'poemDetail') return renderPoemDetailPage(data);
       return renderPoetryWallPage(data);
+    }
+  },
+
+  terrace: {
+    title: 'Terrace Planner',
+    subtitle: 'Important meetings, questionable agendas.',
+    emoji: '🍻',
+    render(data){
+      if (TERRACE_STATE.view === 'eventForm') return renderTerraceEventFormPage(data);
+      if (TERRACE_STATE.view === 'eventDetail') return renderTerraceEventDetailPage(data);
+      if (TERRACE_STATE.view === 'locations') return renderTerraceLocationsPage(data);
+      return renderTerracePage(data);
     }
   },
 
@@ -5403,7 +5569,7 @@ function renderNicknameCard(n, opts = {}){
    isOwner bepaalt puur de UI-vertakking -- de echte beveiliging zit
    server-side (RLS + de RPC's eigen kolom-scope), dus DOM-manipulatie
    kan hier niets omzeilen. */
-function renderNicknameFormHtml(mode, nickname, presetRealName){
+function renderNicknameFormHtml(mode, nickname, presetRealName, terraceEventId){
   const selectedName = nickname?.personRealName ?? presetRealName ?? '';
   const selectedBusinessUnit = nickname?.businessUnit ?? '';
   const isOwner = mode !== 'edit' || nickname.createdByUserId === STATE.activeUser;
@@ -5414,7 +5580,8 @@ function renderNicknameFormHtml(mode, nickname, presetRealName){
   return `
     <h3>${mode === 'edit' ? '✏️ Nickname bewerken' : '➕ Nieuwe nickname'}</h3>
     ${mode === 'edit' && !isOwner ? `<p class="form-meta" style="margin-top:0; margin-bottom:12px;">🔒 Alleen ${escapeHtml(resolveUserLabel(nickname.createdByUserId))} kan de nickname, naam en Business Unit wijzigen — jij kan wel de uitleg en anekdote aanpassen.</p>` : ''}
-    <form data-mode="${mode}" data-id="${nickname?.id || ''}" data-owner="${isOwner}" onsubmit="return submitNicknameForm(event)">
+    ${terraceEventId ? `<p class="form-meta" style="margin-top:0;">🍻 Linked to this Terrace Event</p>` : ''}
+    <form data-mode="${mode}" data-id="${nickname?.id || ''}" data-owner="${isOwner}" data-terrace-event-id="${terraceEventId || ''}" onsubmit="return submitNicknameForm(event)">
       ${renderRealNameFieldsHtml('nf', selectedName, selectedBusinessUnit, 'Echte naam *', !isOwner)}
       <div class="form-field" style="margin-top:10px;">
         <label class="form-label" for="nf-text">Nickname *${lockIconHtml}</label>
@@ -5447,9 +5614,9 @@ function renderNicknameFormHtml(mode, nickname, presetRealName){
   `;
 }
 
-function openNicknameForm(mode, nicknameId, presetRealName){
+function openNicknameForm(mode, nicknameId, presetRealName, terraceEventId){
   const nickname = mode === 'edit' ? APP_DATA.nicknames.find(n => n.id === nicknameId) : null;
-  openModal(renderNicknameFormHtml(mode, nickname, presetRealName));
+  openModal(renderNicknameFormHtml(mode, nickname, presetRealName, terraceEventId));
 }
 
 /* ---- zoeken/filteren op de Nicknames-tab: alleen het
@@ -5510,6 +5677,7 @@ async function submitNicknameForm(event){
   const mode = form.dataset.mode;
   const editId = form.dataset.id;
   const isOwner = form.dataset.owner === 'true';
+  const terraceEventId = form.dataset.terraceEventId || null;
   const errorEl = document.getElementById('nf-error');
 
   const description = document.getElementById('nf-origin').value.trim();
@@ -5556,7 +5724,7 @@ async function submitNicknameForm(event){
       person_real_name: personRealName, business_unit: businessUnit || null,
       nickname: text, description, anecdote,
       status: status || 'Actief',
-      created_by_user_id: STATE.activeUser,
+      created_by_user_id: STATE.activeUser, terrace_event_id: terraceEventId,
     }));
   }
 
@@ -5739,14 +5907,15 @@ function renderLoreCard(item, kind, opts = {}){
 }
 
 /* ---- add/edit formulier (in een modal, met Quote/Anekdote-toggle) ---- */
-function renderLoreFormHtml(mode, kind, item, presetRealName){
+function renderLoreFormHtml(mode, kind, item, presetRealName, terraceEventId){
   const selectedName = item?.personRealName ?? presetRealName ?? '';
   const selectedBusinessUnit = item?.businessUnit ?? '';
   const question = kind === 'quote' ? 'Who said this?' : 'Who is this story about?';
 
   return `
     <h3>${mode === 'edit' ? `✏️ ${kind === 'quote' ? 'Quote' : 'Anekdote'} bewerken` : '➕ Nieuwe Lore'}</h3>
-    <form data-mode="${mode}" data-kind="${kind}" data-id="${item?.id || ''}" onsubmit="return submitLoreForm(event)">
+    ${terraceEventId ? `<p class="form-meta" style="margin-top:0;">🍻 Linked to this Terrace Event</p>` : ''}
+    <form data-mode="${mode}" data-kind="${kind}" data-id="${item?.id || ''}" data-terrace-event-id="${terraceEventId || ''}" onsubmit="return submitLoreForm(event)">
       ${mode === 'add' ? `
         <div class="form-field">
           <label class="form-label">Type</label>
@@ -5785,17 +5954,19 @@ function renderLoreFormHtml(mode, kind, item, presetRealName){
   `;
 }
 
-function openLoreForm(mode, kind, itemId, presetRealName){
+function openLoreForm(mode, kind, itemId, presetRealName, terraceEventId){
   const list = kind === 'quote' ? APP_DATA.quotes : APP_DATA.anecdotes;
   const item = mode === 'edit' ? list.find(x => x.id === itemId) : null;
-  openModal(renderLoreFormHtml(mode, kind, item, presetRealName));
+  openModal(renderLoreFormHtml(mode, kind, item, presetRealName, terraceEventId));
 }
 
 /* Wissel tussen Quote/Anekdote in het "+ Lore"-formulier zonder de
-   al ingevulde naam te verliezen. */
+   al ingevulde naam (of terrace-koppeling) te verliezen. */
 function switchLoreFormType(kind){
+  const currentForm = document.querySelector('#modal-root form');
   const currentName = document.getElementById('lf-realname')?.value;
-  openModal(renderLoreFormHtml('add', kind, null, currentName));
+  const terraceEventId = currentForm?.dataset.terraceEventId || null;
+  openModal(renderLoreFormHtml('add', kind, null, currentName, terraceEventId));
 }
 
 async function submitLoreForm(event){
@@ -5804,6 +5975,7 @@ async function submitLoreForm(event){
   const mode = form.dataset.mode;
   const kind = form.dataset.kind;
   const editId = form.dataset.id;
+  const terraceEventId = form.dataset.terraceEventId || null;
   const errorEl = document.getElementById('lf-error');
   const personRealName = document.getElementById('lf-realname').value.trim();
   const businessUnit = document.getElementById('lf-businessunit').value.trim();
@@ -5829,7 +6001,7 @@ async function submitLoreForm(event){
     } else {
       ({ error } = await sb.from('quotes').insert({
         person_real_name: personRealName, business_unit: businessUnit || null, quote: text, context,
-        created_by_user_id: STATE.activeUser,
+        created_by_user_id: STATE.activeUser, terrace_event_id: terraceEventId,
       }));
     }
   } else {
@@ -7415,7 +7587,7 @@ function backToBeerSessions(){
    .sessionFormEditId bepalen welke modus, zelfde patroon als
    openBeerForm(mode, id). Bij edit wordt SESSION_DRAFT vooraf gevuld
    vanuit de bestaande sessie zodat de matrix meteen alles toont. */
-function openSessionForm(mode, sessionId){
+function openSessionForm(mode, sessionId, terracePrefill){
   const editMode = mode === 'edit';
   const session = editMode ? APP_DATA.beerSessions.find(s => s.id === sessionId) : null;
   if (editMode && !session){
@@ -7434,9 +7606,17 @@ function openSessionForm(mode, sessionId){
         .filter(e => e.userId === userId)
         .map(e => ({ beerId: e.beerId, quantity: e.quantity || 0, score: e.score || 0, review: e.review || '', persisted: true }));
     });
-    SESSION_DRAFT = { participantIds: [...session.participantIds], perParticipant };
+    SESSION_DRAFT = { participantIds: [...session.participantIds], perParticipant, prefillDate: null, prefillLocation: null, terraceEventId: null };
+  } else if (terracePrefill){
+    SESSION_DRAFT = {
+      participantIds: [...terracePrefill.participantIds],
+      perParticipant: {},
+      prefillDate: terracePrefill.date || null,
+      prefillLocation: terracePrefill.location || null,
+      terraceEventId: terracePrefill.terraceEventId || null,
+    };
   } else {
-    SESSION_DRAFT = { participantIds: [], perParticipant: {} };
+    SESSION_DRAFT = { participantIds: [], perParticipant: {}, prefillDate: null, prefillLocation: null, terraceEventId: null };
   }
 
   BEER_STATE.view = 'sessionForm';
@@ -7464,14 +7644,16 @@ function renderSessionFormPage(data){
         <h2 style="font-size:20px;">${editMode ? '✏️ Beer Session bewerken' : '➕ Nieuwe Beer Session'}</h2>
       </div>
 
+      ${!editMode && SESSION_DRAFT.terraceEventId ? `<p class="form-meta" style="margin-top:0;">🍻 Linked from a Terrace Plan — date, location and attendees below are pre-filled.</p>` : ''}
+
       <div class="form-grid">
         <div class="form-field">
           <label class="form-label" for="sf-date">Datum *</label>
-          <input class="form-input" id="sf-date" type="date" value="${session ? session.date : todayISO()}">
+          <input class="form-input" id="sf-date" type="date" value="${session ? session.date : (SESSION_DRAFT.prefillDate || todayISO())}">
         </div>
         <div class="form-field">
           <label class="form-label" for="sf-location">Locatie</label>
-          <input class="form-input" id="sf-location" type="text" placeholder="Optioneel" value="${session ? escapeHtml(session.location || '') : ''}">
+          <input class="form-input" id="sf-location" type="text" placeholder="Optioneel" value="${session ? escapeHtml(session.location || '') : escapeHtml(SESSION_DRAFT.prefillLocation || '')}">
         </div>
       </div>
 
@@ -7820,6 +8002,10 @@ async function submitSessionForm(){
   }
   if (consumptionRows.length){
     await sb.from('beer_consumption').insert(consumptionRows.map(c => ({ ...c, session_id: session.id })));
+  }
+
+  if (SESSION_DRAFT.terraceEventId){
+    await sb.from('terrace_events').update({ linked_beer_session_id: session.id }).eq('id', SESSION_DRAFT.terraceEventId);
   }
 
   await refreshAppData();
@@ -8706,6 +8892,1095 @@ async function performDeletePoem(id){
   renderPage();
 }
 
+/* ---------- 5b. TERRACE PLANNER ----------
+   One "option" row = one full (date, time, location) candidate slot.
+   The simple flow creates exactly one. "Multiple locations" adds
+   options that share the same date/time but vary location (voted via
+   terrace_location_votes, one pick per user). "Multiple date/time
+   alternatives" adds options sharing the same location but varying
+   date/time (voted via per-option terrace_availability rows). The
+   simple, single-option case always uses option_id = null on
+   terrace_availability -- a plain whole-event RSVP. */
+
+const TERRACE_STATE = {
+  view: 'list', // 'list' | 'eventForm' | 'eventDetail' | 'locations'
+  activeEventId: null,
+  locationSort: 'visits',
+};
+
+let TERRACE_DRAFT = null;
+
+/* ---- date/time formatting ---- */
+function formatTerraceShortDate(iso){
+  if (!iso) return 'TBD';
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+function formatTerraceFullDate(iso){
+  if (!iso) return 'TBD';
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+function formatTerraceTime(t){
+  return t ? t.slice(0, 5) : '';
+}
+
+/* ---- lookups ---- */
+function getTerraceEventOptions(eventId){
+  return APP_DATA.terraceEventOptions
+    .filter(o => o.terraceEventId === eventId)
+    .sort((a, b) => (a.eventDate + (a.eventTime || '')).localeCompare(b.eventDate + (b.eventTime || '')));
+}
+function getTerraceOptionLocationLabel(option){
+  if (!option) return 'TBD';
+  if (option.manualLocation) return option.manualLocation;
+  const loc = APP_DATA.terraceLocations.find(l => l.id === option.locationId);
+  return loc ? loc.name : 'TBD';
+}
+/* Welke as varieert tussen de opties van dit event -- 'date' als alle
+   opties dezelfde locatie delen maar data/tijden verschillen, anders
+   'location'. null als er maar 1 optie is (het simpele geval). */
+function terraceVariesBy(event){
+  const options = getTerraceEventOptions(event.id);
+  if (options.length <= 1) return null;
+  const firstKey = options[0].locationId + '|' + (options[0].manualLocation || '');
+  const sameLocation = options.every(o => (o.locationId + '|' + (o.manualLocation || '')) === firstKey);
+  return sameLocation ? 'date' : 'location';
+}
+function getTerracePrimaryOption(event){
+  const options = getTerraceEventOptions(event.id);
+  if (event.confirmedOptionId){
+    const opt = options.find(o => o.id === event.confirmedOptionId);
+    if (opt) return opt;
+  }
+  return options[0] || null;
+}
+function getTerraceEventAvailability(eventId, optionId){
+  return APP_DATA.terraceAvailability.filter(a => a.terraceEventId === eventId && a.optionId === (optionId || null));
+}
+function getTerraceMyAvailability(eventId, optionId){
+  return getTerraceEventAvailability(eventId, optionId).find(a => a.userId === STATE.activeUser);
+}
+function getTerraceEventPrimaryDate(event){
+  const opt = getTerracePrimaryOption(event);
+  return opt ? opt.eventDate : null;
+}
+function isTerracePastEvent(event){
+  const date = getTerraceEventPrimaryDate(event);
+  return date ? date < todayISO() : false;
+}
+function getUpcomingTerraceEvents(){
+  return (APP_DATA.terraceEvents || [])
+    .filter(e => e.status !== 'cancelled' && !isTerracePastEvent(e))
+    .sort((a, b) => (getTerraceEventPrimaryDate(a) || '9999').localeCompare(getTerraceEventPrimaryDate(b) || '9999'));
+}
+function getPastTerraceEvents(){
+  return (APP_DATA.terraceEvents || [])
+    .filter(e => e.status === 'cancelled' || isTerracePastEvent(e))
+    .sort((a, b) => (getTerraceEventPrimaryDate(b) || '').localeCompare(getTerraceEventPrimaryDate(a) || ''));
+}
+
+/* "Waiting"/"Looks good" zijn nooit opgeslagen -- puur afgeleid van
+   live availability terwijl status='proposed'. Enkel confirmed/
+   cancelled zijn echte, expliciete states. */
+function computeTerraceStatus(event){
+  if (event.status === 'confirmed') return { icon: '✅', label: 'Confirmed', cls: 'mint' };
+  if (event.status === 'cancelled') return { icon: '❌', label: 'Cancelled', cls: 'peach' };
+  const varies = terraceVariesBy(event);
+  let yesCount = 0;
+  if (varies === 'date'){
+    getTerraceEventOptions(event.id).forEach(o => {
+      const c = getTerraceEventAvailability(event.id, o.id).filter(a => a.status === 'yes').length;
+      if (c > yesCount) yesCount = c;
+    });
+  } else {
+    yesCount = getTerraceEventAvailability(event.id, null).filter(a => a.status === 'yes').length;
+  }
+  if (yesCount >= 2) return { icon: '🟢', label: 'Looks good', cls: 'sky' };
+  return { icon: '🟡', label: 'Waiting for answers', cls: 'yellow' };
+}
+
+/* Nav-badge: aantal proposed events waarop de huidige user nog niet
+   (volledig) gereageerd heeft. */
+function getTerracePendingVoteCount(){
+  if (!STATE.activeUser) return 0;
+  let count = 0;
+  (APP_DATA.terraceEvents || []).forEach(e => {
+    if (e.status !== 'proposed' || !e.invitedUserIds.includes(STATE.activeUser)) return;
+    if (terraceVariesBy(e) === 'date'){
+      const missing = getTerraceEventOptions(e.id).some(o => !getTerraceMyAvailability(e.id, o.id));
+      if (missing) count++;
+    } else if (!getTerraceMyAvailability(e.id, null)){
+      count++;
+    }
+  });
+  return count;
+}
+
+/* ---- list page ---- */
+function renderTerracePage(data){
+  const upcoming = getUpcomingTerraceEvents();
+  const past = getPastTerraceEvents();
+  const topSpots = getTerraceLocationStats().filter(s => s.visits > 0).sort((a, b) => b.visits - a.visits).slice(0, 3);
+
+  return `
+    <section class="section">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary" onclick="openTerraceEventForm('add')">+ Plan a Terrace</button>
+        <button type="button" class="btn btn-ghost" onclick="openTerraceLocations()">📍 Our Spots</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3>📅 Upcoming</h3></div>
+      ${upcoming.length ? `<div class="grid cols-auto">${upcoming.map(e => renderTerraceEventCard(e)).join('')}</div>` : `
+        <div class="empty-state">
+          No drinks planned. This seems irresponsible.
+          <div style="margin-top:10px;"><button type="button" class="btn btn-primary btn-sm" onclick="openTerraceEventForm('add')">+ Plan Something</button></div>
+        </div>
+      `}
+    </section>
+
+    ${topSpots.length ? `
+      <section class="section">
+        <div class="section-head">
+          <h3>📍 Favourite Spots</h3>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="openTerraceLocations()">View all →</button>
+        </div>
+        <div class="row-list">
+          ${topSpots.map(s => `
+            <div class="row-item" onclick="openTerraceLocations()">
+              <div class="avatar-emoji" style="width:34px;height:34px;background:var(--mint);font-size:16px;">${s.location.hasTerrace ? '🍀' : '☀️'}</div>
+              <div class="info">
+                <div class="name">${escapeHtml(s.location.name)}</div>
+                <div class="sub">${s.visits} visit${s.visits === 1 ? '' : 's'}${s.overall !== null ? ' · ' + s.overall.toFixed(1) + '/10' : ''}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    ` : ''}
+
+    <section class="section">
+      <div class="section-head"><h3>🕰️ Past</h3></div>
+      ${past.length ? `<div class="grid cols-auto">${past.map(e => renderTerraceEventCard(e, { past: true })).join('')}</div>` : emptyState('Nog geen eerdere terrasmomenten.')}
+    </section>
+
+    <section class="section">
+      <div class="section-head"><h3>🍻 Terrace Stats</h3></div>
+      <div class="grid cols-auto">
+        ${TERRACE_LEADERBOARD_DEFS.map(def => `
+          <div class="sticker-card" style="text-align:left;">
+            <div class="lore-item-title" style="margin-bottom:8px;">${def.icon} ${def.title}</div>
+            ${renderPodium(def.build().slice(0, 3), { compact: true, restLimit: 0 })}
+          </div>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderTerraceEventCard(event, opts = {}){
+  const options = getTerraceEventOptions(event.id);
+  const varies = terraceVariesBy(event);
+  const primaryOption = getTerracePrimaryOption(event);
+  const status = computeTerraceStatus(event);
+  const linkedSession = event.linkedBeerSessionId ? APP_DATA.beerSessions.find(s => s.id === event.linkedBeerSessionId) : null;
+  const myAvailability = getTerraceMyAvailability(event.id, null);
+  const pendingForMe = event.status === 'proposed' && event.invitedUserIds.includes(STATE.activeUser)
+    && (varies === 'date' ? options.some(o => !getTerraceMyAvailability(event.id, o.id)) : !myAvailability);
+
+  const attendance = APP_DATA.terraceAttendance.filter(a => a.terraceEventId === event.id);
+
+  return `
+    <div class="sticker-card terrace-card clickable" onclick="openTerraceEventDetail('${event.id}')">
+      <div class="terrace-card-top">
+        <div class="lore-item-title">🍻 ${escapeHtml(event.title || 'Terrace Plan')}</div>
+        <span class="badge ${status.cls}">${status.icon} ${status.label}</span>
+      </div>
+      <div class="terrace-card-meta">📅 ${formatTerraceShortDate(primaryOption?.eventDate)}${primaryOption?.eventTime ? ' · ' + formatTerraceTime(primaryOption.eventTime) : ''}</div>
+      <div class="terrace-card-meta">📍 ${escapeHtml(getTerraceOptionLocationLabel(primaryOption))}</div>
+      ${opts.past ? `
+        <div class="terrace-card-meta">👥 ${(attendance.length ? attendance.filter(a => a.attended).map(a => resolveUserLabel(a.userId)) : event.invitedUserIds.map(id => resolveUserLabel(id))).join(', ')}</div>
+      ` : varies === 'date' ? `
+        <div class="terrace-card-meta">🗓️ ${options.length} tijdsopties — stemmen kan</div>
+      ` : `
+        <div class="row-list" style="margin-top:8px;">
+          ${event.invitedUserIds.map(uid => {
+            const u = findUser(uid);
+            if (!u) return '';
+            const vote = getTerraceEventAvailability(event.id, null).find(a => a.userId === uid);
+            return renderTerraceAvailabilityRow(u, vote);
+          }).join('')}
+        </div>
+      `}
+      ${linkedSession ? `<div class="badge mint" style="margin-top:8px;">🍺 Beer Session linked</div>` : ''}
+      ${pendingForMe ? `<div class="terrace-card-nudge">👉 ${resolveUserLabel(event.createdByUserId)} is waiting for your answer.</div>` : ''}
+    </div>
+  `;
+}
+
+function renderTerraceAvailabilityRow(user, vote){
+  const icon = !vote ? '⏳' : vote.status === 'yes' ? '✅' : vote.status === 'maybe' ? '🤔' : '❌';
+  const label = !vote ? 'Not attempted' : vote.status === 'yes' ? "I'm in" : vote.status === 'maybe' ? 'Maybe' : "Can't";
+  return `
+    <div class="row-item" style="cursor:default;">
+      ${avatarHtml(user, 26)}
+      <div class="info"><div class="name">${escapeHtml(user.displayName)}</div></div>
+      <div class="value">${icon} ${label}${vote && vote.needsReconfirmation ? ' <span class="badge peach" style="margin-left:4px;">Needs reconfirmation</span>' : ''}</div>
+    </div>
+  `;
+}
+
+/* ---- event detail ---- */
+function openTerraceEventDetail(id){
+  STATE.activePage = 'terrace';
+  TERRACE_STATE.view = 'eventDetail';
+  TERRACE_STATE.activeEventId = id;
+  renderNav();
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function backToTerraceList(){
+  TERRACE_STATE.view = 'list';
+  TERRACE_STATE.activeEventId = null;
+  renderPage();
+}
+
+function renderTerraceEventDetailPage(data){
+  const event = data.terraceEvents.find(e => e.id === TERRACE_STATE.activeEventId);
+  if (!event){ TERRACE_STATE.view = 'list'; return renderTerracePage(data); }
+
+  const options = getTerraceEventOptions(event.id);
+  const varies = terraceVariesBy(event);
+  const primaryOption = getTerracePrimaryOption(event);
+  const status = computeTerraceStatus(event);
+  const isPast = isTerracePastEvent(event);
+  const linkedSession = event.linkedBeerSessionId ? APP_DATA.beerSessions.find(s => s.id === event.linkedBeerSessionId) : null;
+
+  const headerSection = `
+    <section class="section">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="backToTerraceList()">← Terug naar Terrace Planner</button>
+      <div class="detail-header" style="margin-top:8px;">
+        <div>
+          <h2 style="font-size:24px;">🍻 ${escapeHtml(event.title || 'Terrace Plan')}</h2>
+          <div class="detail-subline">📅 ${formatTerraceFullDate(primaryOption?.eventDate)}${primaryOption?.eventTime ? ' · ' + formatTerraceTime(primaryOption.eventTime) : ''} · 📍 ${escapeHtml(getTerraceOptionLocationLabel(primaryOption))}</div>
+        </div>
+        <div class="detail-actions">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="openTerraceEventForm('edit', '${event.id}')">✏️ Edit</button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteTerraceEvent('${event.id}')">🗑️ Delete</button>
+        </div>
+      </div>
+      <div class="detail-meta-row">
+        <span class="badge ${status.cls}">${status.icon} ${status.label}</span>
+        <span class="badge lilac">👤 ${resolveUserLabel(event.createdByUserId)}</span>
+        ${event.note ? `<span class="badge peach">📝 ${escapeHtml(event.note)}</span>` : ''}
+      </div>
+      ${event.status === 'proposed' ? `
+        <div class="form-actions" style="justify-content:flex-start; margin-top:12px;">
+          <button type="button" class="btn btn-primary btn-sm" onclick="confirmTerraceOptionPrompt('${event.id}')">✅ Confirm Terrace</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="cancelTerraceEvent('${event.id}')">❌ Cancel</button>
+        </div>
+      ` : ''}
+    </section>
+  `;
+
+  const availabilitySection = varies === 'date'
+    ? renderTerraceMultiDateSection(event, options)
+    : renderTerraceSimpleAvailabilitySection(event);
+
+  const locationVoteSection = varies === 'location' ? renderTerraceLocationVoteSection(event, options) : '';
+
+  const attendanceSection = isPast ? renderTerraceAttendanceSection(event) : '';
+
+  const beerSessionSection = `
+    <section class="section">
+      <div class="section-head"><h3>🍺 Beer Club</h3></div>
+      ${linkedSession ? `
+        <div class="badge mint" style="margin-bottom:10px;">🍺 Beer Session linked</div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="viewLinkedBeerSession('${linkedSession.id}')">View Beer Session</button>
+      ` : (isPast && event.status === 'confirmed') ? `
+        <button type="button" class="btn btn-primary btn-sm" onclick="createBeerSessionFromTerrace('${event.id}')">🍺 Create Beer Session</button>
+      ` : emptyState('Wordt beschikbaar zodra dit terras bevestigd is en achter de rug is.')}
+    </section>
+  `;
+
+  const recapSection = (isPast && event.status === 'confirmed') ? renderTerraceRecapSection(event) : '';
+
+  return headerSection + availabilitySection + locationVoteSection + attendanceSection + recapSection + beerSessionSection;
+}
+
+function renderTerraceSimpleAvailabilitySection(event){
+  const myVote = getTerraceMyAvailability(event.id, null);
+  const iAmInvited = event.invitedUserIds.includes(STATE.activeUser);
+  return `
+    <section class="section">
+      <div class="section-head"><h3>Can you make it?</h3></div>
+      ${iAmInvited ? `
+        <div class="terrace-vote-buttons">
+          <button type="button" class="btn btn-lg ${myVote?.status === 'yes' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', null, 'yes')">✅ I'M IN</button>
+          <button type="button" class="btn btn-lg ${myVote?.status === 'maybe' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', null, 'maybe')">🤔 MAYBE</button>
+          <button type="button" class="btn btn-lg ${myVote?.status === 'no' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', null, 'no')">❌ CAN'T</button>
+        </div>
+        ${myVote?.needsReconfirmation ? `<div class="terrace-card-nudge">⚠️ Needs reconfirmation — details changed since you last answered.</div>` : ''}
+      ` : ''}
+      <div class="row-list" style="margin-top:14px;">
+        ${event.invitedUserIds.map(uid => {
+          const u = findUser(uid);
+          if (!u) return '';
+          const vote = getTerraceEventAvailability(event.id, null).find(a => a.userId === uid);
+          return renderTerraceAvailabilityRow(u, vote);
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderTerraceMultiDateSection(event, options){
+  const iAmInvited = event.invitedUserIds.includes(STATE.activeUser);
+  return `
+    <section class="section">
+      <div class="section-head"><h3>When works?</h3></div>
+      ${options.map(o => {
+        const myVote = getTerraceMyAvailability(event.id, o.id);
+        const votes = getTerraceEventAvailability(event.id, o.id);
+        const isConfirmed = event.confirmedOptionId === o.id;
+        return `
+          <div class="sticker-card" style="margin-bottom:10px; ${isConfirmed ? 'border-color: var(--pink-deep);' : ''}">
+            <div class="lore-item-title">${formatTerraceShortDate(o.eventDate)}${o.eventTime ? ' · ' + formatTerraceTime(o.eventTime) : ''}${isConfirmed ? ' ✅ Confirmed' : ''}</div>
+            ${iAmInvited ? `
+              <div class="terrace-vote-buttons">
+                <button type="button" class="btn btn-lg ${myVote?.status === 'yes' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', '${o.id}', 'yes')">✅ Yes</button>
+                <button type="button" class="btn btn-lg ${myVote?.status === 'maybe' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', '${o.id}', 'maybe')">🤔 Maybe</button>
+                <button type="button" class="btn btn-lg ${myVote?.status === 'no' ? 'btn-primary' : 'btn-ghost'}" onclick="submitTerraceAvailability('${event.id}', '${o.id}', 'no')">❌ No</button>
+              </div>
+            ` : ''}
+            <div class="row-list" style="margin-top:8px;">
+              ${event.invitedUserIds.map(uid => {
+                const u = findUser(uid);
+                if (!u) return '';
+                const vote = votes.find(v => v.userId === uid);
+                return renderTerraceAvailabilityRow(u, vote);
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </section>
+  `;
+}
+
+async function submitTerraceAvailability(eventId, optionId, status){
+  const existing = getTerraceMyAvailability(eventId, optionId);
+  if (existing){
+    await sb.from('terrace_availability').update({ status, needs_reconfirmation: false }).eq('id', existing.id);
+  } else {
+    await sb.from('terrace_availability').insert({ terrace_event_id: eventId, option_id: optionId, user_id: STATE.activeUser, status });
+  }
+  await refreshAppData();
+  renderPage();
+}
+
+function renderTerraceLocationVoteSection(event, options){
+  const myVote = APP_DATA.terraceLocationVotes.find(v => v.terraceEventId === event.id && v.userId === STATE.activeUser);
+  const canVote = event.status === 'proposed';
+  return `
+    <section class="section">
+      <div class="section-head"><h3>Where?</h3></div>
+      <div class="row-list">
+        ${options.map(o => {
+          const count = APP_DATA.terraceLocationVotes.filter(v => v.terraceEventId === event.id && v.optionId === o.id).length;
+          const isMine = myVote && myVote.optionId === o.id;
+          const isConfirmed = event.confirmedOptionId === o.id;
+          return `
+            <div class="row-item" style="cursor:default;">
+              <div class="avatar-emoji" style="width:30px;height:30px;background:var(--mint);font-size:15px;">📍</div>
+              <div class="info">
+                <div class="name">${escapeHtml(getTerraceOptionLocationLabel(o))}${isConfirmed ? ' ✅' : ''}</div>
+                <div class="sub">${count} vote${count === 1 ? '' : 's'}</div>
+              </div>
+              ${canVote ? `<button type="button" class="btn ${isMine ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="submitTerraceLocationVote('${event.id}', '${o.id}')">👍</button>` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+async function submitTerraceLocationVote(eventId, optionId){
+  await sb.from('terrace_location_votes').upsert(
+    { terrace_event_id: eventId, option_id: optionId, user_id: STATE.activeUser },
+    { onConflict: 'terrace_event_id,user_id' }
+  );
+  await refreshAppData();
+  renderPage();
+}
+
+function renderTerraceAttendanceSection(event){
+  return `
+    <section class="section">
+      <div class="section-head"><h3>Who actually joined?</h3></div>
+      <div class="row-list">
+        ${event.invitedUserIds.map(uid => {
+          const u = findUser(uid);
+          if (!u) return '';
+          const record = APP_DATA.terraceAttendance.find(a => a.terraceEventId === event.id && a.userId === uid);
+          const attended = record ? record.attended : null;
+          return `
+            <div class="row-item" style="cursor:default;">
+              ${avatarHtml(u, 26)}
+              <div class="info"><div class="name">${escapeHtml(u.displayName)}</div></div>
+              <button type="button" class="btn ${attended === true ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="setTerraceAttendance('${event.id}','${uid}', true)">✅ Joined</button>
+              <button type="button" class="btn ${attended === false ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="setTerraceAttendance('${event.id}','${uid}', false)">✖️ No-show</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+async function setTerraceAttendance(eventId, userId, attended){
+  await sb.from('terrace_attendance').upsert(
+    { terrace_event_id: eventId, user_id: userId, attended, recorded_at: new Date().toISOString() },
+    { onConflict: 'terrace_event_id,user_id' }
+  );
+  await refreshAppData();
+  renderPage();
+}
+
+function renderTerraceRecapSection(event){
+  const quotesLinked = APP_DATA.quotes.filter(q => q.terraceEventId === event.id);
+  const nicknamesLinked = APP_DATA.nicknames.filter(n => n.terraceEventId === event.id);
+  const attendance = APP_DATA.terraceAttendance.filter(a => a.terraceEventId === event.id && a.attended);
+  const attendees = attendance.length ? attendance.map(a => a.userId) : event.invitedUserIds;
+  const primaryOption = getTerracePrimaryOption(event);
+
+  return `
+    <section class="section">
+      <div class="section-head"><h3>🍻 Recap</h3></div>
+      <div class="detail-meta-row">
+        <span class="badge lilac">👥 ${attendees.map(id => resolveUserLabel(id)).join(' · ')}</span>
+        <span class="badge mint">💬 ${quotesLinked.length} quote${quotesLinked.length === 1 ? '' : 's'} recorded</span>
+        <span class="badge peach">🏷️ ${nicknamesLinked.length} new nickname${nicknamesLinked.length === 1 ? '' : 's'}</span>
+      </div>
+      <div class="form-actions" style="justify-content:flex-start; margin-top:10px;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openLoreForm('add','quote', null, null, '${event.id}')">+ Quote</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openNicknameForm('add', null, null, '${event.id}')">+ Nickname</button>
+        ${primaryOption?.locationId ? `<button type="button" class="btn btn-ghost btn-sm" onclick="openTerraceRatingForm('${event.id}', '${primaryOption.locationId}')">⭐ Rate this spot</button>` : ''}
+      </div>
+    </section>
+  `;
+}
+
+/* ---- confirm / cancel / delete ---- */
+function confirmTerraceOptionPrompt(eventId){
+  const options = getTerraceEventOptions(eventId);
+  if (options.length <= 1){
+    performConfirmTerrace(eventId, options[0]?.id || null);
+    return;
+  }
+  openModal(`
+    <h3>✅ Confirm Terrace</h3>
+    <p>Which option are you confirming?</p>
+    <div class="row-list">
+      ${options.map(o => `
+        <div class="row-item" onclick="performConfirmTerrace('${eventId}', '${o.id}')">
+          <div class="info">
+            <div class="name">${formatTerraceShortDate(o.eventDate)}${o.eventTime ? ' · ' + formatTerraceTime(o.eventTime) : ''}</div>
+            <div class="sub">📍 ${escapeHtml(getTerraceOptionLocationLabel(o))}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button></div>
+  `);
+}
+
+async function performConfirmTerrace(eventId, optionId){
+  await sb.from('terrace_events').update({ status: 'confirmed', confirmed_option_id: optionId }).eq('id', eventId);
+  await refreshAppData();
+  closeModal();
+  renderPage();
+}
+
+async function cancelTerraceEvent(eventId){
+  await sb.from('terrace_events').update({ status: 'cancelled' }).eq('id', eventId);
+  await refreshAppData();
+  renderPage();
+}
+
+function confirmDeleteTerraceEvent(id){
+  const event = APP_DATA.terraceEvents.find(e => e.id === id);
+  if (!event) return;
+  const hasLinkedSession = !!event.linkedBeerSessionId;
+  openModal(`
+    <h3>🗑️ Delete this terrace plan?</h3>
+    <p>This will permanently remove the plan, its options, votes and attendance records.</p>
+    ${hasLinkedSession ? `<p class="form-meta">⚠️ This terrace is linked to an existing Beer Session. Deleting the terrace plan will not delete the Beer Session.</p>` : ''}
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="performDeleteTerraceEvent('${id}')">Delete</button>
+    </div>
+  `);
+}
+
+async function performDeleteTerraceEvent(id){
+  await sb.from('terrace_events').delete().eq('id', id);
+  await refreshAppData();
+  closeModal();
+  TERRACE_STATE.view = 'list';
+  TERRACE_STATE.activeEventId = null;
+  renderPage();
+}
+
+/* ---- create / edit form ---- */
+function defaultTerraceInvitedIds(){
+  return APP_DATA.users.map(u => u.id);
+}
+
+function openTerraceEventForm(mode, eventId){
+  const editMode = mode === 'edit';
+  const event = editMode ? APP_DATA.terraceEvents.find(e => e.id === eventId) : null;
+  if (editMode && !event) return;
+
+  if (editMode){
+    const options = getTerraceEventOptions(event.id);
+    TERRACE_DRAFT = {
+      mode: 'edit',
+      eventId: event.id,
+      title: event.title || '',
+      note: event.note || '',
+      invitedUserIds: [...event.invitedUserIds],
+      options: options.map(o => ({ id: o.id, eventDate: o.eventDate, eventTime: o.eventTime || '', locationId: o.locationId, manualLocation: o.manualLocation || '' })),
+      varyMode: terraceVariesBy(event),
+      wasConfirmed: event.status === 'confirmed',
+    };
+  } else {
+    TERRACE_DRAFT = {
+      mode: 'add',
+      eventId: null,
+      title: '',
+      note: '',
+      invitedUserIds: defaultTerraceInvitedIds(),
+      options: [{ id: null, eventDate: todayISO(), eventTime: '18:00', locationId: null, manualLocation: '' }],
+      varyMode: null,
+      wasConfirmed: false,
+    };
+  }
+
+  STATE.activePage = 'terrace';
+  TERRACE_STATE.view = 'eventForm';
+  renderNav();
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelTerraceEventForm(){
+  if (TERRACE_DRAFT?.mode === 'edit' && TERRACE_DRAFT.eventId){
+    TERRACE_STATE.view = 'eventDetail';
+    TERRACE_STATE.activeEventId = TERRACE_DRAFT.eventId;
+  } else {
+    TERRACE_STATE.view = 'list';
+  }
+  TERRACE_DRAFT = null;
+  renderPage();
+}
+
+/* Leest de niet-gecontroleerde velden (title/note + elke optie-rij)
+   terug uit de DOM in TERRACE_DRAFT, VOOR een structurele wijziging
+   (optie toevoegen/verwijderen) het formulier opnieuw rendert --
+   anders zou al ingevulde tekst verloren gaan. */
+function syncTerraceOptionsFromDom(){
+  if (!TERRACE_DRAFT) return;
+  TERRACE_DRAFT.options.forEach((opt, i) => {
+    const dateEl = document.getElementById(`tf-opt-${i}-date`);
+    const timeEl = document.getElementById(`tf-opt-${i}-time`);
+    const locSelectEl = document.getElementById(`tf-opt-${i}-location-select`);
+    const locManualEl = document.getElementById(`tf-opt-${i}-location-manual`);
+    if (dateEl) opt.eventDate = dateEl.value;
+    if (timeEl) opt.eventTime = timeEl.value;
+    if (locSelectEl) opt.locationId = locSelectEl.value || null;
+    if (locManualEl) opt.manualLocation = locManualEl.value;
+  });
+  const titleEl = document.getElementById('tf-title');
+  const noteEl = document.getElementById('tf-note');
+  if (titleEl) TERRACE_DRAFT.title = titleEl.value;
+  if (noteEl) TERRACE_DRAFT.note = noteEl.value;
+}
+
+function addTerraceDateOption(){
+  syncTerraceOptionsFromDom();
+  const base = TERRACE_DRAFT.options[0];
+  TERRACE_DRAFT.varyMode = 'date';
+  TERRACE_DRAFT.options.push({ id: null, eventDate: base.eventDate, eventTime: base.eventTime, locationId: base.locationId, manualLocation: base.manualLocation });
+  renderPage();
+}
+function addTerraceLocationOption(){
+  syncTerraceOptionsFromDom();
+  const base = TERRACE_DRAFT.options[0];
+  TERRACE_DRAFT.varyMode = 'location';
+  TERRACE_DRAFT.options.push({ id: null, eventDate: base.eventDate, eventTime: base.eventTime, locationId: null, manualLocation: '' });
+  renderPage();
+}
+function removeTerraceOption(index){
+  syncTerraceOptionsFromDom();
+  TERRACE_DRAFT.options.splice(index, 1);
+  if (TERRACE_DRAFT.options.length <= 1) TERRACE_DRAFT.varyMode = null;
+  renderPage();
+}
+function onTerraceLocationSelectChange(index, selectEl){
+  const manualEl = document.getElementById(`tf-opt-${index}-location-manual`);
+  if (!manualEl) return;
+  if (selectEl.value){ manualEl.value = ''; manualEl.disabled = true; }
+  else { manualEl.disabled = false; }
+}
+function toggleTerraceInvited(userId, btn){
+  const idx = TERRACE_DRAFT.invitedUserIds.indexOf(userId);
+  if (idx === -1) TERRACE_DRAFT.invitedUserIds.push(userId);
+  else TERRACE_DRAFT.invitedUserIds.splice(idx, 1);
+  btn.classList.toggle('btn-primary');
+  btn.classList.toggle('btn-ghost');
+}
+
+function renderTerraceOptionRowHtml(option, index, varyMode){
+  return `
+    <div class="sticker-card" style="margin-bottom:10px;">
+      <div class="form-grid">
+        ${varyMode !== 'location' ? `
+          <div class="form-field">
+            <label class="form-label">Date *</label>
+            <input class="form-input" id="tf-opt-${index}-date" type="date" value="${option.eventDate}">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Time</label>
+            <input class="form-input" id="tf-opt-${index}-time" type="time" value="${option.eventTime || ''}">
+          </div>
+        ` : ''}
+        ${varyMode !== 'date' ? `
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <label class="form-label">Where?</label>
+            <select class="form-input" id="tf-opt-${index}-location-select" onchange="onTerraceLocationSelectChange(${index}, this)">
+              <option value="">— Enter manually below —</option>
+              ${APP_DATA.terraceLocations.map(l => `<option value="${l.id}" ${option.locationId === l.id ? 'selected' : ''}>${escapeHtml(l.name)}</option>`).join('')}
+            </select>
+            <input class="form-input" style="margin-top:6px;" id="tf-opt-${index}-location-manual" type="text" placeholder="Or type a location" value="${escapeHtml(option.manualLocation || '')}" ${option.locationId ? 'disabled' : ''}>
+            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px;" onclick="quickAddTerraceLocation(${index})">+ Add new spot</button>
+          </div>
+        ` : ''}
+      </div>
+      ${index > 0 ? `<button type="button" class="btn btn-ghost btn-sm" onclick="removeTerraceOption(${index})">🗑️ Remove this option</button>` : ''}
+    </div>
+  `;
+}
+
+function renderTerraceEventFormPage(data){
+  if (!TERRACE_DRAFT){ TERRACE_STATE.view = 'list'; return renderTerracePage(data); }
+  const editMode = TERRACE_DRAFT.mode === 'edit';
+  return `
+    <section class="section">
+      <div class="page-header" style="margin:0 0 16px;">
+        <h2 style="font-size:20px;">${editMode ? '✏️ Edit Terrace Plan' : '➕ Plan a Terrace'}</h2>
+      </div>
+
+      ${editMode && TERRACE_DRAFT.wasConfirmed ? `<div class="terrace-card-nudge">⚠️ This terrace is already confirmed. Changing the date or location will ask everyone to reconfirm.</div>` : ''}
+
+      <div class="form-field" style="margin-top:14px;">
+        <label class="form-label" for="tf-title">Title</label>
+        <input class="form-input" id="tf-title" type="text" placeholder="Bv. Friday Drinks" value="${escapeHtml(TERRACE_DRAFT.title)}">
+      </div>
+
+      <div class="form-field" style="margin-top:14px;">
+        <label class="form-label">When &amp; where?</label>
+        ${TERRACE_DRAFT.options.map((o, i) => renderTerraceOptionRowHtml(o, i, TERRACE_DRAFT.varyMode)).join('')}
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+          ${TERRACE_DRAFT.varyMode !== 'location' ? `<button type="button" class="btn btn-ghost btn-sm" onclick="addTerraceDateOption()">🗓️ + Add another date/time option</button>` : ''}
+          ${TERRACE_DRAFT.varyMode !== 'date' ? `<button type="button" class="btn btn-ghost btn-sm" onclick="addTerraceLocationOption()">📍 + Add another location option</button>` : ''}
+        </div>
+      </div>
+
+      <div class="form-field" style="margin-top:14px;">
+        <label class="form-label">Who's invited?</label>
+        <div class="lore-type-toggle">
+          ${data.users.map(u => `<button type="button" class="btn ${TERRACE_DRAFT.invitedUserIds.includes(u.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleTerraceInvited('${u.id}', this)">${u.avatarEmoji} ${u.displayName}</button>`).join('')}
+        </div>
+      </div>
+
+      <div class="form-field" style="margin-top:14px;">
+        <label class="form-label" for="tf-note">Note</label>
+        <textarea class="form-input form-textarea" id="tf-note" rows="2" placeholder="Optioneel">${escapeHtml(TERRACE_DRAFT.note)}</textarea>
+      </div>
+
+      <div id="tf-error" class="form-error"></div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" onclick="cancelTerraceEventForm()">Annuleren</button>
+        <button type="button" class="btn btn-primary" onclick="submitTerraceEventForm()">${editMode ? 'Wijzigingen opslaan' : 'Plan Terrace'}</button>
+      </div>
+    </section>
+  `;
+}
+
+async function submitTerraceEventForm(){
+  syncTerraceOptionsFromDom();
+  const errorEl = document.getElementById('tf-error');
+  if (!TERRACE_DRAFT.invitedUserIds.length){
+    errorEl.textContent = 'Nodig minstens 1 persoon uit.';
+    return;
+  }
+  if (TERRACE_DRAFT.options.some(o => !o.eventDate)){
+    errorEl.textContent = 'Kies een datum voor elke optie.';
+    return;
+  }
+  errorEl.textContent = '';
+
+  const editMode = TERRACE_DRAFT.mode === 'edit';
+
+  if (editMode){
+    const event = APP_DATA.terraceEvents.find(e => e.id === TERRACE_DRAFT.eventId);
+    const { error: updateErr } = await sb.from('terrace_events').update({
+      title: TERRACE_DRAFT.title || null,
+      note: TERRACE_DRAFT.note || null,
+      invited_user_ids: TERRACE_DRAFT.invitedUserIds,
+    }).eq('id', event.id);
+    if (updateErr){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return; }
+
+    const existingOptions = getTerraceEventOptions(event.id);
+    const keptIds = TERRACE_DRAFT.options.filter(o => o.id).map(o => o.id);
+    const removedOptions = existingOptions.filter(o => !keptIds.includes(o.id));
+    if (removedOptions.length){
+      await sb.from('terrace_event_options').delete().in('id', removedOptions.map(o => o.id));
+    }
+    for (const o of TERRACE_DRAFT.options){
+      const payload = {
+        event_date: o.eventDate, event_time: o.eventTime || null,
+        location_id: o.locationId || null, manual_location: o.locationId ? null : (o.manualLocation || null),
+      };
+      if (o.id){
+        await sb.from('terrace_event_options').update(payload).eq('id', o.id);
+      } else {
+        await sb.from('terrace_event_options').insert({ ...payload, terrace_event_id: event.id });
+      }
+    }
+    await refreshAppData();
+    TERRACE_STATE.view = 'eventDetail';
+    TERRACE_STATE.activeEventId = event.id;
+    TERRACE_DRAFT = null;
+    renderPage();
+    return;
+  }
+
+  const { data: event, error } = await sb.from('terrace_events').insert({
+    title: TERRACE_DRAFT.title || null,
+    note: TERRACE_DRAFT.note || null,
+    created_by_user_id: STATE.activeUser,
+    invited_user_ids: TERRACE_DRAFT.invitedUserIds,
+  }).select().single();
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return; }
+
+  await sb.from('terrace_event_options').insert(
+    TERRACE_DRAFT.options.map(o => ({
+      terrace_event_id: event.id, event_date: o.eventDate, event_time: o.eventTime || null,
+      location_id: o.locationId || null, manual_location: o.locationId ? null : (o.manualLocation || null),
+    }))
+  );
+
+  await refreshAppData();
+  TERRACE_STATE.view = 'eventDetail';
+  TERRACE_STATE.activeEventId = event.id;
+  TERRACE_DRAFT = null;
+  renderPage();
+}
+
+/* ---- Beer Session handoff ---- */
+function viewLinkedBeerSession(sessionId){
+  STATE.activePage = 'beerclub';
+  renderNav();
+  openSessionDetail(sessionId);
+}
+
+function createBeerSessionFromTerrace(terraceEventId){
+  const event = APP_DATA.terraceEvents.find(e => e.id === terraceEventId);
+  if (!event) return;
+  const option = getTerracePrimaryOption(event);
+  const attendance = APP_DATA.terraceAttendance.filter(a => a.terraceEventId === terraceEventId && a.attended);
+  const participantIds = attendance.length ? attendance.map(a => a.userId) : event.invitedUserIds;
+  STATE.activePage = 'beerclub';
+  renderNav();
+  openSessionForm(undefined, undefined, {
+    date: option ? option.eventDate : todayISO(),
+    location: option ? getTerraceOptionLocationLabel(option) : '',
+    participantIds,
+    terraceEventId,
+  });
+}
+
+/* ---- Favourite Spots ---- */
+function getTerraceLocationStats(){
+  return APP_DATA.terraceLocations.map(loc => {
+    const ratings = APP_DATA.terraceLocationRatings.filter(r => r.locationId === loc.id);
+    const avg = (field) => {
+      const vals = ratings.map(r => r[field]).filter(v => typeof v === 'number');
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    };
+    const terraceAvg = avg('terraceRating');
+    const beerAvg = avg('beerSelectionRating');
+    const vibeAvg = avg('vibeRating');
+    const overallVals = [terraceAvg, beerAvg, vibeAvg].filter(v => v !== null);
+    const overall = overallVals.length ? overallVals.reduce((a, b) => a + b, 0) / overallVals.length : null;
+    const eventIdsAtLocation = new Set(APP_DATA.terraceEventOptions.filter(o => o.locationId === loc.id).map(o => o.terraceEventId));
+    const visits = APP_DATA.terraceEvents.filter(e => eventIdsAtLocation.has(e.id) && e.status === 'confirmed' && isTerracePastEvent(e)).length;
+    const favoritedBy = APP_DATA.terraceLocationFavorites.filter(f => f.locationId === loc.id).map(f => f.userId);
+    return { location: loc, terraceAvg, beerAvg, vibeAvg, overall, visits, favoritedBy };
+  });
+}
+
+function openTerraceLocations(){
+  TERRACE_STATE.view = 'locations';
+  renderPage();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setTerraceLocationSort(sort){
+  TERRACE_STATE.locationSort = sort;
+  renderPage();
+}
+
+function renderTerraceLocationsPage(data){
+  const stats = getTerraceLocationStats();
+  const sorters = {
+    visits: (a, b) => b.visits - a.visits,
+    rating: (a, b) => (b.overall || 0) - (a.overall || 0),
+    terrace: (a, b) => (b.terraceAvg || 0) - (a.terraceAvg || 0),
+    beer: (a, b) => (b.beerAvg || 0) - (a.beerAvg || 0),
+    vibe: (a, b) => (b.vibeAvg || 0) - (a.vibeAvg || 0),
+  };
+  const sorted = [...stats].sort(sorters[TERRACE_STATE.locationSort] || sorters.visits);
+
+  return `
+    <section class="section">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="backToTerraceList()">← Terug naar Terrace Planner</button>
+      <div class="section-head" style="margin-top:12px;">
+        <h3>📍 Our Spots</h3>
+        <button type="button" class="btn btn-primary btn-sm" onclick="quickAddTerraceLocationStandalone()">+ Add spot</button>
+      </div>
+      <div class="people-toolbar" style="margin-bottom:14px; flex-wrap:wrap;">
+        <button type="button" class="nav-btn ${TERRACE_STATE.locationSort === 'visits' ? 'active' : ''}" onclick="setTerraceLocationSort('visits')">Most Visited</button>
+        <button type="button" class="nav-btn ${TERRACE_STATE.locationSort === 'rating' ? 'active' : ''}" onclick="setTerraceLocationSort('rating')">Highest Rated</button>
+        <button type="button" class="nav-btn ${TERRACE_STATE.locationSort === 'terrace' ? 'active' : ''}" onclick="setTerraceLocationSort('terrace')">Best Terrace</button>
+        <button type="button" class="nav-btn ${TERRACE_STATE.locationSort === 'beer' ? 'active' : ''}" onclick="setTerraceLocationSort('beer')">Best Beer Selection</button>
+        <button type="button" class="nav-btn ${TERRACE_STATE.locationSort === 'vibe' ? 'active' : ''}" onclick="setTerraceLocationSort('vibe')">Best Vibe</button>
+      </div>
+      ${sorted.length ? `<div class="grid cols-auto">${sorted.map(s => renderTerraceLocationCard(s)).join('')}</div>` : emptyState('Nog geen favoriete plekken. Voeg de eerste toe.')}
+    </section>
+  `;
+}
+
+function renderTerraceLocationCard(stat){
+  const loc = stat.location;
+  const isFavorited = stat.favoritedBy.includes(STATE.activeUser);
+  return `
+    <div class="sticker-card" style="text-align:left;">
+      <div class="terrace-card-top">
+        <div class="lore-item-title">${loc.hasTerrace ? '🍀' : '☀️'} ${escapeHtml(loc.name)}</div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleTerraceLocationFavorite('${loc.id}')">${isFavorited ? '❤️' : '🤍'}</button>
+      </div>
+      ${loc.city ? `<div class="terrace-card-meta">📍 ${escapeHtml(loc.city)}</div>` : ''}
+      ${loc.note ? `<div class="terrace-card-meta">📝 ${escapeHtml(loc.note)}</div>` : ''}
+      ${loc.websiteUrl ? `<div class="terrace-card-meta"><a href="${escapeHtml(loc.websiteUrl)}" target="_blank" rel="noopener">🔗 Website / Map</a></div>` : ''}
+      <div class="terrace-card-meta">Terrace: ${loc.hasTerrace ? '✅' : '❌'}</div>
+      <div class="terrace-card-meta">Visits: ${stat.visits}</div>
+      ${stat.overall !== null ? `
+        <div class="detail-meta-row" style="margin-top:8px;">
+          <span class="badge sky">☀️ Terrace ${stat.terraceAvg !== null ? stat.terraceAvg.toFixed(1) : '—'}</span>
+          <span class="badge mint">🍺 Beer ${stat.beerAvg !== null ? stat.beerAvg.toFixed(1) : '—'}</span>
+          <span class="badge lilac">✨ Vibe ${stat.vibeAvg !== null ? stat.vibeAvg.toFixed(1) : '—'}</span>
+        </div>
+        <div class="lore-item-title" style="margin-top:8px;">Overall: ${stat.overall.toFixed(1)}/10</div>
+      ` : emptyState('Nog geen ratings.')}
+    </div>
+  `;
+}
+
+async function toggleTerraceLocationFavorite(locationId){
+  const existing = APP_DATA.terraceLocationFavorites.find(f => f.locationId === locationId && f.userId === STATE.activeUser);
+  if (existing){
+    await sb.from('terrace_location_favorites').delete().eq('id', existing.id);
+  } else {
+    await sb.from('terrace_location_favorites').insert({ location_id: locationId, user_id: STATE.activeUser });
+  }
+  await refreshAppData();
+  renderPage();
+}
+
+/* optionIndex: als deze quick-add vanuit een optie-rij in het
+   Terrace-formulier komt, wordt de nieuwe plek daar meteen
+   geselecteerd; bij een standalone add (vanuit Our Spots) is dit null. */
+function quickAddTerraceLocation(optionIndex){
+  syncTerraceOptionsFromDom();
+  openModal(renderQuickAddTerraceLocationHtml(optionIndex));
+}
+function quickAddTerraceLocationStandalone(){
+  openModal(renderQuickAddTerraceLocationHtml(null));
+}
+function renderQuickAddTerraceLocationHtml(optionIndex){
+  return `
+    <h3>📍 Add a new spot</h3>
+    <div class="form-field">
+      <label class="form-label">Name *</label>
+      <input class="form-input" id="tl-quick-name" type="text" required>
+    </div>
+    <div class="form-field" style="margin-top:10px;">
+      <label class="form-label">City</label>
+      <input class="form-input" id="tl-quick-city" type="text">
+    </div>
+    <div class="form-field" style="margin-top:10px;">
+      <label class="form-label"><input type="checkbox" id="tl-quick-terrace" checked> Has a terrace</label>
+    </div>
+    <div id="tl-quick-error" class="form-error"></div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="submitQuickAddTerraceLocation(${optionIndex === null ? 'null' : optionIndex})">Add spot</button>
+    </div>
+  `;
+}
+async function submitQuickAddTerraceLocation(optionIndex){
+  const name = document.getElementById('tl-quick-name').value.trim();
+  const city = document.getElementById('tl-quick-city').value.trim();
+  const hasTerrace = document.getElementById('tl-quick-terrace').checked;
+  const errorEl = document.getElementById('tl-quick-error');
+  if (!name){ errorEl.textContent = 'Vul een naam in.'; return; }
+  const { data, error } = await sb.from('terrace_locations').insert({
+    name, city: city || null, has_terrace: hasTerrace, created_by_user_id: STATE.activeUser,
+  }).select().single();
+  if (error){ errorEl.textContent = 'Opslaan mislukt, probeer opnieuw.'; return; }
+  await refreshAppData();
+  closeModal();
+  if (optionIndex !== null && TERRACE_DRAFT){
+    TERRACE_DRAFT.options[optionIndex].locationId = data.id;
+    TERRACE_DRAFT.options[optionIndex].manualLocation = '';
+  }
+  renderPage();
+}
+
+/* ---- spot ratings ---- */
+function openTerraceRatingForm(eventId, locationId){
+  const existing = APP_DATA.terraceLocationRatings.find(r => r.terraceEventId === eventId && r.locationId === locationId && r.userId === STATE.activeUser);
+  openModal(`
+    <h3>⭐ Rate this spot</h3>
+    <div class="form-field">
+      <label class="form-label">☀️ Terrace (1-10)</label>
+      <input class="form-input" id="tr-terrace" type="number" min="1" max="10" value="${existing?.terraceRating || ''}">
+    </div>
+    <div class="form-field" style="margin-top:10px;">
+      <label class="form-label">🍺 Beer Selection (1-10)</label>
+      <input class="form-input" id="tr-beer" type="number" min="1" max="10" value="${existing?.beerSelectionRating || ''}">
+    </div>
+    <div class="form-field" style="margin-top:10px;">
+      <label class="form-label">✨ Vibe (1-10)</label>
+      <input class="form-input" id="tr-vibe" type="number" min="1" max="10" value="${existing?.vibeRating || ''}">
+    </div>
+    <div id="tr-error" class="form-error"></div>
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="submitTerraceRating('${eventId}', '${locationId}')">Save rating</button>
+    </div>
+  `);
+}
+
+async function submitTerraceRating(eventId, locationId){
+  const clamp = (v) => (v === null || isNaN(v)) ? null : Math.min(10, Math.max(1, v));
+  const terraceRating = clamp(parseInt(document.getElementById('tr-terrace').value, 10));
+  const beerSelectionRating = clamp(parseInt(document.getElementById('tr-beer').value, 10));
+  const vibeRating = clamp(parseInt(document.getElementById('tr-vibe').value, 10));
+  const existing = APP_DATA.terraceLocationRatings.find(r => r.terraceEventId === eventId && r.locationId === locationId && r.userId === STATE.activeUser);
+  if (existing){
+    await sb.from('terrace_location_ratings').update({ terrace_rating: terraceRating, beer_selection_rating: beerSelectionRating, vibe_rating: vibeRating }).eq('id', existing.id);
+  } else {
+    await sb.from('terrace_location_ratings').insert({
+      terrace_event_id: eventId, location_id: locationId, user_id: STATE.activeUser,
+      terrace_rating: terraceRating, beer_selection_rating: beerSelectionRating, vibe_rating: vibeRating,
+    });
+  }
+  await refreshAppData();
+  closeModal();
+  renderPage();
+}
+
+/* ---- stats ---- */
+const TERRACE_LEADERBOARD_DEFS = [
+  {
+    icon: '🍻', title: 'Most Visited Spot',
+    build(){
+      return getTerraceLocationStats().filter(s => s.visits > 0).sort((a, b) => b.visits - a.visits)
+        .map(s => ({ title: s.location.name, subtitle: s.location.city || '', value: `${s.visits} visits` }));
+    },
+  },
+  {
+    icon: '📅', title: 'Most Active Month',
+    build(){
+      const counts = {};
+      APP_DATA.terraceEvents.filter(e => e.status === 'confirmed').forEach(e => {
+        const d = getTerraceEventPrimaryDate(e);
+        if (!d) return;
+        const month = d.slice(0, 7);
+        counts[month] = (counts[month] || 0) + 1;
+      });
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([month, count]) => ({
+        title: new Date(month + '-01T00:00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+        value: `${count} events`,
+      }));
+    },
+  },
+  {
+    icon: '👑', title: 'Terrace Initiator',
+    build(){ return rankUsersBy(u => APP_DATA.terraceEvents.filter(e => e.createdByUserId === u.id).length).map(e => userEntry(e.user, e.value, v => `${v} plans`)); },
+  },
+  {
+    icon: '✅', title: 'Most Reliable',
+    build(){
+      return rankUsersBy(u => {
+        const yesVotes = APP_DATA.terraceAvailability.filter(a => a.userId === u.id && a.status === 'yes').length;
+        if (!yesVotes) return 0;
+        const attended = APP_DATA.terraceAttendance.filter(a => a.userId === u.id && a.attended).length;
+        return Math.round((attended / yesVotes) * 100);
+      }).map(e => userEntry(e.user, e.value, v => `${v}%`));
+    },
+  },
+  {
+    icon: '🤔', title: 'King/Queen of Maybe',
+    build(){ return rankUsersBy(u => APP_DATA.terraceAvailability.filter(a => a.userId === u.id && a.status === 'maybe').length).map(e => userEntry(e.user, e.value, v => `${v}× maybe`)); },
+  },
+  {
+    icon: '❌', title: 'Professional Decliner',
+    build(){ return rankUsersBy(u => APP_DATA.terraceAvailability.filter(a => a.userId === u.id && a.status === 'no').length).map(e => userEntry(e.user, e.value, v => `${v}× can't`)); },
+  },
+];
+
+function renderTerraceHomeCardBody(event){
+  const primaryOption = getTerracePrimaryOption(event);
+  const votes = getTerraceEventAvailability(event.id, terraceVariesBy(event) === 'date' ? (primaryOption?.id) : null);
+  const yesCount = votes.filter(a => a.status === 'yes').length;
+  return `
+    <div class="terrace-card-top">
+      <div class="lore-item-title">🍻 ${escapeHtml(event.title || 'Terrace Plan')}</div>
+    </div>
+    <div class="terrace-card-meta">📅 ${formatTerraceShortDate(primaryOption?.eventDate)}</div>
+    <div class="terrace-card-meta">🕠 ${formatTerraceTime(primaryOption?.eventTime) || 'TBD'}</div>
+    <div class="terrace-card-meta">📍 ${escapeHtml(getTerraceOptionLocationLabel(primaryOption))}</div>
+    <div class="row-list" style="margin-top:8px;">
+      ${event.invitedUserIds.map(uid => {
+        const u = findUser(uid);
+        if (!u) return '';
+        const vote = votes.find(v => v.userId === uid);
+        const icon = !vote ? '⏳' : vote.status === 'yes' ? '✅' : vote.status === 'maybe' ? '🤔' : '❌';
+        return `<div class="row-item" style="cursor:default;">${avatarHtml(u, 24)}<div class="info"><div class="name">${escapeHtml(u.displayName)} ${icon}</div></div></div>`;
+      }).join('')}
+    </div>
+    <div class="terrace-card-meta" style="margin-top:6px;">${yesCount}/${event.invitedUserIds.length} confirmed</div>
+    <button type="button" class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="event.stopPropagation(); openTerraceEventDetail('${event.id}')">View Plan</button>
+  `;
+}
+
 /* ---------- 6. RENDER: profielmenu (My Profile / Switch User) ----------
    Vervangt de oude 3-pill "Wie ben ik?"-switcher: er is nu maar één
    actieve user tegelijk (gekozen via het "Who enters the Lore?"-gate-
@@ -8901,9 +10176,10 @@ function renderGateScreen(){
 /* ---------- 7. RENDER: nav ---------- */
 function renderNav(){
   const mount = document.getElementById('main-nav');
+  const terracePending = getTerracePendingVoteCount();
   mount.innerHTML = NAV_ITEMS.map(item => `
     <button class="nav-btn ${item.id === STATE.activePage ? 'active' : ''}" data-page="${item.id}">
-      <span class="emoji">${item.emoji}</span>${item.label}
+      <span class="emoji">${item.emoji}</span>${item.label}${item.id === 'terrace' && terracePending > 0 ? `<span class="nav-badge-dot"></span>` : ''}
     </button>
   `).join('');
 
