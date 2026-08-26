@@ -633,6 +633,8 @@
     padding: 3px 9px;
     white-space: nowrap;
   }
+  .stat-chip.clickable{ cursor: pointer; }
+  .stat-chip.clickable:hover{ background: var(--yellow); }
 
   /* ---- avatars (herbruikbaar: card, detail, form-preview) ---- */
   .avatar-emoji{
@@ -2006,6 +2008,109 @@
   }
   .profile-menu-dropdown button:hover{ background: var(--yellow); }
 
+  /* ---- Poetry Wall: written comments ---- */
+  .comment-composer{
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .comment-composer-footer{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap: 10px;
+  }
+  .comment-char-counter{
+    font-size: 11px;
+    font-weight: 800;
+    color: #a68a6f;
+  }
+  .comment-list{
+    display:flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .comment-item{
+    display:flex;
+    gap: 10px;
+    align-items:flex-start;
+  }
+  .comment-item-body{
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .comment-item-header{
+    display:flex;
+    align-items:center;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .comment-item-name{
+    font-weight: 800;
+    font-size: 13px;
+  }
+  .comment-item-time{
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #a68a6f;
+  }
+  .comment-item-text{
+    font-size: 13.5px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 2px;
+  }
+  .comment-menu{
+    position: relative;
+    margin-left: auto;
+  }
+  .comment-menu-btn{
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 14px;
+    color: #a68a6f;
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+  .comment-menu-btn:hover{ background: var(--paper); }
+  .comment-menu-dropdown{
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 130px;
+    background: var(--card);
+    border: var(--outline);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop);
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 15;
+  }
+  .comment-menu-dropdown.open{ display: flex; }
+  .comment-menu-dropdown button{
+    text-align: left;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm, 10px);
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 12.5px;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .comment-menu-dropdown button:hover{ background: var(--yellow); }
+
+  @media (max-width: 640px){
+    .comment-composer-footer{ justify-content: space-between; }
+    .comment-composer-footer .btn{ flex: 1 1 auto; }
+  }
+
   .gate-screen{
     min-height: 60vh;
     display:flex;
@@ -2187,6 +2292,7 @@ let APP_DATA = {
   terraceLocationVotes: [],
   terraceAttendance: [],
   terraceLocationRatings: [],
+  poemComments: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2226,6 +2332,7 @@ async function loadAppData(){
     poetryPromptsRes, dailyPoetryChallengesRes,
     terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
     terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
+    poemCommentsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2260,6 +2367,7 @@ async function loadAppData(){
     sb.from('terrace_location_votes').select('*'),
     sb.from('terrace_attendance').select('*'),
     sb.from('terrace_location_ratings').select('*'),
+    sb.from('poem_comments').select('*'),
   ]);
 
   for (const res of [
@@ -2273,6 +2381,7 @@ async function loadAppData(){
     poetryPromptsRes, dailyPoetryChallengesRes,
     terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
     terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
+    poemCommentsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -2610,6 +2719,15 @@ async function loadAppData(){
     createdAt: r.created_at,
   }));
 
+  const poemComments = (poemCommentsRes.data || []).map(c => ({
+    id: c.id,
+    poemId: c.poem_id,
+    userId: c.user_id,
+    content: c.content,
+    createdAt: c.created_at,
+    updatedAt: c.updated_at,
+  }));
+
   APP_DATA = {
     users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
     poems, poemReactions, poetLaureateReigns,
@@ -2617,6 +2735,7 @@ async function loadAppData(){
     poetryPrompts, dailyPoetryChallenges,
     terraceLocations, terraceLocationFavorites, terraceEvents, terraceEventOptions,
     terraceAvailability, terraceLocationVotes, terraceAttendance, terraceLocationRatings,
+    poemComments,
   };
 }
 
@@ -2643,6 +2762,7 @@ const REALTIME_TABLES = [
   'poetry_prompts', 'daily_poetry_challenges',
   'terrace_locations', 'terrace_location_favorites', 'terrace_events', 'terrace_event_options',
   'terrace_availability', 'terrace_location_votes', 'terrace_attendance', 'terrace_location_ratings',
+  'poem_comments',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -3011,6 +3131,7 @@ const BEER_STATE = {
 const POETRY_STATE = {
   view: 'wall', // 'wall' | 'poemDetail'
   poemDetailId: null,
+  editingCommentId: null, // welke comment (indien enige) momenteel in bewerk-modus staat
 };
 
 /* Draft voor de foto in het bier-formulier (zelfde patroon als
@@ -8583,12 +8704,12 @@ function renderPoetryWallPage(data){
 function renderPoemCard(poem){
   const author = findUser(poem.authorUserId);
   const mood = POEM_MOODS.find(m => m.id === poem.mood) || POEM_MOODS[POEM_MOODS.length - 1];
-  const totalReactions = POEM_REACTION_TYPES.reduce((sum, r) => sum + (poem.reactions[r.id] || []).length, 0);
   const topReactions = POEM_REACTION_TYPES
     .map(r => ({ ...r, count: (poem.reactions[r.id] || []).length }))
     .filter(r => r.count > 0)
     .sort((a, b) => b.count - a.count)
     .slice(0, 3);
+  const commentCount = APP_DATA.poemComments.filter(c => c.poemId === poem.id).length;
   const isPotm = getPoemOfTheMonth()?.id === poem.id;
   const lines = poem.content.split('\n');
   const isTruncated = lines.length > 3 || poem.content.length > 220;
@@ -8611,17 +8732,21 @@ function renderPoemCard(poem){
       <div class="nickname-meta-row">
         <span class="stat-chip">📅 ${poem.createdAt.slice(0, 10)}</span>
         ${topReactions.map(r => `<span class="stat-chip">${r.icon} ${r.count}</span>`).join('')}
-        <span class="stat-chip">💬 ${totalReactions}</span>
+        <span class="stat-chip clickable" onclick="event.stopPropagation(); openPoemDetail('${poem.id}', true)">💬 ${commentCount}</span>
       </div>
     </div>
   `;
 }
 
-function openPoemDetail(id){
+function openPoemDetail(id, scrollToComments){
   POETRY_STATE.view = 'poemDetail';
   POETRY_STATE.poemDetailId = id;
   renderPage();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (scrollToComments){
+    document.getElementById('poem-comments-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 function backToPoetryWall(){
@@ -8716,7 +8841,171 @@ function renderPoemDetailPage(data){
         </div>
       ` : ''}
     </section>
+
+    ${renderPoemCommentsSection(poem)}
   `;
+}
+
+/* ---- geschreven comments (los van/naast de emoji reactions
+   hierboven -- geen XP, geen self-comment restrictie). De huidige
+   DOM-waarde van het invoerveld/edit-veld wordt VOOR elke re-render
+   uitgelezen en teruggezet, zodat een realtime update van iemand
+   anders (of het togglen van een reaction) nooit tekst laat verdwijnen
+   die je net aan het typen was. */
+function renderPoemCommentsSection(poem){
+  const comments = APP_DATA.poemComments.filter(c => c.poemId === poem.id).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  const draftEl = document.getElementById('poem-comment-draft');
+  const draftValue = draftEl ? draftEl.value : '';
+
+  return `
+    <section class="section" id="poem-comments-section">
+      <div class="section-head"><h3>💬 Comments</h3><span class="count-chip">${comments.length}</span></div>
+      <div class="comment-composer">
+        <textarea class="form-input form-textarea" id="poem-comment-draft" rows="2" maxlength="1000" placeholder="💬 Join the literary discussion..." oninput="onPoemCommentDraftInput()">${escapeHtml(draftValue)}</textarea>
+        <div class="comment-composer-footer">
+          <span class="comment-char-counter" id="poem-comment-char-counter" style="${draftValue.length >= 800 ? '' : 'display:none;'}">${draftValue.length}/1000</span>
+          <button type="button" class="btn btn-primary btn-sm" onclick="submitPoemComment('${poem.id}')">Post Comment</button>
+        </div>
+      </div>
+      <div class="comment-list" style="margin-top:14px;">
+        ${comments.length ? comments.map(c => renderPoemCommentItem(c)).join('') : emptyState('Nog geen comments. Start het gesprek.')}
+      </div>
+    </section>
+  `;
+}
+
+function renderPoemCommentItem(comment){
+  const user = findUser(comment.userId);
+  const isMine = comment.userId === STATE.activeUser;
+  const isEditing = POETRY_STATE.editingCommentId === comment.id;
+  const isEdited = comment.updatedAt !== comment.createdAt;
+
+  if (isEditing){
+    const editEl = document.getElementById(`poem-comment-edit-${comment.id}`);
+    const editValue = editEl ? editEl.value : comment.content;
+    return `
+      <div class="comment-item" id="comment-${comment.id}">
+        ${user ? avatarHtml(user, 30) : ''}
+        <div class="comment-item-body">
+          <textarea class="form-input form-textarea" id="poem-comment-edit-${comment.id}" rows="2" maxlength="1000">${escapeHtml(editValue)}</textarea>
+          <div class="comment-composer-footer">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="cancelEditPoemComment()">Annuleren</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="submitEditPoemComment('${comment.id}')">Opslaan</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="comment-item" id="comment-${comment.id}">
+      ${user ? avatarHtml(user, 30) : ''}
+      <div class="comment-item-body">
+        <div class="comment-item-header">
+          <span class="comment-item-name">${escapeHtml(user ? user.displayName : 'onbekend')}</span>
+          <span class="comment-item-time">· ${formatRelativeTime(comment.createdAt)}${isEdited ? ' · edited' : ''}</span>
+          ${isMine ? `
+            <div class="comment-menu">
+              <button type="button" class="comment-menu-btn" onclick="toggleCommentMenu('${comment.id}', event)">•••</button>
+              <div class="comment-menu-dropdown" id="comment-menu-${comment.id}">
+                <button type="button" onclick="closeAllCommentMenus(); startEditPoemComment('${comment.id}')">✏️ Edit</button>
+                <button type="button" onclick="closeAllCommentMenus(); confirmDeletePoemComment('${comment.id}')">🗑️ Delete</button>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+        <div class="comment-item-text">${escapeHtml(comment.content)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function onPoemCommentDraftInput(){
+  const el = document.getElementById('poem-comment-draft');
+  const counter = document.getElementById('poem-comment-char-counter');
+  if (!el || !counter) return;
+  const len = el.value.length;
+  counter.textContent = `${len}/1000`;
+  counter.style.display = len >= 800 ? '' : 'none';
+}
+
+async function submitPoemComment(poemId){
+  const el = document.getElementById('poem-comment-draft');
+  const content = el.value.trim();
+  if (!content) return;
+  const { error } = await sb.from('poem_comments').insert({ poem_id: poemId, user_id: STATE.activeUser, content });
+  if (error){ console.error('submitPoemComment failed:', error); return; }
+  el.value = ''; // vóór renderPage(): renderPoemCommentsSection() leest anders de oude (net verstuurde) tekst terug uit de nog-bestaande textarea
+  await refreshAppData();
+  renderPage();
+}
+
+function startEditPoemComment(commentId){
+  POETRY_STATE.editingCommentId = commentId;
+  renderPage();
+}
+
+function cancelEditPoemComment(){
+  POETRY_STATE.editingCommentId = null;
+  renderPage();
+}
+
+async function submitEditPoemComment(commentId){
+  const el = document.getElementById(`poem-comment-edit-${commentId}`);
+  const content = el.value.trim();
+  if (!content) return;
+  const { error } = await sb.from('poem_comments').update({ content }).eq('id', commentId);
+  if (error){ console.error('submitEditPoemComment failed:', error); return; }
+  POETRY_STATE.editingCommentId = null;
+  await refreshAppData();
+  renderPage();
+}
+
+function confirmDeletePoemComment(commentId){
+  openModal(`
+    <h3>Delete comment?</h3>
+    <p>Are you sure you want to remove this comment?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button type="button" class="btn btn-danger" onclick="performDeletePoemComment('${commentId}')">Delete</button>
+    </div>
+  `);
+}
+
+async function performDeletePoemComment(commentId){
+  await sb.from('poem_comments').delete().eq('id', commentId);
+  await refreshAppData();
+  closeModal();
+  renderPage();
+}
+
+function toggleCommentMenu(commentId, event){
+  if (event) event.stopPropagation();
+  const dd = document.getElementById(`comment-menu-${commentId}`);
+  const wasOpen = dd?.classList.contains('open');
+  closeAllCommentMenus();
+  if (dd && !wasOpen) dd.classList.add('open');
+}
+
+function closeAllCommentMenus(){
+  document.querySelectorAll('.comment-menu-dropdown.open').forEach(dd => dd.classList.remove('open'));
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.comment-menu')) closeAllCommentMenus();
+});
+
+function formatRelativeTime(iso){
+  const diffSec = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (diffSec < 30) return 'just now';
+  if (diffSec < 60) return `${diffSec}s ago`;
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHour = Math.floor(diffMin / 60);
+  if (diffHour < 24) return `${diffHour}h ago`;
+  const diffDay = Math.floor(diffHour / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
 async function togglePoemReaction(poemId, reactionType){
