@@ -1654,6 +1654,77 @@
   }
   .taproom-portrait-empty{ color: var(--chalk); font-weight: 700; }
 
+  /* ---- 👑 The Abt Avatar & Royal Wardrobe ---- */
+  .abt-avatar-svg{ display: block; margin: 0 auto; filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)); }
+  .abt-avatar-svg.fallen{ filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)) grayscale(.35) opacity(.9); }
+  .abt-avatar-svg.milestone-glow{ filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)) drop-shadow(0 0 14px rgba(245,215,110,.65)); }
+  @media (prefers-reduced-motion: no-preference){
+    .abt-avatar-svg.milestone-glow{ animation: abt-relic-pulse 2.6s ease-in-out infinite; }
+  }
+  @keyframes abt-relic-pulse{
+    0%, 100%{ filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)) drop-shadow(0 0 10px rgba(245,215,110,.5)); }
+    50%{ filter: drop-shadow(0 3px 0 rgba(0,0,0,.15)) drop-shadow(0 0 20px rgba(245,215,110,.85)); }
+  }
+
+  .fallen-abt-badge{ display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .fallen-abt-avatar{ flex: 0 0 auto; }
+
+  .abt-wardrobe{ padding: 4px 0; }
+  .abt-wardrobe-header{ text-align: center; margin-bottom: 16px; }
+  .abt-wardrobe-title{ font-family: var(--font-display); font-size: 20px; letter-spacing: .5px; color: var(--ink); }
+  .abt-wardrobe-preview{ margin: 10px 0; }
+  .abt-wardrobe-lordname{ font-family: var(--font-display); font-size: 20px; }
+  .abt-wardrobe-viewonly{ font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: .65; margin-top: 4px; }
+
+  .abt-reward-banner{
+    background: linear-gradient(165deg, var(--yellow), var(--peach));
+    border: var(--outline); border-radius: var(--radius-md); box-shadow: var(--shadow-pop-sm);
+    padding: 14px 16px; text-align: center; margin-bottom: 16px;
+  }
+  .abt-reward-banner-compact{ margin-top: 10px; margin-bottom: 0; padding: 10px 14px; }
+  .abt-reward-title{ font-family: var(--font-display); font-size: 16px; letter-spacing: .3px; }
+  .abt-reward-banner p{ font-size: 12.5px; font-weight: 700; margin: 4px 0 10px; }
+  .abt-reward-banner-compact p{ margin: 2px 0 8px; }
+  .abt-reward-choices{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .abt-item-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 10px;
+  }
+  .abt-item-card{
+    background: var(--card);
+    border: 3px solid var(--rarity-color, var(--ink));
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-pop-sm);
+    padding: 8px 6px 10px;
+    text-align: center;
+    cursor: default;
+    transition: transform .15s ease;
+    position: relative;
+  }
+  /* only a card the viewer can actually act on (they're the current
+     lord, and it's unlocked) looks interactive -- otherwise it read as
+     clickable (pointer cursor + hover lift) while silently doing
+     nothing, which is confusing rather than a locked/disabled cue */
+  .abt-item-card.clickable{ cursor: pointer; }
+  .abt-item-card.clickable:hover{ transform: translateY(-2px); }
+  .abt-item-card.locked{ opacity: .55; filter: grayscale(.5); }
+  .abt-item-card.equipped{ background: linear-gradient(165deg, var(--mint), var(--card)); }
+  .abt-item-card.abt-reward-choice{ width: 110px; }
+  .abt-item-thumb{ pointer-events: none; }
+  .abt-item-name{ font-weight: 800; font-size: 11px; margin-top: 4px; line-height: 1.25; }
+  .abt-item-rarity{ font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--rarity-color, var(--ink)); margin-top: 2px; }
+  .abt-item-hint{ font-size: 9.5px; font-weight: 700; color: var(--ink); opacity: .6; margin-top: 2px; }
+  .abt-item-equipped-tag{
+    position: absolute; top: -8px; right: -6px;
+    background: var(--mint-deep); border: var(--outline-thin); border-radius: 20px;
+    font-size: 8.5px; font-weight: 800; padding: 2px 6px; letter-spacing: .3px;
+  }
+
+  .abt-relic-preview{ margin: 6px 0; }
+  .abt-relic-days{ font-family: var(--font-display); font-size: 13px; letter-spacing: .5px; color: #6b4d1f; margin-top: 2px; }
+
   /* ---- Today's Regulars: chalkboard ---- */
   .taproom-chalkboard{
     background:
@@ -2751,6 +2822,10 @@ let APP_DATA = {
   terraceAttendance: [],
   terraceLocationRatings: [],
   poemComments: [],
+  abtCosmeticItems: [],
+  userAbtCosmetics: [],
+  abtDailyRewards: [],
+  abtAvatarLoadouts: [],
 };
 
 /* ---------- 1b. SUPABASE CONFIG + CLIENT ----------
@@ -2791,6 +2866,7 @@ async function loadAppData(){
     terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
     terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
     poemCommentsRes,
+    abtCosmeticItemsRes, userAbtCosmeticsRes, abtDailyRewardsRes, abtAvatarLoadoutsRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -2826,6 +2902,10 @@ async function loadAppData(){
     sb.from('terrace_attendance').select('*'),
     sb.from('terrace_location_ratings').select('*'),
     sb.from('poem_comments').select('*'),
+    sb.from('abt_cosmetic_items').select('*'),
+    sb.from('user_abt_cosmetics').select('*'),
+    sb.from('abt_daily_rewards').select('*'),
+    sb.from('abt_avatar_loadouts').select('*'),
   ]);
 
   for (const res of [
@@ -2840,6 +2920,7 @@ async function loadAppData(){
     terraceLocationsRes, terraceLocationFavoritesRes, terraceEventsRes, terraceEventOptionsRes,
     terraceAvailabilityRes, terraceLocationVotesRes, terraceAttendanceRes, terraceLocationRatingsRes,
     poemCommentsRes,
+    abtCosmeticItemsRes, userAbtCosmeticsRes, abtDailyRewardsRes, abtAvatarLoadoutsRes,
   ]){
     if (res.error) { console.error('Supabase load error:', res.error); throw res.error; }
   }
@@ -3186,6 +3267,48 @@ async function loadAppData(){
     updatedAt: c.updated_at,
   }));
 
+  const abtCosmeticItems = (abtCosmeticItemsRes.data || []).map(i => ({
+    id: i.id,
+    name: i.name,
+    flavorText: i.flavor_text,
+    category: i.category,
+    rarity: i.rarity,
+    unlockType: i.unlock_type,
+    milestoneDays: i.milestone_days,
+    assetKey: i.asset_key,
+    renderTint: i.render_tint,
+    isActive: i.is_active,
+  }));
+
+  const userAbtCosmetics = (userAbtCosmeticsRes.data || []).map(c => ({
+    id: c.id,
+    userId: c.user_id,
+    cosmeticItemId: c.cosmetic_item_id,
+    unlockedAt: c.unlocked_at,
+    unlockSource: c.unlock_source,
+    reignId: c.reign_id,
+  }));
+
+  const abtDailyRewards = (abtDailyRewardsRes.data || []).map(r => ({
+    id: r.id,
+    userId: r.user_id,
+    reignId: r.reign_id,
+    reignDay: r.reign_day,
+    cosmeticItemId: r.cosmetic_item_id,
+    claimedAt: r.claimed_at,
+  }));
+
+  const abtAvatarLoadouts = (abtAvatarLoadoutsRes.data || []).map(l => ({
+    userId: l.user_id,
+    hairItemId: l.hair_item_id,
+    headwearItemId: l.headwear_item_id,
+    armorItemId: l.armor_item_id,
+    capeItemId: l.cape_item_id,
+    weaponItemId: l.weapon_item_id,
+    accessoryItemId: l.accessory_item_id,
+    updatedAt: l.updated_at,
+  }));
+
   APP_DATA = {
     users, nicknames, quotes, anecdotes, counters, beers, beerSessions, abtReigns, standaloneBeerEntries,
     poems, poemReactions, poetLaureateReigns,
@@ -3194,6 +3317,7 @@ async function loadAppData(){
     terraceLocations, terraceLocationFavorites, terraceEvents, terraceEventOptions,
     terraceAvailability, terraceLocationVotes, terraceAttendance, terraceLocationRatings,
     poemComments,
+    abtCosmeticItems, userAbtCosmetics, abtDailyRewards, abtAvatarLoadouts,
   };
 }
 
@@ -3221,6 +3345,7 @@ const REALTIME_TABLES = [
   'terrace_locations', 'terrace_location_favorites', 'terrace_events', 'terrace_event_options',
   'terrace_availability', 'terrace_location_votes', 'terrace_attendance', 'terrace_location_ratings',
   'poem_comments',
+  'user_abt_cosmetics', 'abt_daily_rewards', 'abt_avatar_loadouts',
 ];
 let realtimeChannel = null;
 let realtimeDebounceTimer = null;
@@ -3363,7 +3488,7 @@ async function initAuth(){
    longer exist by the time the user comes back. */
 const NAV_STATE_STORAGE_KEY = 'officeLoreNavState';
 const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'poetrywall', 'terrace', 'leaderboards', 'myprofile'];
-const PERSISTABLE_BEER_VIEWS = ['taproom', 'database', 'sessions', 'leaderboards'];
+const PERSISTABLE_BEER_VIEWS = ['taproom', 'database', 'sessions', 'leaderboards', 'wardrobe'];
 const PERSISTABLE_NICKNAME_TABS = ['nicknames', 'battles'];
 
 /* deep-link views normaliseren naar hun bovenliggende tab (het record
@@ -3433,6 +3558,16 @@ async function handleSignedIn(session){
   restoreNavState();
   subscribeRealtime();
   renderApp();
+
+  // lazy milestone evaluation (no pg_cron in this project) -- see
+  // supabase/0018_abt_avatar_wardrobe.sql sync_abt_milestones(): a
+  // no-op for anyone who isn't currently/previously the Abt Lord
+  const newlyGrantedRelics = await syncAbtMilestones();
+  if (newlyGrantedRelics.length){
+    await refreshAppData();
+    renderApp();
+    showAbtRelicCelebration(newlyGrantedRelics[0]);
+  }
 }
 
 async function submitLoginForm(event){
@@ -3576,7 +3711,7 @@ let counterRegisterDelta = 1;
 /* Beer Club-module: eigen substate voor Database/Sessions-tabs,
    bierdetail en het nieuwe-sessie-formulier. */
 const BEER_STATE = {
-  view: 'taproom', // 'taproom' | 'database' | 'sessions' | 'leaderboards' | 'beerDetail' | 'sessionForm' | 'sessionDetail'
+  view: 'taproom', // 'taproom' | 'database' | 'sessions' | 'leaderboards' | 'wardrobe' | 'beerDetail' | 'sessionForm' | 'sessionDetail'
   beerDetailId: null,
   sessionDetailId: null,
   sessionFormMode: null, // 'add' | 'edit', zelfde patroon als openBeerForm(mode, id)
@@ -4628,6 +4763,396 @@ function getAbtRecords(){
 }
 
 /* =============================================================
+   👑 THE ABT AVATAR & ROYAL WARDROBE
+   -------------------------------------------------------------
+   A visual customization layer on top of the Abt Dynasty above.
+   Never influences who the throne belongs to (only ever reads
+   APP_DATA.abtReigns). Standard items are always available to the
+   current lord and are never stored as "unlocked" (see
+   supabase/0018_abt_avatar_wardrobe.sql catalog seed) -- only earned
+   daily-pick/milestone items live in APP_DATA.userAbtCosmetics. Every
+   write (equip/claim/milestone-grant) goes through a SECURITY
+   DEFINER RPC -- the client never inserts/updates these tables
+   directly, same "server decides" model as abt_reigns itself.
+   ============================================================= */
+
+const ABT_AVATAR_CATEGORIES = ['hair', 'headwear', 'armor', 'cape', 'weapon', 'accessory'];
+
+const ABT_DEFAULT_ASSET_KEY = {
+  hair: 'short', headwear: 'none', armor: 'tunic', cape: 'none', weapon: 'none', accessory: 'none',
+};
+
+const ABT_CATEGORY_LABELS = {
+  hair: '💇 Hair', headwear: '🎩 Headwear', armor: '🛡️ Armor',
+  cape: '🧥 Cape', weapon: '⚔️ Weapon', accessory: '🍺 Accessory',
+};
+
+const ABT_RARITY_COLORS = {
+  standard: '#a8a8a8', common: '#6fae6f', rare: '#4f8fd6',
+  epic: '#a869d6', legendary: '#e0b84e', dynasty: '#f5d76e',
+};
+
+/* Every shape below is authored against one fixed 200x240 canvas with
+   the head centered at (100,68) and the torso spanning roughly
+   y:96-190 -- so any hair/headwear/armor/cape/weapon/accessory
+   combination always lines up, regardless of which ones are equipped.
+   Flat, thick-outline "cartoon sticker" shapes (stroke=var(--ink)),
+   matching the app's existing visual language rather than
+   photorealistic art. Each function takes an optional tint (the
+   catalog row's render_tint) so a handful of silhouettes can cover
+   many catalog items via recoloring, per the spec's own guidance. */
+function getAvatarBodySvg(){
+  return `
+    <ellipse cx="100" cy="202" rx="30" ry="8" fill="rgba(0,0,0,.15)"/>
+    <path d="M72,190 Q66,140 78,108 Q100,96 122,108 Q134,140 128,190 Z" fill="#f0c896" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="100" cy="68" r="32" fill="#f6d2a3" stroke="var(--ink)" stroke-width="4"/>
+    <circle cx="88" cy="70" r="3.5" fill="var(--ink)"/>
+    <circle cx="112" cy="70" r="3.5" fill="var(--ink)"/>
+    <path d="M90,84 Q100,90 110,84" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+  `;
+}
+
+const AVATAR_HAIR_SHAPES = {
+  bald: () => '',
+  short: () => `<path d="M70,58 Q72,32 100,30 Q128,32 130,58 Q124,44 100,42 Q76,44 70,58 Z" fill="#4a3323" stroke="var(--ink)" stroke-width="3.5"/>`,
+  long: () => `<path d="M68,56 Q70,30 100,28 Q130,30 132,56 Q136,110 126,132 Q124,90 118,60 Q110,46 100,46 Q90,46 82,60 Q76,90 74,132 Q64,110 68,56 Z" fill="#4a3323" stroke="var(--ink)" stroke-width="3.5"/>`,
+  slick_back: () => `<path d="M69,54 Q76,30 100,29 Q124,30 131,54 Q120,38 100,38 Q80,38 69,54 Z" fill="#2b1f16" stroke="var(--ink)" stroke-width="3.5"/>`,
+  messy: () => `<path d="M68,58 Q64,34 82,28 Q90,20 100,28 Q110,18 120,28 Q136,32 132,58 Q126,40 108,42 Q118,50 112,54 Q104,42 100,44 Q96,42 90,54 Q84,50 92,42 Q74,40 68,58 Z" fill="#4a3323" stroke="var(--ink)" stroke-width="3.5"/>`,
+};
+
+const AVATAR_HEADWEAR_SHAPES = {
+  none: () => '',
+  simple_crown: (tint) => `<path d="M70,42 L76,20 L88,36 L100,16 L112,36 L124,20 L130,42 Z" fill="${tint || '#e0b84e'}" stroke="var(--ink)" stroke-width="3.5"/><circle cx="100" cy="18" r="4" fill="#f0d98c"/>`,
+  monk_hood: () => `<path d="M66,50 Q64,14 100,12 Q136,14 134,50 Q120,30 100,30 Q80,30 66,50 Z" fill="#6b5a4a" stroke="var(--ink)" stroke-width="3.5"/>`,
+  beer_cap: () => `<path d="M68,44 Q70,26 100,24 Q130,26 132,44 L124,44 L120,36 L112,44 L104,36 L96,44 L88,36 L80,44 Z" fill="#cfa53d" stroke="var(--ink)" stroke-width="3"/>`,
+  knight_helmet: () => `<path d="M68,54 Q66,18 100,16 Q134,18 132,54 L124,54 L124,40 L112,40 L112,54 L88,54 L88,40 L76,40 L76,54 Z" fill="#9aa3ad" stroke="var(--ink)" stroke-width="3.5"/>`,
+  hop_crown: (tint) => `<path d="M70,44 Q100,52 130,44 Q126,26 118,30 Q114,18 106,26 Q100,14 94,26 Q86,18 82,30 Q74,26 70,44 Z" fill="${tint || '#6f8a3d'}" stroke="var(--ink)" stroke-width="3.5"/>`,
+  winged_helmet: (tint) => `<path d="M68,52 Q66,20 100,18 Q134,20 132,52 L120,52 L120,38 L80,38 L80,52 Z" fill="#9aa3ad" stroke="var(--ink)" stroke-width="3.5"/><path d="M68,34 Q40,24 34,44 Q52,40 68,50 Z" fill="${tint || '#e0e6ea'}" stroke="var(--ink)" stroke-width="3"/><path d="M132,34 Q160,24 166,44 Q148,40 132,50 Z" fill="${tint || '#e0e6ea'}" stroke="var(--ink)" stroke-width="3"/>`,
+  first_crown: (tint) => `<path d="M68,44 L76,16 L90,34 L100,12 L110,34 L124,16 L132,44 Z" fill="${tint || '#e0b84e'}" stroke="var(--ink)" stroke-width="4"/><circle cx="76" cy="16" r="4.5" fill="#8a1f2b"/><circle cx="100" cy="12" r="5" fill="#2f5233"/><circle cx="124" cy="16" r="4.5" fill="#1f3a5f"/>`,
+  growing_crown: (tint) => `<path d="M64,46 L74,16 L90,36 L100,10 L110,36 L126,16 L136,46 Z" fill="${tint || '#e0b84e'}" stroke="var(--ink)" stroke-width="4"/><circle cx="74" cy="16" r="4" fill="#4f8fd6"/><circle cx="100" cy="10" r="4.5" fill="#b53a3a"/><circle cx="126" cy="16" r="4" fill="#3f7a4a"/><path d="M66,44 L134,44" stroke="#f0d98c" stroke-width="3" opacity=".8"/>`,
+  eternal_foam: (tint) => `<path d="M58,48 L70,12 L88,38 L100,4 L112,38 L130,12 L142,48 Z" fill="${tint || '#f0d98c'}" stroke="var(--ink)" stroke-width="4.5"/><path d="M60,46 Q100,58 140,46" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".85"/><circle cx="70" cy="12" r="4" fill="#4f8fd6"/><circle cx="100" cy="4" r="6" fill="#f5d76e"/><circle cx="130" cy="12" r="4" fill="#b53a3a"/><circle cx="85" cy="24" r="3" fill="#fff" opacity=".8"/><circle cx="115" cy="24" r="3" fill="#fff" opacity=".8"/>`,
+  eternal_abt: (tint) => `<path d="M54,50 L68,10 L88,40 L100,2 L112,40 L132,10 L146,50 Z" fill="${tint || '#f5d76e'}" stroke="var(--ink)" stroke-width="5"/><circle cx="68" cy="10" r="5.5" fill="#8a1f2b"/><circle cx="88" cy="30" r="3.5" fill="#4f8fd6"/><circle cx="100" cy="2" r="7" fill="#3d1f5a"/><circle cx="112" cy="30" r="3.5" fill="#4f8fd6"/><circle cx="132" cy="10" r="5.5" fill="#1f3a5f"/><path d="M56,48 L144,48" stroke="#fff" stroke-width="3.5" opacity=".8"/><path d="M60,54 L140,54" stroke="${tint || '#f5d76e'}" stroke-width="4" opacity=".6"/>`,
+  dragon_helm: (tint) => { const c = tint || '#2f7a4a'; return `<path d="M70,50 Q66,20 100,14 Q134,20 130,50 Q134,58 128,64 L124,50 L116,58 L112,44 L104,54 L100,42 L96,54 L88,44 L84,58 L76,50 L72,64 Q66,58 70,50 Z" fill="${c}" stroke="var(--ink)" stroke-width="4"/><path d="M60,38 Q48,20 56,8 Q66,16 64,30 Z" fill="${c}" stroke="var(--ink)" stroke-width="3"/><path d="M140,38 Q152,20 144,8 Q134,16 136,30 Z" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="82" cy="36" r="3" fill="#f5d76e"/><circle cx="118" cy="36" r="3" fill="#f5d76e"/><path d="M88,52 L92,60 L96,52 L100,60 L104,52 L108,60 L112,52" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>`; },
+};
+
+const AVATAR_ARMOR_SHAPES = {
+  robes: (tint) => `<path d="M74,108 Q100,98 126,108 Q136,150 128,190 L72,190 Q64,150 74,108 Z" fill="${tint || '#8a5a35'}" stroke="var(--ink)" stroke-width="4"/><path d="M100,100 L100,190" stroke="var(--ink)" stroke-width="2" opacity=".4"/>`,
+  leather: (tint) => `<path d="M76,106 Q100,96 124,106 Q132,140 126,178 L74,178 Q68,140 76,106 Z" fill="${tint || '#7a4a2c'}" stroke="var(--ink)" stroke-width="4"/><path d="M82,120 L118,120 M82,134 L118,134" stroke="var(--ink)" stroke-width="2" opacity=".5"/>`,
+  plate: (tint) => `<path d="M74,104 Q100,94 126,104 Q136,146 128,186 L72,186 Q64,146 74,104 Z" fill="${tint || '#9aa3ad'}" stroke="var(--ink)" stroke-width="4"/><path d="M100,98 L100,186 M80,116 L120,116 M78,140 L122,140" stroke="var(--ink)" stroke-width="2" opacity=".5"/>`,
+  tunic: (tint) => `<path d="M78,108 Q100,100 122,108 Q130,144 124,182 L76,182 Q70,144 78,108 Z" fill="${tint || '#5a6b7a'}" stroke="var(--ink)" stroke-width="4"/>`,
+  eternal_tap: (tint) => `<path d="M72,104 Q100,92 128,104 Q138,148 130,190 L70,190 Q62,148 72,104 Z" fill="${tint || '#cfa53d'}" stroke="var(--ink)" stroke-width="4.5"/><path d="M100,96 L100,190 M78,118 L122,118 M76,146 L124,146" stroke="#f0d98c" stroke-width="2.5" opacity=".85"/><circle cx="100" cy="132" r="9" fill="#f5d76e" stroke="var(--ink)" stroke-width="2.5"/>`,
+  lion: (tint) => `<path d="M76,106 Q100,96 124,106 Q132,140 126,178 L74,178 Q68,140 76,106 Z" fill="${tint || '#c98a1f'}" stroke="var(--ink)" stroke-width="4"/><path d="M70,104 L78,88 L84,106 L92,84 L100,108 L108,84 L116,106 L122,88 L130,104" fill="#d9a441" stroke="var(--ink)" stroke-width="2.5"/><circle cx="100" cy="140" r="8" fill="#8a5a35" stroke="var(--ink)" stroke-width="2"/>`,
+  bear: (tint) => { const c = tint || '#6b4a35'; return `<path d="M64,100 Q100,84 136,100 Q148,148 136,196 L64,196 Q52,148 64,100 Z" fill="${c}" stroke="var(--ink)" stroke-width="5"/><circle cx="52" cy="92" r="16" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><circle cx="42" cy="80" r="7" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="62" cy="80" r="7" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="52" cy="96" r="5" fill="#4a3323"/><circle cx="148" cy="92" r="16" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><circle cx="138" cy="80" r="7" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="158" cy="80" r="7" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="148" cy="96" r="5" fill="#4a3323"/><circle cx="100" cy="140" r="14" fill="#4a3323" stroke="var(--ink)" stroke-width="3"/><circle cx="94" cy="135" r="2.3" fill="var(--ink)"/><circle cx="106" cy="135" r="2.3" fill="var(--ink)"/><path d="M78,128 L72,144 M90,122 L86,140 M112,122 L114,140 M122,128 L128,144" stroke="var(--ink)" stroke-width="3" opacity=".55"/>`; },
+  tiger: (tint) => { const c = tint || '#e0801f'; return `<path d="M64,102 Q100,88 136,102 Q146,148 132,194 L68,194 Q54,148 64,102 Z" fill="${c}" stroke="var(--ink)" stroke-width="5"/><path d="M40,96 L54,70 L60,98 L48,108 Z" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><path d="M160,96 L146,70 L140,98 L152,108 Z" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><path d="M44,90 L50,80 M156,90 L150,80" stroke="var(--ink)" stroke-width="2.5"/><path d="M78,114 L88,130 M92,108 L102,126 M106,108 L116,126 M120,114 L130,130 M74,148 L86,160 M96,144 L108,160 M116,146 L128,160" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="100" cy="132" rx="15" ry="11" fill="#f5f0e6" stroke="var(--ink)" stroke-width="2.5"/><path d="M90,128 L96,138 M110,128 L104,138 M100,124 L100,132" stroke="var(--ink)" stroke-width="2"/>`; },
+  dragon: (tint) => { const c = tint || '#2f7a4a'; return `<path d="M64,98 Q100,84 136,98 Q148,148 136,196 L64,196 Q52,148 64,98 Z" fill="${c}" stroke="var(--ink)" stroke-width="5"/><path d="M60,96 Q30,80 14,96 Q26,102 34,98 Q26,112 34,122 Q44,110 56,106 Z" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><path d="M140,96 Q170,80 186,96 Q174,102 166,98 Q174,112 166,122 Q156,110 144,106 Z" fill="${c}" stroke="var(--ink)" stroke-width="3.5"/><path d="M76,110 Q80,104 86,110 Q90,104 96,110 Q100,104 106,110 Q110,104 116,110 Q120,104 126,110" fill="none" stroke="var(--ink)" stroke-width="2" opacity=".5"/><path d="M76,132 Q80,126 86,132 Q90,126 96,132 Q100,126 106,132 Q110,126 116,132 Q120,126 126,132" fill="none" stroke="var(--ink)" stroke-width="2" opacity=".5"/><path d="M76,154 Q80,148 86,154 Q90,148 96,154 Q100,148 106,154 Q110,148 116,154 Q120,148 126,154" fill="none" stroke="var(--ink)" stroke-width="2" opacity=".5"/><circle cx="100" cy="140" r="9" fill="#f5d76e" stroke="var(--ink)" stroke-width="2.5"/>`; },
+  eternal_abt: (tint) => `<path d="M70,100 Q100,88 130,100 Q142,148 132,192 L68,192 Q58,148 70,100 Z" fill="${tint || '#f5d76e'}" stroke="var(--ink)" stroke-width="5"/><path d="M100,94 L100,192 M76,116 L124,116 M72,146 L128,146 M76,170 L124,170" stroke="#fff" stroke-width="2.5" opacity=".85"/><circle cx="100" cy="130" r="10" fill="#e0b84e" stroke="var(--ink)" stroke-width="3"/><circle cx="100" cy="130" r="4" fill="#fff"/>`,
+};
+
+const AVATAR_CAPE_SHAPES = {
+  none: () => '',
+  base: (tint) => `<path d="M78,102 Q60,150 66,196 L100,182 L134,196 Q140,150 122,102 Q100,112 78,102 Z" fill="${tint || '#b53a3a'}" stroke="var(--ink)" stroke-width="4"/>`,
+  seven_pints: (tint) => `<path d="M74,100 Q52,152 60,200 L100,184 L140,200 Q148,152 126,100 Q100,112 74,100 Z" fill="${tint || '#8a1f2b'}" stroke="var(--ink)" stroke-width="4.5"/><path d="M72,102 Q76,96 82,100 Q88,94 94,100 Q100,94 106,100 Q112,94 118,100 Q124,96 128,102" fill="#f5f0e6" stroke="var(--ink)" stroke-width="2.5"/><path d="M70,110 Q60,150 66,192 M100,116 Q98,150 100,182 M130,110 Q140,150 134,192" stroke="#e0b84e" stroke-width="3" fill="none" opacity=".85"/>`,
+  high_abt_mantle: (tint) => `<path d="M66,96 Q40,156 52,208 L100,188 L148,208 Q160,156 134,96 Q100,110 66,96 Z" fill="${tint || '#3d1f5a'}" stroke="var(--ink)" stroke-width="5"/><path d="M64,98 Q70,90 78,96 Q86,88 94,96 Q100,88 106,96 Q114,88 122,96 Q130,90 136,98" fill="#f5f0e6" stroke="var(--ink)" stroke-width="2.5"/><path d="M100,110 L100,188 M76,120 Q72,155 78,184 M124,120 Q128,155 122,184" stroke="#f5d76e" stroke-width="3" opacity=".8"/><circle cx="100" cy="108" r="7" fill="#f5d76e" stroke="var(--ink)" stroke-width="2.5"/>`,
+  golden_threads: (tint) => `<path d="M68,98 Q42,158 54,210 L100,190 L146,210 Q158,158 132,98 Q100,112 68,98 Z" fill="${tint || '#8a5a1f'}" stroke="var(--ink)" stroke-width="5"/><path d="M66,100 Q72,92 80,98 Q88,90 96,98 Q100,90 104,98 Q112,90 120,98 Q128,92 134,100" fill="#f5f0e6" stroke="var(--ink)" stroke-width="2.5"/><path d="M78,116 Q72,155 80,196 M100,112 Q98,155 100,186 M122,116 Q128,155 120,196" stroke="#f5d76e" stroke-width="3.5" opacity=".85"/>`,
+  eternal_abt: (tint) => `<path d="M64,96 Q36,160 50,214 L100,192 L150,214 Q164,160 136,96 Q100,110 64,96 Z" fill="${tint || '#3d1f5a'}" stroke="var(--ink)" stroke-width="5.5"/><path d="M62,98 Q68,88 78,96 Q86,86 96,96 Q100,86 104,96 Q114,86 122,96 Q132,88 138,98" fill="#f5d76e" stroke="var(--ink)" stroke-width="3"/><path d="M100,108 L100,192" stroke="#f5d76e" stroke-width="4" opacity=".9"/><circle cx="100" cy="106" r="8" fill="#f5d76e" stroke="var(--ink)" stroke-width="3"/><circle cx="100" cy="106" r="3" fill="#fff"/>`,
+};
+
+const AVATAR_WEAPON_SHAPES = {
+  none: () => '',
+  bottle_opener: (tint) => `<g transform="translate(150,130) rotate(20)"><rect x="-5" y="-40" width="10" height="70" rx="3" fill="${tint || '#8a5a35'}" stroke="var(--ink)" stroke-width="3"/><path d="M-8,-42 L8,-42 L4,-52 L-4,-52 Z" fill="#c7ccd1" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  sword: (tint) => `<g transform="translate(150,120) rotate(15)"><rect x="-4" y="-58" width="8" height="60" fill="${tint || '#c7ccd1'}" stroke="var(--ink)" stroke-width="3"/><rect x="-16" y="0" width="32" height="7" rx="2" fill="#8a5a35" stroke="var(--ink)" stroke-width="2.5"/><rect x="-5" y="6" width="10" height="16" fill="#6b4226" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  axe: (tint) => `<g transform="translate(150,120) rotate(12)"><rect x="-4" y="-20" width="8" height="60" fill="#6b4226" stroke="var(--ink)" stroke-width="3"/><path d="M-4,-20 Q-30,-30 -26,-4 Q-16,-8 -4,4 Z" fill="${tint || '#c7ccd1'}" stroke="var(--ink)" stroke-width="3"/></g>`,
+  staff: (tint) => `<g transform="translate(150,110)"><rect x="-4" y="-46" width="8" height="86" fill="${tint || '#8a5a35'}" stroke="var(--ink)" stroke-width="3"/><circle cx="0" cy="-50" r="9" fill="#a869d6" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  mug: (tint) => `<g transform="translate(150,140)"><rect x="-14" y="-24" width="28" height="34" rx="4" fill="${tint || '#c98a1f'}" stroke="var(--ink)" stroke-width="3"/><path d="M14,-18 Q28,-16 28,-4 Q28,8 14,10" fill="none" stroke="var(--ink)" stroke-width="3"/><ellipse cx="0" cy="-24" rx="14" ry="4" fill="#f5f0e6" opacity=".85"/></g>`,
+  hammer: (tint) => `<g transform="translate(150,116) rotate(14)"><rect x="-4" y="-20" width="8" height="66" fill="#6b4226" stroke="var(--ink)" stroke-width="3"/><rect x="-22" y="-34" width="44" height="20" rx="4" fill="${tint || '#8a5a35'}" stroke="var(--ink)" stroke-width="3"/></g>`,
+  mace: (tint) => `<g transform="translate(150,116) rotate(10)"><rect x="-4" y="-14" width="8" height="60" fill="#6b4226" stroke="var(--ink)" stroke-width="3"/><circle cx="0" cy="-24" r="17" fill="${tint || '#9aa3ad'}" stroke="var(--ink)" stroke-width="3"/><circle cx="0" cy="-24" r="4" fill="var(--ink)"/></g>`,
+  sacred_blade: (tint) => `<g transform="translate(150,112) rotate(15)"><rect x="-5" y="-64" width="10" height="66" fill="${tint || '#e0b84e'}" stroke="var(--ink)" stroke-width="3.5"/><rect x="-18" y="0" width="36" height="8" rx="2" fill="#f5d76e" stroke="var(--ink)" stroke-width="3"/><rect x="-6" y="7" width="12" height="18" fill="#3d1f5a" stroke="var(--ink)" stroke-width="2.5"/><circle cx="0" cy="-64" r="5" fill="#f0d98c"/></g>`,
+  winged_bow: (tint) => `<g transform="translate(152,120)"><path d="M0,-50 Q26,0 0,50" fill="none" stroke="${tint || '#8a5a35'}" stroke-width="5"/><path d="M0,-50 L-4,0 L0,50" fill="none" stroke="var(--ink)" stroke-width="2" opacity=".5"/><line x1="0" y1="-46" x2="0" y2="46" stroke="#e0e6ea" stroke-width="2"/><path d="M-4,-50 Q-24,-58 -30,-42 Q-16,-44 -6,-36 Z" fill="#e0e6ea" stroke="var(--ink)" stroke-width="2.5"/><path d="M-4,50 Q-24,58 -30,42 Q-16,44 -6,36 Z" fill="#e0e6ea" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  colossal_blade: (tint) => `<g transform="translate(154,96) rotate(12)"><rect x="-8" y="-88" width="16" height="96" fill="${tint || '#c7ccd1'}" stroke="var(--ink)" stroke-width="4"/><rect x="-26" y="6" width="52" height="10" rx="3" fill="#8a5a35" stroke="var(--ink)" stroke-width="3"/><rect x="-9" y="14" width="18" height="26" fill="#6b4226" stroke="var(--ink)" stroke-width="3"/><circle cx="0" cy="-88" r="6" fill="#f0d98c"/></g>`,
+  eternal_blade: (tint) => `<g transform="translate(152,108) rotate(15)"><rect x="-6" y="-72" width="12" height="76" fill="${tint || '#f5d76e'}" stroke="var(--ink)" stroke-width="4"/><rect x="-20" y="2" width="40" height="9" rx="2" fill="#f5d76e" stroke="var(--ink)" stroke-width="3"/><rect x="-7" y="9" width="14" height="20" fill="#3d1f5a" stroke="var(--ink)" stroke-width="2.5"/><circle cx="0" cy="-72" r="6" fill="#fff"/><circle cx="0" cy="-40" r="3" fill="#fff" opacity=".8"/></g>`,
+};
+
+const AVATAR_ACCESSORY_SHAPES = {
+  none: () => '',
+  mug: (tint) => `<g transform="translate(56,150)"><rect x="-12" y="-16" width="24" height="26" rx="3" fill="${tint || '#c98a1f'}" stroke="var(--ink)" stroke-width="3"/><path d="M12,-12 Q22,-10 22,0 Q22,8 12,10" fill="none" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  necklace: (tint) => `<path d="M84,106 Q100,116 116,106" fill="none" stroke="#8a5a35" stroke-width="3"/><circle cx="100" cy="118" r="7" fill="${tint || '#6f8a3d'}" stroke="var(--ink)" stroke-width="2.5"/>`,
+  belt: (tint) => `<rect x="72" y="146" width="56" height="10" fill="${tint || '#6b4226'}" stroke="var(--ink)" stroke-width="3"/><rect x="93" y="144" width="14" height="14" rx="2" fill="#cfa53d" stroke="var(--ink)" stroke-width="2.5"/>`,
+  shield: (tint) => `<g transform="translate(50,140)"><path d="M0,-16 L14,-10 L14,6 Q14,20 0,26 Q-14,20 -14,6 L-14,-10 Z" fill="${tint || '#9aa3ad'}" stroke="var(--ink)" stroke-width="3"/></g>`,
+  tankard: (tint) => `<g transform="translate(148,148)"><rect x="-11" y="-15" width="22" height="24" rx="3" fill="${tint || '#cfa53d'}" stroke="var(--ink)" stroke-width="3"/><path d="M11,-11 Q19,-9 19,-1 Q19,7 11,9" fill="none" stroke="var(--ink)" stroke-width="2.5"/></g>`,
+  medal: (tint) => `<g transform="translate(100,124)"><path d="M-6,-14 L0,-2 L6,-14" fill="none" stroke="#b53a3a" stroke-width="4"/><circle cx="0" cy="6" r="11" fill="${tint || '#e0b84e'}" stroke="var(--ink)" stroke-width="3"/><circle cx="0" cy="6" r="4" fill="#f5f0e6"/></g>`,
+  farmhorse: (tint) => { const c = tint || '#8a5a35'; return `<g transform="translate(34,206) scale(1.1)"><ellipse cx="-4" cy="6" rx="36" ry="8" fill="rgba(0,0,0,.15)"/><rect x="-32" y="-26" width="10" height="30" rx="3" fill="${c}" stroke="var(--ink)" stroke-width="3"/><rect x="-18" y="-26" width="10" height="30" rx="3" fill="${c}" stroke="var(--ink)" stroke-width="3"/><rect x="2" y="-26" width="10" height="30" rx="3" fill="${c}" stroke="var(--ink)" stroke-width="3"/><rect x="16" y="-30" width="10" height="30" rx="3" fill="${c}" stroke="var(--ink)" stroke-width="3"/><path d="M-34,-28 Q-46,-16 -36,2 Q-28,-8 -26,-24 Z" fill="${c}" stroke="var(--ink)" stroke-width="3"/><path d="M-30,-28 Q-22,-52 -8,-48 Q4,-68 18,-82 Q26,-90 34,-82 Q46,-78 44,-66 Q42,-58 32,-58 Q28,-50 18,-52 Q10,-38 12,-24 L-24,-24 Q-32,-24 -30,-28 Z" fill="${c}" stroke="var(--ink)" stroke-width="4"/><path d="M22,-84 L18,-98 L30,-88 Z M32,-86 L34,-100 L42,-88 Z" fill="${c}" stroke="var(--ink)" stroke-width="3"/><circle cx="30" cy="-72" r="2.5" fill="var(--ink)"/><path d="M-6,-48 Q0,-62 8,-72 Q16,-80 24,-84" fill="none" stroke="#4a3323" stroke-width="4.5" stroke-linecap="round"/></g>`; },
+  mug_platter: (tint) => {
+    let mugs = '';
+    for (let i = 0; i < 6; i++){
+      const x = -37 + i * 15;
+      mugs += `<rect x="${x - 5}" y="-11" width="10" height="14" rx="2" fill="${tint || '#c98a1f'}" stroke="var(--ink)" stroke-width="1.5"/><path d="M${x + 5},-9 Q${x + 9},-8 ${x + 9},-4 Q${x + 9},0 ${x + 5},1" fill="none" stroke="var(--ink)" stroke-width="1.2"/>`;
+    }
+    return `<g transform="translate(100,168)"><ellipse cx="0" cy="6" rx="48" ry="10" fill="#cfa53d" stroke="var(--ink)" stroke-width="3"/>${mugs}</g>`;
+  },
+  diadem: (tint) => `<path d="M78,104 Q100,118 122,104" fill="none" stroke="${tint || '#f5d76e'}" stroke-width="5"/><circle cx="100" cy="118" r="6" fill="#8a1f2b" stroke="var(--ink)" stroke-width="2"/><circle cx="86" cy="110" r="4" fill="#4f8fd6" stroke="var(--ink)" stroke-width="1.5"/><circle cx="114" cy="110" r="4" fill="#3f7a4a" stroke="var(--ink)" stroke-width="1.5"/>`,
+};
+
+/* Composes one <svg> avatar from a resolved loadout (see
+   getUserAbtLoadout below). fallen:true is a pure RENDER-TIME
+   override for spec §16 (crooked crown, cape/weapon damage, sad mug)
+   -- it never touches the underlying loadout data. */
+function renderAbtAvatarSvg(loadout, opts = {}){
+  const size = opts.size || 120;
+  const fallen = !!opts.fallen;
+  const hairFn = AVATAR_HAIR_SHAPES[loadout.hair] || AVATAR_HAIR_SHAPES.short;
+  const headwearFn = AVATAR_HEADWEAR_SHAPES[loadout.headwear] || AVATAR_HEADWEAR_SHAPES.none;
+  const armorFn = AVATAR_ARMOR_SHAPES[loadout.armor] || AVATAR_ARMOR_SHAPES.tunic;
+  const capeFn = AVATAR_CAPE_SHAPES[loadout.cape] || AVATAR_CAPE_SHAPES.none;
+  const weaponFn = AVATAR_WEAPON_SHAPES[loadout.weapon] || AVATAR_WEAPON_SHAPES.none;
+  const accessoryFn = AVATAR_ACCESSORY_SHAPES[loadout.accessory] || AVATAR_ACCESSORY_SHAPES.none;
+
+  const headwearHtml = fallen
+    ? `<g transform="rotate(-14 100 30)">${headwearFn(loadout.headwearTint)}</g>`
+    : headwearFn(loadout.headwearTint);
+
+  const fallenOverlay = `
+    <path d="M118,150 L128,160 L120,168 L132,180" fill="none" stroke="var(--ink)" stroke-width="3" opacity=".7"/>
+    <path d="M96,192 Q100,200 104,192" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity=".6"/>
+    <g transform="translate(56,158) rotate(18)"><rect x="-12" y="-14" width="24" height="24" rx="3" fill="#c98a1f" stroke="var(--ink)" stroke-width="3"/><path d="M-10,-14 L-4,-24 M2,-14 L6,-22" stroke="var(--ink)" stroke-width="2"/></g>
+  `;
+
+  return `
+    <svg viewBox="0 0 200 240" width="${size}" height="${Math.round(size * 1.2)}" class="abt-avatar-svg${fallen ? ' fallen' : ''}${opts.milestoneGlow ? ' milestone-glow' : ''}" role="img" aria-label="Abt Avatar">
+      ${capeFn(loadout.capeTint)}
+      ${getAvatarBodySvg()}
+      ${armorFn(loadout.armorTint)}
+      ${weaponFn(loadout.weaponTint)}
+      ${hairFn()}
+      ${headwearHtml}
+      ${fallen ? fallenOverlay : accessoryFn(loadout.accessoryTint)}
+    </svg>
+  `;
+}
+
+function getCosmeticItem(itemId){
+  return itemId ? APP_DATA.abtCosmeticItems.find(i => i.id === itemId) : null;
+}
+
+/* 'headwear.simple_crown' -> 'simple_crown' -- the JS registries above
+   are keyed on just the suffix, category is already known from context */
+function assetKeySuffix(assetKey){
+  const idx = assetKey.indexOf('.');
+  return idx === -1 ? assetKey : assetKey.slice(idx + 1);
+}
+
+function getUserAbtLoadout(userId){
+  const row = APP_DATA.abtAvatarLoadouts.find(l => l.userId === userId);
+  const loadout = {};
+  const rarities = [];
+  ABT_AVATAR_CATEGORIES.forEach(cat => {
+    const itemId = row ? row[`${cat}ItemId`] : null;
+    const item = getCosmeticItem(itemId);
+    loadout[cat] = item ? assetKeySuffix(item.assetKey) : ABT_DEFAULT_ASSET_KEY[cat];
+    loadout[`${cat}Tint`] = item ? item.renderTint : null;
+    rarities.push(item ? item.rarity : 'standard');
+  });
+  loadout.rarityBoost = rarities.some(r => r === 'legendary' || r === 'dynasty');
+  return loadout;
+}
+
+function isItemUnlockedFor(userId, item){
+  if (item.unlockType === 'standard') return true;
+  return APP_DATA.userAbtCosmetics.some(c => c.userId === userId && c.cosmeticItemId === item.id);
+}
+
+/* Daily Royal Picks are banked across ALL of a user's reigns (past +
+   current), never lost on dethronement -- getTotalDaysInPower already
+   computes exactly this eligible-days sum. */
+function getClaimedDailyPickCount(userId){
+  return APP_DATA.abtDailyRewards.filter(r => r.userId === userId).length;
+}
+
+function getAvailableRoyalPicks(userId){
+  return Math.max(0, getTotalDaysInPower(userId) - getClaimedDailyPickCount(userId));
+}
+
+/* Small deterministic PRNG (not Math.random()) so the 3 offered
+   choices stay stable across realtime-triggered re-renders until the
+   user actually claims one -- reshuffling mid-decision would be a bad
+   UX bug given the ~150ms debounced refresh-on-any-change pattern. */
+function abtHashSeed(str){
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++){
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  return function next(){
+    h = Math.imul(h ^ (h >>> 16), 2246822519);
+    h = Math.imul(h ^ (h >>> 13), 3266489917);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  };
+}
+
+function getOfferableDailyPickChoices(userId){
+  const pool = APP_DATA.abtCosmeticItems.filter(i => i.unlockType === 'daily_pick' && i.isActive
+    && !APP_DATA.userAbtCosmetics.some(c => c.userId === userId && c.cosmeticItemId === i.id));
+  if (!pool.length) return [];
+  const currentReign = APP_DATA.abtReigns.find(r => r.userId === userId && !r.endedAt);
+  const seed = `${userId}::${currentReign ? currentReign.id : 'none'}::${getClaimedDailyPickCount(userId)}`;
+  const rand = abtHashSeed(seed);
+  const shuffled = [...pool].sort((a, b) => a.id.localeCompare(b.id));
+  for (let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(rand() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled.slice(0, 3);
+}
+
+/* ---- writes: RPC-only, same "server decides" model as abt_reigns ---- */
+async function equipAbtItem(category, itemId){
+  const { error } = await sb.rpc('equip_abt_item', { p_category: category, p_item_id: itemId });
+  if (error){ console.error('equip_abt_item failed:', error); return; }
+  await refreshAppData();
+  renderPage();
+}
+
+async function claimAbtDailyPick(itemId){
+  const { error } = await sb.rpc('claim_abt_daily_pick', { p_cosmetic_item_id: itemId });
+  if (error){ console.error('claim_abt_daily_pick failed:', error); return; }
+  await refreshAppData();
+  renderPage();
+}
+
+async function syncAbtMilestones(){
+  const { data, error } = await sb.rpc('sync_abt_milestones');
+  if (error){ console.error('sync_abt_milestones failed:', error); return []; }
+  return (data || []).map(i => ({
+    id: i.id, name: i.name, flavorText: i.flavor_text, category: i.category,
+    rarity: i.rarity, milestoneDays: i.milestone_days, assetKey: i.asset_key, renderTint: i.render_tint,
+  }));
+}
+
+/* ---- milestone celebration: reuses the dethronement overlay's exact
+   full-screen mechanism/animations (openDramaticOverlay, crown-drop,
+   confetti-fall) rather than inventing new ones ---- */
+function showAbtRelicCelebration(item){
+  const confettiEmojis = ['👑', '✨', '🍺', '⚜️', '🏆'];
+  const confettiHtml = Array.from({ length: 16 }, (_, i) => `
+    <span class="dynasty-confetti-piece" style="left:${Math.round(Math.random() * 100)}%; animation-delay:${(Math.random() * 0.6).toFixed(2)}s;">${confettiEmojis[i % confettiEmojis.length]}</span>
+  `).join('');
+  const previewLoadout = { ...getUserAbtLoadout(STATE.activeUser), [item.category]: assetKeySuffix(item.assetKey), [`${item.category}Tint`]: item.renderTint };
+  openDramaticOverlay(`
+    <div class="dynasty-overlay-confetti">${confettiHtml}</div>
+    <div class="dynasty-overlay-card abt-relic-overlay">
+      <div class="dynasty-overlay-crown">🏆</div>
+      <h2 class="dynasty-overlay-title">DYNASTY RELIC UNLOCKED</h2>
+      <div class="abt-relic-preview">${renderAbtAvatarSvg(previewLoadout, { size: 130, milestoneGlow: true })}</div>
+      <p class="dynasty-overlay-headline">${escapeHtml(item.name).toUpperCase()}</p>
+      <p class="abt-relic-days">${item.milestoneDays} DAY${item.milestoneDays === 1 ? '' : 'S'} ON THE THRONE</p>
+      <p class="dynasty-overlay-subtitle">${escapeHtml(item.flavorText || '')}</p>
+      <button type="button" class="btn btn-primary dynasty-overlay-btn" onclick="closeDramaticOverlay()">CLAIM YOUR GLORY</button>
+    </div>
+  `);
+}
+
+/* ---- Royal Wardrobe page ---- */
+const ABT_WARDROBE_STATE = { activeCategory: 'hair' };
+
+function openRoyalWardrobe(){
+  STATE.activePage = 'beerclub';
+  BEER_STATE.view = 'wardrobe';
+  renderApp();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function switchAbtWardrobeCategory(category){
+  ABT_WARDROBE_STATE.activeCategory = category;
+  renderPage();
+}
+
+function getAbtUnlockHintHtml(item){
+  if (item.unlockType === 'milestone') return `Reach a ${item.milestoneDays}-day reign`;
+  return 'Daily Royal Pick';
+}
+
+function renderAbtItemCard(item, lordId, isEquipped){
+  const unlocked = isItemUnlockedFor(lordId, item);
+  const rarityColor = ABT_RARITY_COLORS[item.rarity] || ABT_RARITY_COLORS.standard;
+  const clickable = unlocked && STATE.activeUser === lordId;
+  const previewLoadout = { ...getUserAbtLoadout(lordId), [item.category]: assetKeySuffix(item.assetKey), [`${item.category}Tint`]: item.renderTint };
+  return `
+    <div class="abt-item-card ${unlocked ? '' : 'locked'} ${isEquipped ? 'equipped' : ''} ${clickable ? 'clickable' : ''}" style="--rarity-color:${rarityColor};" ${clickable ? `onclick="equipAbtItem('${item.category}','${item.id}')"` : ''}>
+      <div class="abt-item-thumb">${renderAbtAvatarSvg(previewLoadout, { size: 60 })}</div>
+      <div class="abt-item-name">${unlocked ? '' : '🔒 '}${escapeHtml(item.name)}</div>
+      ${unlocked ? `<div class="abt-item-rarity">${item.rarity}</div>` : `<div class="abt-item-hint">${getAbtUnlockHintHtml(item)}</div>`}
+      ${isEquipped ? '<div class="abt-item-equipped-tag">Equipped</div>' : ''}
+    </div>
+  `;
+}
+
+function renderAbtDailyPickBanner(lordId){
+  const available = getAvailableRoyalPicks(lordId);
+  if (available <= 0) return '';
+  const choices = getOfferableDailyPickChoices(lordId);
+  const nextDay = getClaimedDailyPickCount(lordId) + 1;
+  if (!choices.length){
+    return `
+      <div class="abt-reward-banner">
+        <div class="abt-reward-title">🎁 ${available} ROYAL PICK${available === 1 ? '' : 'S'} AVAILABLE</div>
+        <p>You've collected the entire Daily Royal Pick pool! More arrive in a future update.</p>
+      </div>
+    `;
+  }
+  return `
+    <div class="abt-reward-banner">
+      <div class="abt-reward-title">🎁 ${available > 1 ? `${available} ROYAL PICKS AVAILABLE` : `DAY ${nextDay} ROYAL PICK`}</div>
+      <p>Your reign continues. Choose your reward.</p>
+      <div class="abt-reward-choices">
+        ${choices.map(item => `
+          <div class="abt-item-card abt-reward-choice clickable" style="--rarity-color:${ABT_RARITY_COLORS[item.rarity]};" onclick="claimAbtDailyPick('${item.id}')">
+            <div class="abt-item-thumb">${renderAbtAvatarSvg({ ...getUserAbtLoadout(lordId), [item.category]: assetKeySuffix(item.assetKey), [`${item.category}Tint`]: item.renderTint }, { size: 60 })}</div>
+            <div class="abt-item-name">${escapeHtml(item.name)}</div>
+            <div class="abt-item-rarity">${item.rarity}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderRoyalWardrobePage(){
+  const lordId = ABT_LORD_STATE.currentLordId;
+  if (!lordId){
+    return `<section class="section">${emptyState('The throne stands empty. Log a Beer Session to begin the dynasty! 👑')}</section>`;
+  }
+  const lord = findUser(lordId);
+  const loadout = getUserAbtLoadout(lordId);
+  const isLordViewing = STATE.activeUser === lordId;
+  const activeCategory = ABT_AVATAR_CATEGORIES.includes(ABT_WARDROBE_STATE.activeCategory) ? ABT_WARDROBE_STATE.activeCategory : 'hair';
+  const loadoutRow = APP_DATA.abtAvatarLoadouts.find(l => l.userId === lordId);
+  const equippedId = loadoutRow ? loadoutRow[`${activeCategory}ItemId`] : null;
+  const categoryItems = APP_DATA.abtCosmeticItems.filter(i => i.category === activeCategory && i.isActive);
+
+  return `
+    <div class="abt-wardrobe">
+      <div class="abt-wardrobe-header">
+        <div class="abt-wardrobe-title">🏰 ROYAL WARDROBE</div>
+        <div class="abt-wardrobe-preview">${renderAbtAvatarSvg(loadout, { size: 220, milestoneGlow: loadout.rarityBoost })}</div>
+        <div class="abt-wardrobe-lordname">${lord.avatarEmoji} ${escapeHtml(lord.displayName)}</div>
+        ${isLordViewing ? '' : `<p class="abt-wardrobe-viewonly">Only ${escapeHtml(lord.displayName)} may dress the Abt Avatar right now.</p>`}
+      </div>
+      ${isLordViewing ? renderAbtDailyPickBanner(lordId) : ''}
+      <div class="taproom-nav">
+        ${ABT_AVATAR_CATEGORIES.map(cat => `
+          <button type="button" class="taproom-nav-card ${activeCategory === cat ? 'active' : ''}" onclick="switchAbtWardrobeCategory('${cat}')">
+            <span>${ABT_CATEGORY_LABELS[cat]}</span>
+          </button>
+        `).join('')}
+      </div>
+      <div class="abt-item-grid">
+        ${categoryItems.map(item => renderAbtItemCard(item, lordId, item.id === equippedId)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+/* =============================================================
    LEADERBOARDS — automatisch berekend uit de bestaande data.
    -------------------------------------------------------------
    Geen eigen opgeslagen state: elk klassement wordt live opnieuw
@@ -5181,9 +5706,10 @@ const MODULES = {
       if (BEER_STATE.view === 'sessions') body = renderBeerSessionsList(data);
       else if (BEER_STATE.view === 'leaderboards') body = renderBeerLeaderboardsPage(data);
       else if (BEER_STATE.view === 'database') body = renderBeerDatabase(data);
+      else if (BEER_STATE.view === 'wardrobe') body = renderRoyalWardrobePage();
       else body = renderTaproomPage(data); // 'taproom' -- de nieuwe standaard landingspagina
 
-      const xpOverview = BEER_STATE.view === 'taproom' ? '' : renderBeerXpOverview();
+      const xpOverview = (BEER_STATE.view === 'taproom' || BEER_STATE.view === 'wardrobe') ? '' : renderBeerXpOverview();
       return `<div class="taproom-page">${navHtml}${xpOverview}${body}</div>`;
     }
   },
@@ -7289,7 +7815,7 @@ function renderAbtLordThrone(){
     <div class="abt-throne">
       <div class="abt-throne-crown">👑</div>
       <div class="abt-throne-title">✦ THE ABT LORD ✦</div>
-      <div class="abt-throne-avatar">${userAvatarHtml(u, 100)}</div>
+      <div class="abt-throne-avatar">${renderAbtAvatarSvg(getUserAbtLoadout(lordId), { size: 100, milestoneGlow: getUserAbtLoadout(lordId).rarityBoost })}</div>
       <div class="abt-throne-name">${u.avatarEmoji} ${escapeHtml(u.displayName)}</div>
       <div class="abt-throne-subtitle">"May their glass never run dry."</div>
       ${currentReign ? `<div class="abt-throne-reigning">Reigning for ${reignDays} day${reignDays === 1 ? '' : 's'}</div>` : ''}
@@ -7313,6 +7839,7 @@ function renderAbtLordThrone(){
       ` : ''}
       ${fallen ? `
         <div class="fallen-abt-badge">
+          <div class="fallen-abt-avatar">${renderAbtAvatarSvg(getUserAbtLoadout(fallen.id), { size: 48, fallen: true })}</div>
           <span class="badge peach">💀 The Fallen Abt: ${fallen.avatarEmoji} ${escapeHtml(fallen.displayName)}</span>
         </div>
       ` : ''}
@@ -7336,6 +7863,7 @@ function renderTaproomNavHtml(){
     { view: 'database', label: 'Beer Fridge', emoji: '🍺' },
     { view: 'leaderboards', label: 'Abt Dynasty', emoji: '👑', scrollTarget: 'dynasty' },
     { view: 'leaderboards', label: 'Records', emoji: '🏆', scrollTarget: 'records' },
+    { view: 'wardrobe', label: 'Wardrobe', emoji: '🏰' },
   ];
   return `
     <div class="taproom-nav">
@@ -7575,8 +8103,16 @@ function renderTaproomPage(data){
       <div class="taproom-portrait-frame">
         ${lordId ? renderDynastyHeroCurrentLord(lordId) : `<div class="taproom-portrait-empty">${emptyState('The throne stands empty. Log a Beer Session to begin the dynasty! 👑')}</div>`}
       </div>
-      <div style="margin-top:10px;">
+      ${lordId && STATE.activeUser === lordId && getAvailableRoyalPicks(lordId) > 0 ? `
+        <div class="abt-reward-banner abt-reward-banner-compact">
+          <div class="abt-reward-title">🎁 ${getAvailableRoyalPicks(lordId) > 1 ? `${getAvailableRoyalPicks(lordId)} ROYAL PICKS AVAILABLE` : 'ROYAL REWARD AVAILABLE'}</div>
+          <p>Your reign continues. Claim today's reward.</p>
+          <button type="button" class="btn btn-primary btn-sm" onclick="openRoyalWardrobe()">${getAvailableRoyalPicks(lordId) > 1 ? 'Open Royal Wardrobe' : 'Choose Reward'}</button>
+        </div>
+      ` : ''}
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
         <button type="button" class="btn btn-secondary btn-sm" onclick="switchBeerTab('leaderboards','dynasty')">View Abt Dynasty →</button>
+        ${lordId ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openRoyalWardrobe()">View Royal Wardrobe →</button>` : ''}
       </div>
     </div>
   `;
@@ -7818,9 +8354,10 @@ function renderDynastyHeroCurrentLord(lordId){
   const lead = runnerUp ? xp - runnerUp.xp : null;
   const throneInDanger = lead !== null && lead < 10;
 
+  const lordLoadout = getUserAbtLoadout(lordId);
   return `
     <div class="dynasty-hero-lord">
-      <div class="dynasty-hero-avatar">${userAvatarHtml(u, 120)}</div>
+      <div class="dynasty-hero-avatar">${renderAbtAvatarSvg(lordLoadout, { size: 120, milestoneGlow: lordLoadout.rarityBoost })}</div>
       <div class="dynasty-hero-name">${u.avatarEmoji} ${escapeHtml(u.displayName)}</div>
       <div class="dynasty-hero-subtitle">"May their glass never run dry."</div>
       <div class="dynasty-hero-level">${level.icon} ${level.label}</div>
@@ -7838,6 +8375,7 @@ function renderDynastyHeroCurrentLord(lordId){
       ` : ''}
       ${fallen ? `
         <div class="fallen-abt-badge">
+          <div class="fallen-abt-avatar">${renderAbtAvatarSvg(getUserAbtLoadout(fallen.id), { size: 48, fallen: true })}</div>
           <span class="badge peach">💀 The Fallen Abt: ${fallen.avatarEmoji} ${escapeHtml(fallen.displayName)}</span>
         </div>
       ` : ''}
