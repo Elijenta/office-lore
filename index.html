@@ -624,6 +624,16 @@
     flex-wrap: wrap;
     gap: 6px;
   }
+  .beer-card-user-ratings{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    margin-top: 8px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #6b5c4d;
+  }
+  .beer-card-user-ratings strong{ color: var(--ink); }
   .stat-chip{
     font-size: 11px;
     font-weight: 800;
@@ -1465,6 +1475,454 @@
     margin-top: 6px;
   }
   .dynasty-overlay-btn{ margin-top: 20px; }
+
+  /* =========================================================
+     THE TAPROOM — Beer Club redesign, pass 2: a spatial environment
+     instead of a card grid. .taproom-environment is ONE continuous
+     backdrop (back bar → bar counter → wall → table → wall → exit)
+     that every section below sits inside/against, each shaped like a
+     different physical object rather than a uniform rounded-card.
+     Tokens scoped to .taproom-page (never touch :root). Reuses
+     existing primitives (.dynasty-hero-lord, .row-item, .badge) for
+     content that's literally the same component shown elsewhere.
+     ========================================================= */
+  .taproom-page{
+    --wood: #6b4226;
+    --wood-deep: #3d2513;
+    --wood-light: #8a5a35;
+    --wood-mid: #6f4a2c;
+    --amber: #f0b84e;
+    --amber-deep: #c98a1f;
+    --brass: #cfa53d;
+    --brass-light: #ecd48a;
+    --chalkboard: #2b362e;
+    --chalk: #f5f0e6;
+    --cream: #fff3e0;
+    --fridge-glass: #26313c;
+    --fridge-glass-deep: #141c24;
+  }
+
+  /* ---- the environment shell ---- */
+  .taproom-environment{
+    position: relative;
+    background:
+      radial-gradient(ellipse 60% 40% at 22% 4%, var(--amber-glow, rgba(240,184,78,.16)), transparent 60%),
+      radial-gradient(ellipse 50% 30% at 78% 46%, rgba(240,184,78,.10), transparent 65%),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0px, rgba(0,0,0,.05) 1px, transparent 1px, transparent 36px),
+      linear-gradient(180deg, var(--wood-deep) 0%, var(--wood) 16%, var(--wood-mid) 50%, var(--wood) 82%, var(--wood-deep) 100%);
+    border: 4px solid var(--ink);
+    border-radius: var(--radius-lg);
+    box-shadow: 7px 7px 0 var(--ink);
+    padding: 18px 14px 20px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .taproom-environment > *{ position: relative; }
+  .taproom-zone{ margin-bottom: 22px; }
+  .taproom-zone:last-child{ margin-bottom: 0; }
+
+  /* ---- Back Bar: the hanging sign + shelves ---- */
+  .taproom-backbar{ text-align: center; padding: 6px 0 4px; }
+  .taproom-backbar-shelf{
+    height: 3px;
+    max-width: 320px;
+    margin: 0 auto 14px;
+    background: linear-gradient(90deg, transparent, var(--brass) 20%, var(--brass-light) 50%, var(--brass) 80%, transparent);
+    opacity: .55;
+    border-radius: 2px;
+  }
+  .taproom-backbar-bottles{
+    font-size: 20px;
+    letter-spacing: 10px;
+    opacity: .3;
+    filter: grayscale(.4);
+    margin-bottom: 6px;
+    user-select: none;
+  }
+  .taproom-sign{
+    display: inline-block;
+    position: relative;
+    background: linear-gradient(165deg, var(--wood-mid), var(--wood-deep));
+    border: 3px solid var(--brass);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop-sm), 0 0 40px 4px rgba(240,184,78,.18);
+    padding: 14px 26px 16px;
+  }
+  .taproom-sign::before, .taproom-sign::after{
+    content: '';
+    position: absolute;
+    top: -14px;
+    width: 3px; height: 14px;
+    background: var(--brass);
+  }
+  .taproom-sign::before{ left: 22%; }
+  .taproom-sign::after{ right: 22%; }
+  .taproom-sign-title{
+    font-family: var(--font-display);
+    font-size: 30px;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    text-shadow: 2px 2px 0 var(--wood-deep);
+  }
+  .taproom-sign-est{
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--brass-light);
+    opacity: .8;
+    margin-top: 2px;
+  }
+  .taproom-sign-tagline{ font-style: italic; font-weight: 700; color: var(--chalk); margin-top: 6px; font-size: 13px; }
+
+  /* ---- Bar counter: coaster-style actions ---- */
+  .taproom-bartop{
+    position: relative;
+    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 70%);
+    border-radius: var(--radius-md);
+    border: 3px solid var(--wood-deep);
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.18), var(--shadow-pop-sm);
+    padding: 16px 14px;
+  }
+  .taproom-bartop-label{
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+  .taproom-coaster-row{ display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .taproom-coaster{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 92px;
+    padding: 12px 8px 10px;
+    background: var(--cream);
+    border: 3px solid var(--wood-deep);
+    border-radius: 50%;
+    box-shadow: 0 3px 0 var(--wood-deep), var(--shadow-pop-sm);
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--ink);
+    text-align: center;
+    cursor: pointer;
+    transition: transform .15s ease;
+  }
+  .taproom-coaster:hover{ transform: translateY(-3px) rotate(-2deg); }
+  .taproom-coaster:active{ transform: translateY(0); }
+  .taproom-coaster-icon{ font-size: 22px; }
+  .taproom-coaster.live{ background: linear-gradient(160deg, #ffd7c9, var(--cream)); border-color: #8a2626; }
+
+  /* ---- Behind the Bar: framed portrait ---- */
+  .taproom-portrait{ text-align: center; }
+  .taproom-portrait-label{
+    font-family: var(--font-display);
+    font-size: 18px;
+    letter-spacing: .5px;
+    color: var(--chalk);
+    margin-bottom: 10px;
+  }
+  .taproom-portrait-frame{
+    position: relative;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: linear-gradient(165deg, rgba(255,255,255,.08), rgba(0,0,0,.12)), var(--card);
+    border: 10px solid var(--brass);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 0 3px var(--wood-deep), 0 0 50px 8px rgba(240,184,78,.28), var(--shadow-pop);
+    padding: 18px 16px 14px;
+  }
+  .taproom-portrait-frame::before, .taproom-portrait-frame::after,
+  .taproom-portrait-frame-corner-tl, .taproom-portrait-frame-corner-br{ content: none; }
+  .taproom-portrait-frame .dynasty-hero-subtitle{
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 14px;
+    background: linear-gradient(180deg, var(--brass-light), var(--brass));
+    border: 2px solid var(--wood-deep);
+    border-radius: 6px;
+    color: var(--wood-deep);
+    font-style: normal;
+    font-weight: 800;
+    font-size: 11.5px;
+    letter-spacing: .3px;
+  }
+  .taproom-portrait-empty{ color: var(--chalk); font-weight: 700; }
+
+  /* ---- Today's Regulars: chalkboard ---- */
+  .taproom-chalkboard{
+    background:
+      radial-gradient(rgba(255,255,255,.05) 1px, transparent 1px) 0 0 / 9px 9px,
+      var(--chalkboard);
+    border: 8px solid var(--wood-deep);
+    border-radius: 6px;
+    box-shadow: var(--shadow-pop-sm);
+    padding: 18px 16px;
+    color: var(--chalk);
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .taproom-chalkboard .taproom-section-title{ color: var(--chalk); text-align: center; margin-bottom: 10px; }
+  .taproom-chalkboard-row{
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: 'Caveat', cursive;
+    font-size: 21px;
+    font-weight: 700;
+    padding: 4px 0;
+    border-bottom: 1px dashed rgba(245,240,230,.22);
+  }
+  .taproom-chalkboard-row:nth-child(odd){ transform: rotate(-.3deg); }
+  .taproom-chalkboard-row:nth-child(even){ transform: rotate(.3deg); }
+  .taproom-chalkboard-row:last-of-type{ border-bottom: none; }
+  .taproom-chalkboard-dots{ flex: 1 1 auto; overflow: hidden; white-space: nowrap; opacity: .3; letter-spacing: 2px; }
+  .taproom-chalkboard-xp{ font-family: var(--font-body); font-weight: 800; font-size: 13px; }
+  .taproom-chalkboard-note{
+    margin-top: 10px;
+    font-style: italic;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--amber);
+    text-align: center;
+    border-top: 1px dashed rgba(245,240,230,.22);
+    padding-top: 8px;
+  }
+
+  /* ---- Our Table: wood tabletop with items sitting on it ---- */
+  .taproom-table{
+    position: relative;
+    background: linear-gradient(180deg, var(--wood-mid) 0%, var(--wood) 100%);
+    border-radius: var(--radius-md);
+    border: 3px solid var(--wood-deep);
+    box-shadow: inset 0 4px 14px rgba(0,0,0,.28), var(--shadow-pop-sm);
+    padding: 18px 16px 16px;
+  }
+  .taproom-table.live{ box-shadow: inset 0 4px 14px rgba(0,0,0,.28), var(--shadow-pop-sm), 0 0 34px 6px rgba(255,120,70,.35); }
+  .taproom-table-label{
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-family: var(--font-display);
+    font-size: 19px;
+    color: var(--chalk);
+    margin-bottom: 12px;
+  }
+  .taproom-live-dot{
+    display: inline-block;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #ff6b45;
+    box-shadow: 0 0 8px 2px rgba(255,107,69,.7);
+  }
+  .taproom-coaster-tag{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--cream);
+    border: 2px solid var(--wood-deep);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-weight: 800;
+    font-size: 11.5px;
+    color: var(--ink);
+    box-shadow: 0 2px 0 rgba(0,0,0,.25);
+    transform: rotate(-1.5deg);
+  }
+  .taproom-location-tag{
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--amber);
+    border: 2px solid var(--wood-deep);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-weight: 800;
+    font-size: 11.5px;
+    color: var(--wood-deep);
+    box-shadow: 0 2px 0 rgba(0,0,0,.25);
+    transform: rotate(1.2deg);
+    margin-left: 8px;
+  }
+  .taproom-table-tags{ text-align: center; margin-bottom: 12px; }
+  .taproom-seats{ display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .taproom-seat{ display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .taproom-seat:nth-child(odd){ transform: translateY(-3px); }
+  .taproom-seat:nth-child(even){ transform: translateY(3px); }
+  .taproom-seat-name{ font-size: 10.5px; font-weight: 800; color: var(--chalk); }
+  .taproom-table-stats{ display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---- Beer Fridge preview: glass-door shelf ---- */
+  .taproom-fridge{
+    background: linear-gradient(165deg, var(--fridge-glass) 0%, var(--fridge-glass-deep) 100%);
+    border: 3px solid #0d1318;
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 30px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.08), var(--shadow-pop-sm);
+    padding: 14px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .taproom-fridge .taproom-section-title{ color: var(--cream); }
+  .taproom-fridge .grid{ position: relative; }
+  .taproom-fridge .poem-card, .taproom-fridge .person-card{ position: relative; }
+  .taproom-fridge .person-card::before{
+    content: '🏷️';
+    position: absolute;
+    top: -8px; right: 10px;
+    font-size: 16px;
+    transform: rotate(12deg);
+  }
+
+  /* ---- On The Wall: uneven gallery ---- */
+  .taproom-wall{
+    background: linear-gradient(165deg, rgba(255,255,255,.04), rgba(0,0,0,.10));
+    border-radius: var(--radius-md);
+    padding: 16px 14px;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .taproom-wall .taproom-section-title{ color: var(--chalk); }
+  .taproom-wall-grid{ display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; margin-top: 12px; }
+  .taproom-frame{
+    text-align: center;
+    padding: 12px 10px;
+    color: var(--cream);
+    box-shadow: var(--shadow-pop-sm);
+  }
+  .taproom-frame-label{ font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .3px; color: var(--amber); }
+  .taproom-frame-value{ font-family: var(--font-display); font-size: 15px; margin-top: 4px; }
+  .taproom-frame-sub{ font-size: 11px; font-weight: 700; color: var(--chalk); margin-top: 2px; opacity: .9; }
+  .taproom-frame-0{ background: linear-gradient(165deg, var(--wood-light), var(--wood)); border: 3px solid var(--brass); border-radius: var(--radius-md); transform: rotate(-1.5deg); }
+  .taproom-frame-1{ background: linear-gradient(165deg, var(--wood-light), var(--wood)); border: 4px double var(--brass-light); border-radius: 50%; transform: rotate(1deg); padding: 18px 12px; }
+  .taproom-frame-2{ background: linear-gradient(165deg, var(--wood-mid), var(--wood-deep)); border: 3px solid var(--wood-deep); box-shadow: var(--shadow-pop-sm), inset 0 0 0 2px var(--brass); clip-path: polygon(50% 0%, 100% 20%, 100% 85%, 50% 100%, 0% 85%, 0% 20%); transform: rotate(-1deg); }
+
+  /* ---- Last Call: notice board ---- */
+  .taproom-noticeboard{
+    background: var(--wood-deep);
+    border-radius: var(--radius-md);
+    padding: 14px 12px 10px;
+  }
+  .taproom-noticeboard .taproom-section-title{ color: var(--chalk); text-align: center; margin-bottom: 10px; }
+  .taproom-note{
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--cream);
+    border-radius: 3px;
+    box-shadow: var(--shadow-pop-sm);
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .taproom-note:nth-child(odd){ transform: rotate(-.6deg); }
+  .taproom-note:nth-child(even){ transform: rotate(.6deg); }
+  .taproom-note::before{
+    content: '';
+    position: absolute;
+    top: -4px; left: 50%;
+    transform: translateX(-50%);
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--brass);
+    box-shadow: var(--shadow-pop-sm);
+  }
+  .taproom-note-time{ display: block; font-size: 10.5px; font-weight: 700; color: #a68a6f; margin-top: 2px; }
+
+  .taproom-section-title{
+    font-family: var(--font-display);
+    font-size: 19px;
+    letter-spacing: .5px;
+    color: var(--ink);
+  }
+
+  /* generic small parchment card, used where content still needs to
+     read as an ordinary readable panel (empty states etc.) */
+  .taproom-card{
+    background: var(--cream);
+    border: 3px solid var(--wood);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop-sm);
+  }
+  .taproom-plaque{
+    background: linear-gradient(165deg, var(--wood-light), var(--wood));
+    border: 3px solid var(--brass);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop-sm);
+    padding: 14px;
+    color: var(--cream);
+    text-align: center;
+  }
+
+  .taproom-composition-grid{ display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
+  .taproom-composition-grid > *{ min-width: 0; }
+
+  .taproom-nav{
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .taproom-nav-card{
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 84px;
+    padding: 10px 14px;
+    background: var(--card);
+    border: var(--outline-thin);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop-sm);
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--ink);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .taproom-nav-card:hover{ transform: translateY(-2px); }
+  .taproom-nav-card.active{ background: var(--wood); color: var(--cream); border-color: var(--ink); }
+  .taproom-nav-emoji{ font-size: 20px; }
+
+  @media (prefers-reduced-motion: no-preference){
+    .taproom-portrait-frame:hover{ animation: taproom-crown-shimmer 1.2s ease-in-out; }
+    @keyframes taproom-crown-shimmer{
+      0%, 100%{ filter: brightness(1); }
+      50%{ filter: brightness(1.18); }
+    }
+    .taproom-section-title.taproom-chalk-hoverable:hover{
+      text-decoration: underline;
+      text-decoration-style: wavy;
+      text-decoration-color: var(--amber);
+      text-underline-offset: 4px;
+    }
+    .taproom-live-dot{ animation: taproom-pulse 1.7s ease-in-out infinite; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .taproom-live-dot{ opacity: .9; }
+  }
+  @keyframes taproom-pulse{
+    0%, 100%{ opacity: 1; transform: scale(1); }
+    50%{ opacity: .5; transform: scale(1.3); }
+  }
+
+  @media (max-width: 900px){
+    .taproom-composition-grid{ grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px){
+    .taproom-sign-title{ font-size: 23px; }
+    .taproom-coaster{ width: 78px; padding: 10px 6px 8px; }
+    .taproom-nav-card{ min-width: 72px; padding: 8px 10px; }
+    .taproom-wall-grid{ grid-template-columns: repeat(2, 1fr); }
+  }
 
   /* ---- Abt Dynasty HERO: the single most prestigious section on the
      Leaderboards page — deliberately bigger/richer than every other
@@ -2905,7 +3363,7 @@ async function initAuth(){
    longer exist by the time the user comes back. */
 const NAV_STATE_STORAGE_KEY = 'officeLoreNavState';
 const PERSISTABLE_PAGES = ['home', 'nicknames', 'lore', 'counters', 'beerclub', 'poetrywall', 'terrace', 'leaderboards', 'myprofile'];
-const PERSISTABLE_BEER_VIEWS = ['database', 'sessions', 'leaderboards'];
+const PERSISTABLE_BEER_VIEWS = ['taproom', 'database', 'sessions', 'leaderboards'];
 const PERSISTABLE_NICKNAME_TABS = ['nicknames', 'battles'];
 
 /* deep-link views normaliseren naar hun bovenliggende tab (het record
@@ -2913,7 +3371,7 @@ const PERSISTABLE_NICKNAME_TABS = ['nicknames', 'battles'];
 function normalizeBeerViewForPersistence(view){
   if (view === 'beerDetail') return 'database';
   if (view === 'sessionDetail' || view === 'sessionForm') return 'sessions';
-  return PERSISTABLE_BEER_VIEWS.includes(view) ? view : 'database';
+  return PERSISTABLE_BEER_VIEWS.includes(view) ? view : 'taproom';
 }
 
 function saveNavState(){
@@ -3118,11 +3576,12 @@ let counterRegisterDelta = 1;
 /* Beer Club-module: eigen substate voor Database/Sessions-tabs,
    bierdetail en het nieuwe-sessie-formulier. */
 const BEER_STATE = {
-  view: 'database', // 'database' | 'sessions' | 'leaderboards' | 'beerDetail' | 'sessionForm' | 'sessionDetail'
+  view: 'taproom', // 'taproom' | 'database' | 'sessions' | 'leaderboards' | 'beerDetail' | 'sessionForm' | 'sessionDetail'
   beerDetailId: null,
   sessionDetailId: null,
   sessionFormMode: null, // 'add' | 'edit', zelfde patroon als openBeerForm(mode, id)
   sessionFormEditId: null,
+  leaderboardsScrollTarget: null, // 'dynasty' | 'records' | null -- welk deel van de leaderboards-pagina na render in beeld scrollen (zelfde techniek als Poetry Wall's openPoemDetail(id, scrollToComments))
 };
 
 /* Poetry Wall-module: eigen substate voor de Wall/detail-weergave.
@@ -3887,6 +4346,90 @@ function getMostConsumedBeer(){
   return best;
 }
 
+/* ---- The Taproom: nieuwe afgeleide waarden, geen nieuwe tabellen.
+   "Most Sessions Attended" is de enige On-The-Wall-stat die nog nergens
+   bestond -- triviale reductie over al geladen participantIds. ---- */
+function getMostSessionsAttendedRow(){
+  const rows = APP_DATA.users
+    .map(u => ({ user: u, value: APP_DATA.beerSessions.filter(s => s.participantIds.includes(u.id)).length }))
+    .filter(r => r.value > 0)
+    .sort((a, b) => b.value - a.value);
+  return rows[0] || null;
+}
+
+/* Een sessie is "live" als hij vandaag gedateerd is -- er is geen
+   status-kolom op beer_sessions (in tegenstelling tot terrace_events)
+   en die toevoegen zou niet nodig zijn: dit is een eerlijke, zuiver
+   afgeleide indicator, geen nieuwe databasewijziging. */
+function getActiveBeerSession(){
+  const today = todayISO();
+  return APP_DATA.beerSessions.find(s => s.date === today) || null;
+}
+
+/* Per-user gemiddelde score voor één bier -- voor de uitgebreide beer
+   card ("Elien 9.0 · Nick 9.5 · Atti 8.8"), zelfde onderliggende
+   getBeerEntries() als de rest van de bestaande bier-statistieken. */
+function getBeerRatingsPerUser(beerId){
+  const scoresByUser = {};
+  getBeerEntries(beerId).forEach(e => {
+    if (typeof e.score !== 'number') return;
+    (scoresByUser[e.userId] = scoresByUser[e.userId] || []).push(e.score);
+  });
+  return Object.entries(scoresByUser)
+    .map(([userId, scores]) => ({ user: findUser(userId), avg: Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10 }))
+    .filter(r => r.user)
+    .sort((a, b) => b.avg - a.avg);
+}
+
+/* ---- Last Call: puur client-side afgeleide, reverse-chronologische
+   mix van recente beer-activiteit. Zelfde filosofie als
+   getRecentBattleActivity() (nergens een echte activity feed-tabel --
+   dit is een "spotlight"-lijst, geen opgeslagen feed). Geen fake
+   events: een categorie zonder recente data levert gewoon niets. ---- */
+function getTaproomLastCallItems(limit = 7){
+  const items = [];
+
+  getAllBeerEntries().forEach(e => {
+    const beer = APP_DATA.beers.find(b => b.id === e.beerId);
+    const user = findUser(e.userId);
+    if (!beer || !user || !e.sessionDate) return;
+    if (typeof e.score === 'number'){
+      items.push({ at: e.sessionDate, icon: '🍺', text: `${user.displayName} rated ${beer.name} ${e.score}/10` });
+    }
+    if (e.firstTime){
+      items.push({ at: e.sessionDate, icon: '⭐', text: `${user.displayName} tried ${beer.name} for the first time` });
+    }
+  });
+
+  APP_DATA.beerSessions.forEach(s => {
+    const totalPours = s.perfectPourVotes.length;
+    if (totalPours){
+      const byUser = {};
+      s.perfectPourVotes.forEach(v => { byUser[v.toUserId] = (byUser[v.toUserId] || 0) + 1; });
+      Object.entries(byUser).forEach(([userId, count]) => {
+        const user = findUser(userId);
+        if (!user) return;
+        const total = getTotalPerfectPoursReceived(userId);
+        items.push({ at: s.date, icon: '🏆', text: `${user.displayName} achieved their ${ordinal(total)} Perfect Pour` });
+      });
+    }
+    if (s.date && s.location){
+      items.push({ at: s.date, icon: '🍻', text: `Beer Session completed at ${s.location}` });
+    }
+  });
+
+  return items
+    .filter(i => i.at)
+    .sort((a, b) => String(b.at).localeCompare(String(a.at)))
+    .slice(0, limit);
+}
+
+function ordinal(n){
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 /* Grappige, datagedreven opmerkingen — enkel getoond als het patroon
    er echt is. Elke functie geeft null (niets te melden) of een tekst. */
 function getSuspiciousQuotes(){
@@ -4626,25 +5169,22 @@ const MODULES = {
   },
 
   beerclub: {
-    title: 'Beer Club',
-    subtitle: 'Beer Database, sessies en automatische statistieken.',
+    title: 'The Taproom',
+    subtitle: 'Probably conducting important research.',
     render(data){
       if (BEER_STATE.view === 'beerDetail') return renderBeerDetailPage(data);
       if (BEER_STATE.view === 'sessionForm') return renderSessionFormPage(data);
       if (BEER_STATE.view === 'sessionDetail') return renderSessionDetailPage(data);
 
-      const tabsHtml = `
-        <div class="people-toolbar" style="margin-bottom:16px;">
-          <button type="button" class="nav-btn ${BEER_STATE.view === 'database' ? 'active' : ''}" onclick="switchBeerTab('database')">🍺 Database</button>
-          <button type="button" class="nav-btn ${BEER_STATE.view === 'sessions' ? 'active' : ''}" onclick="switchBeerTab('sessions')">📋 Sessions</button>
-          <button type="button" class="nav-btn ${BEER_STATE.view === 'leaderboards' ? 'active' : ''}" onclick="switchBeerTab('leaderboards')">🏆 Leaderboards</button>
-        </div>
-      `;
+      const navHtml = renderTaproomNavHtml();
       let body;
       if (BEER_STATE.view === 'sessions') body = renderBeerSessionsList(data);
       else if (BEER_STATE.view === 'leaderboards') body = renderBeerLeaderboardsPage(data);
-      else body = renderBeerDatabase(data);
-      return renderBeerXpOverview() + tabsHtml + body;
+      else if (BEER_STATE.view === 'database') body = renderBeerDatabase(data);
+      else body = renderTaproomPage(data); // 'taproom' -- de nieuwe standaard landingspagina
+
+      const xpOverview = BEER_STATE.view === 'taproom' ? '' : renderBeerXpOverview();
+      return `<div class="taproom-page">${navHtml}${xpOverview}${body}</div>`;
     }
   },
 
@@ -6780,6 +7320,285 @@ function renderAbtLordThrone(){
   `;
 }
 
+/* ---------- THE TAPROOM ----------
+   Nieuwe landingspagina + navigatie voor Beer Club. Presentatie-laag
+   enkel: elke sectie hieronder is een compacte preview die uitsluitend
+   al bestaande data/functies hergebruikt (computeBeerXp, Abt Dynasty,
+   Terrace-koppeling, Perfect Pour, ...) -- zie de secties verderop in
+   dit bestand voor de onveranderde onderliggende schermen
+   (renderBeerDatabase/renderBeerSessionsList/renderBeerLeaderboardsPage/
+   renderBeerDetailPage/renderSessionDetailPage/renderSessionFormPage). */
+
+function renderTaproomNavHtml(){
+  const items = [
+    { view: 'taproom', label: 'Taproom', emoji: '🏠' },
+    { view: 'sessions', label: 'Our Table', emoji: '🍻' },
+    { view: 'database', label: 'Beer Fridge', emoji: '🍺' },
+    { view: 'leaderboards', label: 'Abt Dynasty', emoji: '👑', scrollTarget: 'dynasty' },
+    { view: 'leaderboards', label: 'Records', emoji: '🏆', scrollTarget: 'records' },
+  ];
+  return `
+    <div class="taproom-nav">
+      ${items.map(item => {
+        const isActive = BEER_STATE.view === item.view
+          && (item.view === 'leaderboards' ? BEER_STATE.leaderboardsScrollTarget === (item.scrollTarget || null) : true);
+        return `
+          <button type="button" class="taproom-nav-card ${isActive ? 'active' : ''}" onclick="switchBeerTab('${item.view}'${item.scrollTarget ? `,'${item.scrollTarget}'` : ''})">
+            <span class="taproom-nav-emoji">${item.emoji}</span>
+            <span>${item.label}</span>
+          </button>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+/* Back Bar: the hanging sign -- purely decorative environment, no
+   data-driven state (that's what made it a "hero card" before; now
+   it's just the room itself). */
+function renderTaproomBackbar(){
+  return `
+    <div class="taproom-zone taproom-backbar">
+      <div class="taproom-backbar-shelf"></div>
+      <div class="taproom-backbar-bottles" aria-hidden="true">🍾 🍺 🥃 🍾 🍺 🍾 🥃</div>
+      <div class="taproom-sign">
+        <div class="taproom-sign-title">🍺 THE TAPROOM</div>
+        <div class="taproom-sign-est">Est. 2026</div>
+        <div class="taproom-sign-tagline">Probably conducting important research.</div>
+      </div>
+      <div class="taproom-backbar-bottles" aria-hidden="true" style="margin-top:6px; margin-bottom:0;">🍺 🍾 🥃 🍺 🍾 🍺 🥃</div>
+    </div>
+  `;
+}
+
+/* Bar counter: real stats live here too (small print, doesn't need
+   its own card) plus the 3 primary actions as coasters. */
+function renderTaproomBartop(){
+  return `
+    <div class="taproom-zone taproom-bartop">
+      <div class="taproom-bartop-label">${getTotalBeersDrunk()} beers tasted · ${APP_DATA.beerSessions.length} sessions · ${APP_DATA.users.length} questionable experts</div>
+      <div class="taproom-coaster-row">
+        <button type="button" class="taproom-coaster" onclick="quickNewBeerSession()"><span class="taproom-coaster-icon">🍻</span>Start Session</button>
+        <button type="button" class="taproom-coaster" onclick="switchBeerTab('database')"><span class="taproom-coaster-icon">⭐</span>Rate a Beer</button>
+        <button type="button" class="taproom-coaster" onclick="openBeerForm('add')"><span class="taproom-coaster-icon">🍺</span>Add Beer</button>
+      </div>
+    </div>
+  `;
+}
+
+/* Best beoordeeld bier BINNEN één specifieke sessie (i.p.v. over-all) --
+   zelfde soort per-bier-gemiddelde als getBeerAverageScore, maar enkel
+   over de entries van deze ene sessie. */
+function getBestRatedBeerInSession(session){
+  const byBeer = {};
+  session.entries.forEach(e => {
+    if (typeof e.score !== 'number') return;
+    (byBeer[e.beerId] = byBeer[e.beerId] || []).push(e.score);
+  });
+  let best = null;
+  Object.entries(byBeer).forEach(([beerId, scores]) => {
+    const avg = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
+    if (!best || avg > best.avg) best = { beer: APP_DATA.beers.find(b => b.id === beerId), avg };
+  });
+  return (best && best.beer) ? best : null;
+}
+
+function renderTaproomNextRoundCard(event){
+  const option = getTerracePrimaryOption(event);
+  return `
+    <div class="taproom-card" style="padding:14px; margin-top:12px;">
+      <div class="lore-item-title">🍻 Next Round</div>
+      <div class="terrace-card-meta">📅 ${formatTerraceShortDate(option?.eventDate)}${option?.eventTime ? ' · ' + formatTerraceTime(option.eventTime) : ''}</div>
+      <div class="terrace-card-meta">📍 ${escapeHtml(getTerraceOptionLocationLabel(option))}</div>
+      <div class="row-list" style="margin-top:6px;">
+        ${event.invitedUserIds.map(uid => {
+          const u = findUser(uid);
+          if (!u) return '';
+          const vote = APP_DATA.terraceAvailability.find(a => a.terraceEventId === event.id && a.optionId === null && a.userId === uid);
+          const icon = !vote ? '⏳' : vote.status === 'yes' ? '✅' : vote.status === 'maybe' ? '🤔' : '❌';
+          return `<div class="row-item" style="cursor:default;">${avatarHtml(u, 22)}<div class="info"><div class="name">${escapeHtml(u.displayName)} ${icon}</div></div></div>`;
+        }).join('')}
+      </div>
+      <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="openTerraceEventDetail('${event.id}')">View Terrace Plan →</button>
+    </div>
+  `;
+}
+
+function renderTaproomOurTableSection(){
+  const activeSession = getActiveBeerSession();
+  const sorted = [...APP_DATA.beerSessions].sort((a, b) => b.date.localeCompare(a.date));
+  const session = activeSession || sorted[0];
+  const isLive = !!activeSession;
+  const bestRated = session ? getBestRatedBeerInSession(session) : null;
+  const upcomingTerrace = getUpcomingTerraceEvents().find(e => e.status === 'confirmed');
+
+  return `
+    <div class="taproom-zone">
+      <div class="taproom-table ${isLive ? 'live' : ''}">
+        <div class="taproom-table-label taproom-section-title taproom-chalk-hoverable">
+          ${isLive ? `<span class="taproom-live-dot"></span>🍻 OUR TABLE — LIVE` : '🍻 Our Table'}
+        </div>
+        ${session ? `
+          <div class="taproom-table-tags">
+            <span class="taproom-coaster-tag">📅 ${isLive ? 'Today' : formatNiceDate(session.date)}</span>
+            ${session.location ? `<span class="taproom-location-tag">📍 ${escapeHtml(session.location)}</span>` : ''}
+          </div>
+          <div class="taproom-seats">
+            ${session.participantIds.map(id => {
+              const u = findUser(id);
+              return u ? `<div class="taproom-seat">${avatarHtml(u, 34)}<span class="taproom-seat-name">${escapeHtml(u.displayName)}</span></div>` : '';
+            }).join('')}
+          </div>
+          <div class="taproom-table-stats">
+            <span class="badge lilac">🍺 ${session.beerIds.length} beer${session.beerIds.length === 1 ? '' : 's'}${isLive ? ' on the table' : ' tasted'}</span>
+            ${bestRated ? `<span class="badge yellow">⭐ Best: ${escapeHtml(bestRated.beer.name)} — ${bestRated.avg}</span>` : ''}
+            ${session.perfectPourVotes.length ? `<span class="badge sky">🏆 ${session.perfectPourVotes.length} Perfect Pour${session.perfectPourVotes.length === 1 ? '' : 's'}</span>` : ''}
+          </div>
+          <div class="taproom-coaster-row" style="margin-top:14px;">
+            ${isLive ? `
+              <button type="button" class="taproom-coaster live" onclick="openSessionForm('edit','${session.id}')"><span class="taproom-coaster-icon">🍺</span>+1 Drink</button>
+              <button type="button" class="taproom-coaster live" onclick="openSessionForm('edit','${session.id}')"><span class="taproom-coaster-icon">⭐</span>Rate</button>
+              <button type="button" class="taproom-coaster live" onclick="openSessionForm('edit','${session.id}')"><span class="taproom-coaster-icon">➕</span>Add Beer</button>
+              <button type="button" class="taproom-coaster live" onclick="openSessionDetail('${session.id}')"><span class="taproom-coaster-icon">🏆</span>Perfect Pour</button>
+            ` : `
+              <button type="button" class="taproom-coaster" onclick="openSessionDetail('${session.id}')"><span class="taproom-coaster-icon">👁️</span>View Session</button>
+            `}
+          </div>
+        ` : `<p style="text-align:center; color:var(--chalk); font-weight:700;">Nog geen Beer Sessions gelogd.</p>`}
+
+        ${upcomingTerrace ? renderTaproomNextRoundCard(upcomingTerrace) : ''}
+
+        <div class="form-actions" style="justify-content:space-between; margin-top:14px;">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="switchBeerTab('sessions')">View all nights →</button>
+          ${!isLive ? `<button type="button" class="btn btn-primary btn-sm" onclick="quickNewBeerSession()">+ Start a Beer Session</button>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTaproomRegularsSection(){
+  const rows = APP_DATA.users.map(u => ({ user: u, xp: computeBeerXp(u.id) })).sort((a, b) => b.xp - a.xp);
+  if (!rows.length) return '<div></div>';
+  const runnerUp = rows[1];
+  const gap = runnerUp ? rows[0].xp - runnerUp.xp : null;
+
+  return `
+    <div class="taproom-chalkboard">
+      <div class="taproom-section-title taproom-chalk-hoverable">🪧 Today's Regulars</div>
+      ${rows.map((r, i) => `
+        <div class="taproom-chalkboard-row">
+          <span>${i === 0 ? '👑' : '🍺'} ${escapeHtml(r.user.displayName)}</span>
+          <span class="taproom-chalkboard-dots">.......................................................................</span>
+          <span class="taproom-chalkboard-xp">${r.xp} XP</span>
+        </div>
+      `).join('')}
+      ${(runnerUp && gap !== null) ? `<div class="taproom-chalkboard-note">Only ${gap} XP separate ${escapeHtml(runnerUp.user.displayName)} from the throne.</div>` : ''}
+    </div>
+  `;
+}
+
+function renderTaproomFridgePreviewSection(){
+  const topRated = APP_DATA.beers
+    .map(b => ({ beer: b, avg: getBeerAverageScore(b.id) }))
+    .filter(r => r.avg !== null)
+    .sort((a, b) => b.avg - a.avg)
+    .slice(0, 4);
+  return `
+    <div class="taproom-fridge">
+      <div class="section-head">
+        <h3 class="taproom-section-title taproom-chalk-hoverable">🍺 From the Beer Fridge</h3>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="switchBeerTab('database')">View all →</button>
+      </div>
+      ${topRated.length ? `<div class="grid cols-auto" style="margin-top:10px;">${topRated.map(r => renderBeerCard(r.beer)).join('')}</div>` : `<p style="color:var(--cream); font-weight:700; text-align:center; margin-top:10px;">Nog geen bieren geproefd.</p>`}
+    </div>
+  `;
+}
+
+function renderTaproomWallSection(){
+  const lordId = ABT_LORD_STATE.currentLordId;
+  const lord = lordId ? findUser(lordId) : null;
+  const mostConsumed = getMostConsumedBeer();
+  const highestRated = getExtremeRatedBeer('high');
+  const pourKing = getMasterOfThePourRows().find(r => r.total > 0);
+  const explorerRows = APP_DATA.users.map(u => ({ user: u, value: getBeerUniqueTriedCount(u.id) })).filter(r => r.value > 0).sort((a, b) => b.value - a.value);
+  const sessionsRow = getMostSessionsAttendedRow();
+
+  const plaques = [
+    lord ? { label: 'Current Abt Lord', value: `👑 ${lord.displayName}`, sub: `${computeBeerXp(lord.id)} XP` } : null,
+    mostConsumed ? { label: 'Most Drunk Beer', value: mostConsumed.beer.name, sub: `${mostConsumed.qty}×` } : null,
+    highestRated ? { label: 'Highest Rated Beer', value: highestRated.beer.name, sub: `${highestRated.avg}/10` } : null,
+    pourKing ? { label: 'Perfect Pour King', value: pourKing.user.displayName, sub: `${pourKing.total}` } : null,
+    explorerRows[0] ? { label: 'Most New Beers Tried', value: explorerRows[0].user.displayName, sub: `${explorerRows[0].value}` } : null,
+    sessionsRow ? { label: 'Most Sessions Attended', value: sessionsRow.user.displayName, sub: `${sessionsRow.value}` } : null,
+  ].filter(Boolean);
+
+  return `
+    <div class="taproom-wall">
+      <div class="section-head">
+        <h3 class="taproom-section-title taproom-chalk-hoverable">🏆 On The Wall</h3>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="switchBeerTab('leaderboards','records')">View All Records →</button>
+      </div>
+      ${plaques.length ? `
+        <div class="taproom-wall-grid">
+          ${plaques.map((p, i) => `
+            <div class="taproom-frame taproom-frame-${i % 3}">
+              <div class="taproom-frame-label">${escapeHtml(p.label)}</div>
+              <div class="taproom-frame-value">${escapeHtml(p.value)}</div>
+              <div class="taproom-frame-sub">${escapeHtml(p.sub)}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : `<p style="color:var(--chalk); font-weight:700; text-align:center; margin-top:10px;">Nog geen records. Begin met loggen!</p>`}
+    </div>
+  `;
+}
+
+function renderTaproomLastCallSection(){
+  const items = getTaproomLastCallItems();
+  return `
+    <div class="taproom-zone taproom-noticeboard">
+      <div class="taproom-section-title taproom-chalk-hoverable" style="text-align:center;">🔔 Last Call</div>
+      ${items.length ? items.map(i => `
+        <div class="taproom-note">${i.icon} ${escapeHtml(i.text)}<span class="taproom-note-time">${formatRelativeTime(i.at)}</span></div>
+      `).join('') : `<p style="text-align:center; color:var(--chalk); font-weight:700;">Nog geen recente activiteit.</p>`}
+    </div>
+  `;
+}
+
+function renderTaproomPage(data){
+  const lordId = ABT_LORD_STATE.currentLordId;
+
+  const portraitSection = `
+    <div class="taproom-portrait">
+      <div class="taproom-portrait-label taproom-chalk-hoverable">👑 BEHIND THE BAR</div>
+      <div class="taproom-portrait-frame">
+        ${lordId ? renderDynastyHeroCurrentLord(lordId) : `<div class="taproom-portrait-empty">${emptyState('The throne stands empty. Log a Beer Session to begin the dynasty! 👑')}</div>`}
+      </div>
+      <div style="margin-top:10px;">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="switchBeerTab('leaderboards','dynasty')">View Abt Dynasty →</button>
+      </div>
+    </div>
+  `;
+
+  return `
+    <div class="taproom-environment">
+      ${renderTaproomBackbar()}
+      ${renderTaproomBartop()}
+      <div class="taproom-zone taproom-composition-grid">
+        ${portraitSection}
+        ${renderTaproomRegularsSection()}
+      </div>
+      ${renderTaproomOurTableSection()}
+      <div class="taproom-zone taproom-composition-grid">
+        ${renderTaproomFridgePreviewSection()}
+        ${renderTaproomWallSection()}
+      </div>
+      ${renderTaproomLastCallSection()}
+    </div>
+  `;
+}
+
 /* ---- compact Beer XP-overzicht (Database/Sessions-tabs) ---- */
 function renderBeerXpOverview(){
   const rows = APP_DATA.users
@@ -6911,8 +7730,9 @@ function renderBeerLeaderboardsPage(data){
   `;
 
   return `
-    ${renderAbtDynastyHero()}
+    <div id="taproom-leaderboards-dynasty">${renderAbtDynastyHero()}</div>
     ${suspiciousPanel}
+    <div id="taproom-leaderboards-records"></div>
     ${podiumSection('👑', 'The Abt Lord — hoogste Beer XP', abtRows, fmtXp)}
     ${podiumSection('🍺', 'Beer King/Queen — meeste bieren gedronken', kingRows, fmtBeers)}
     ${podiumSection('🧭', 'Beer Explorer — meeste verschillende bieren geprobeerd', explorerRows, fmtUnique)}
@@ -7103,13 +7923,14 @@ function renderSacredRecordsSection(){
 /* ---- bierkaart (hergebruikt person-card styling) ---- */
 function renderBeerCard(beer){
   const avg = getBeerAverageScore(beer.id);
+  const perUser = getBeerRatingsPerUser(beer.id);
   return `
     <div class="sticker-card person-card" onclick="openBeerDetail('${beer.id}')">
       <div class="person-card-top">
         ${beerPhotoHtml(beer.photo, 58)}
         <div>
           <div class="person-card-name">${escapeHtml(beer.name)}</div>
-          <div class="person-card-desc" style="min-height:0;">${escapeHtml(beer.brewery)}</div>
+          <div class="person-card-desc" style="min-height:0;">${escapeHtml(beer.style)}</div>
         </div>
       </div>
       <div class="person-stats">
@@ -7117,27 +7938,125 @@ function renderBeerCard(beer){
         ${beer.abv != null ? `<span class="badge sky">${beer.abv}%</span>` : ''}
         ${beer.country ? `<span class="badge peach">${escapeHtml(beer.country)}</span>` : ''}
       </div>
+      ${perUser.length ? `
+        <div class="beer-card-user-ratings">
+          ${perUser.map(r => `<span>${r.user.avatarEmoji} ${escapeHtml(r.user.displayName)} <strong>${r.avg}</strong></span>`).join('')}
+        </div>
+      ` : ''}
       <div class="nickname-meta-row">
         <span class="stat-chip">⭐ ${avg !== null ? avg + '/10' : 'Nog geen score'}</span>
-        <span class="stat-chip">🍺 ${getBeerTotalQuantity(beer.id)}× gedronken</span>
+        <span class="stat-chip">🍺 Drank ${getBeerTotalQuantity(beer.id)}×</span>
       </div>
     </div>
   `;
 }
 
+/* Compacte rij-variant voor de List-weergave van de Beer Fridge --
+   zelfde onderliggende data als renderBeerCard, enkel platter voor
+   snel doorbladeren. */
+function renderBeerListRow(beer){
+  const avg = getBeerAverageScore(beer.id);
+  return `
+    <div class="row-item" onclick="openBeerDetail('${beer.id}')">
+      ${beerPhotoHtml(beer.photo, 34)}
+      <div class="info">
+        <div class="name">${escapeHtml(beer.name)}</div>
+        <div class="sub">${escapeHtml(beer.style)}${beer.abv != null ? ' · ' + beer.abv + '%' : ''}</div>
+      </div>
+      <div class="value">${avg !== null ? '⭐ ' + avg : '—'}</div>
+    </div>
+  `;
+}
+
+/* ---- The Beer Fridge: search + style-filter + Top Rated sort +
+   Bottles/List view, zelfde partial-rerender-op-een-mount-punt en
+   localStorage-view-voorkeur-patroon als de Nicknames Cards/Compact-
+   en zoek/filter-UI (NICKNAME_FILTER_STATE/NICKNAME_VIEW_STATE) --
+   geen nieuw patroon, hergebruikt. ---- */
+const BEER_FRIDGE_FILTER_STATE = { search: '', style: 'all', topRatedOnly: false };
+const BEER_FRIDGE_VIEW_MODE_STORAGE_KEY = 'officeLoreBeerFridgeViewMode';
+function loadBeerFridgeViewMode(){
+  try {
+    const saved = localStorage.getItem(BEER_FRIDGE_VIEW_MODE_STORAGE_KEY);
+    if (saved === 'bottles' || saved === 'list') return saved;
+  } catch (e) { /* private browsing etc. */ }
+  return 'bottles';
+}
+const BEER_FRIDGE_VIEW_STATE = { mode: loadBeerFridgeViewMode() };
+
+function switchBeerFridgeViewMode(mode){
+  BEER_FRIDGE_VIEW_STATE.mode = mode;
+  try { localStorage.setItem(BEER_FRIDGE_VIEW_MODE_STORAGE_KEY, mode); } catch (e) { /* private browsing etc. */ }
+  rerenderBeerFridgeResults();
+}
+
+function updateBeerFridgeSearch(value){
+  BEER_FRIDGE_FILTER_STATE.search = value;
+  rerenderBeerFridgeResults();
+}
+function updateBeerFridgeStyleFilter(style){
+  BEER_FRIDGE_FILTER_STATE.style = style;
+  rerenderBeerFridgeResults();
+}
+function toggleBeerFridgeTopRated(){
+  BEER_FRIDGE_FILTER_STATE.topRatedOnly = !BEER_FRIDGE_FILTER_STATE.topRatedOnly;
+  rerenderBeerFridgeResults();
+}
+
+function getFilteredBeers(){
+  const q = BEER_FRIDGE_FILTER_STATE.search.trim().toLowerCase();
+  let beers = APP_DATA.beers.filter(b => {
+    if (BEER_FRIDGE_FILTER_STATE.style !== 'all' && b.style !== BEER_FRIDGE_FILTER_STATE.style) return false;
+    if (q && !(`${b.name} ${b.brewery} ${b.style}`.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  if (BEER_FRIDGE_FILTER_STATE.topRatedOnly){
+    beers = beers.filter(b => getBeerAverageScore(b.id) !== null).sort((a, b) => getBeerAverageScore(b.id) - getBeerAverageScore(a.id));
+  }
+  return beers;
+}
+
+function renderBeerFridgeResultsHtml(){
+  const beers = getFilteredBeers();
+  if (!beers.length) return emptyState('Geen bieren gevonden. Pas je zoekopdracht of filter aan.');
+  if (BEER_FRIDGE_VIEW_STATE.mode === 'list') return `<div class="row-list">${beers.map(renderBeerListRow).join('')}</div>`;
+  return `<div class="grid cols-wide-lg">${beers.map(renderBeerCard).join('')}</div>`;
+}
+
+function rerenderBeerFridgeResults(){
+  const mount = document.getElementById('beer-fridge-results-mount');
+  if (mount) mount.innerHTML = renderBeerFridgeResultsHtml();
+}
+
 function renderBeerDatabase(data){
+  const styles = Array.from(new Set(data.beers.map(b => b.style).filter(Boolean))).sort();
   return `
     <section class="section">
       <div class="section-head">
-        <h3>🍺 Beer Database</h3>
+        <h3 class="taproom-section-title">🍺 The Beer Fridge</h3>
         <div class="people-toolbar">
           <span class="count-chip">${data.beers.length}</span>
           <button type="button" class="btn btn-primary" onclick="openBeerForm('add')">+ Nieuw bier</button>
         </div>
       </div>
-      ${data.beers.length
-        ? `<div class="grid cols-wide-lg">${data.beers.map(renderBeerCard).join('')}</div>`
-        : emptyState('Nog geen bieren. Klik op "+ Nieuw bier" om te beginnen.')}
+
+      <div class="form-field">
+        <label class="form-label" for="beer-fridge-search">🔎 What's in the fridge?</label>
+        <input class="form-input" id="beer-fridge-search" type="text" placeholder="Zoek op naam, brouwerij of stijl..." value="${escapeHtml(BEER_FRIDGE_FILTER_STATE.search)}" oninput="updateBeerFridgeSearch(this.value)">
+      </div>
+
+      <div class="people-toolbar" style="margin-top:10px; flex-wrap:wrap; gap:8px;">
+        <button type="button" class="nav-btn ${BEER_FRIDGE_FILTER_STATE.style === 'all' ? 'active' : ''}" onclick="updateBeerFridgeStyleFilter('all')">All</button>
+        ${styles.map(s => `<button type="button" class="nav-btn ${BEER_FRIDGE_FILTER_STATE.style === s ? 'active' : ''}" onclick="updateBeerFridgeStyleFilter('${escapeJs(s)}')">${escapeHtml(s)}</button>`).join('')}
+        <button type="button" class="nav-btn ${BEER_FRIDGE_FILTER_STATE.topRatedOnly ? 'active' : ''}" onclick="toggleBeerFridgeTopRated()">🔥 Top Rated</button>
+      </div>
+
+      <div class="people-toolbar" style="margin-top:10px;">
+        <button type="button" class="nav-btn ${BEER_FRIDGE_VIEW_STATE.mode === 'bottles' ? 'active' : ''}" onclick="switchBeerFridgeViewMode('bottles')">▦ Bottles</button>
+        <button type="button" class="nav-btn ${BEER_FRIDGE_VIEW_STATE.mode === 'list' ? 'active' : ''}" onclick="switchBeerFridgeViewMode('list')">☰ List</button>
+      </div>
+
+      <div id="beer-fridge-results-mount" style="margin-top:14px;">${renderBeerFridgeResultsHtml()}</div>
     </section>
   `;
 }
@@ -7279,9 +8198,15 @@ function backToBeerDatabase(){
   renderPage();
 }
 
-function switchBeerTab(view){
+function switchBeerTab(view, scrollTarget){
   BEER_STATE.view = view;
+  BEER_STATE.leaderboardsScrollTarget = view === 'leaderboards' ? (scrollTarget || null) : null;
   renderPage();
+  if (scrollTarget){
+    document.getElementById(`taproom-leaderboards-${scrollTarget}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
 /* ---- add/edit bier-formulier (in een modal) ---- */
