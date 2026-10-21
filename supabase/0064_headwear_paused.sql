@@ -1,0 +1,12 @@
+-- =================================================================
+-- OFFICE LORE — headwear is paused (for now)
+-- =================================================================
+-- Headwear is taken out of the Mystery drops and cannot be worn on the Personal
+-- Character for the time being. Nothing is deleted: the catalogue, the Abt Lord's
+-- wardrobe, reign milestones and Daily Picks are untouched, and anything anybody
+-- already owns stays owned. To switch it back on:
+--     update public.abt_cosmetic_items set mystery_eligible = true where category = 'headwear' and <the sets you want>;
+-- (equip_room_item only accepts items that are mystery_eligible, so this one flag is the switch).
+-- Additive + idempotent. Run after 0063.
+-- =================================================================
+update public.abt_cosmetic_items set mystery_eligible = false where category = 'headwear' and mystery_eligible;
