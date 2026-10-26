@@ -4195,12 +4195,12 @@
     .hm-fence{background:repeating-linear-gradient(90deg,#f2e8d0 0 1.3cqw,transparent 1.3cqw 2.4cqw);height:100%;border-top:.3cqw solid #2b2320;clip-path:polygon(0 25%,100% 25%,100% 100%,0 100%);opacity:.95}
     .hm-deck{position:absolute;left:0;right:0;top:44cqw;bottom:0;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent 10%),repeating-linear-gradient(90deg,rgba(0,0,0,.2) 0 .25cqw,transparent .25cqw 6cqw),repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 .2cqw,transparent .2cqw 4.2cqw),linear-gradient(180deg,#c9925c,#a8703c);border-top:.7cqw solid #5e3a1d;z-index:1}
     .hm.night .hm-deck{filter:brightness(.62)}
-    .hm-lights{position:absolute;left:0;right:0;top:36cqw;height:12cqw;z-index:6;pointer-events:none}
+    .hm-lights{position:absolute;left:0;right:0;top:29cqw;height:12cqw;z-index:3;pointer-events:none}   /* hangs behind the people, never across their faces */
     .hm-lights svg{width:100%;height:100%;overflow:visible}
     .hm-bulb{animation:hm-bulb 2.6s ease-in-out infinite}
     @keyframes hm-bulb{0%,100%{opacity:.85}50%{opacity:1}}
     .hm .hm-glowbulb{filter:drop-shadow(0 0 calc(.5cqw * var(--glow)) #ffd24a)}
-    .hm-pole{position:absolute;top:35cqw;width:.9cqw;height:26cqw;background:linear-gradient(90deg,#7a4a22,#5e3a1d);border:.25cqw solid #2b2320;z-index:5}
+    .hm-pole{position:absolute;top:30cqw;width:.9cqw;height:31cqw;background:linear-gradient(90deg,#7a4a22,#5e3a1d);border:.25cqw solid #2b2320;z-index:5}
     /* people */
     .hm-person{position:absolute;left:var(--cx);top:var(--ty);width:var(--cw);transform:translateX(-50%);z-index:4;cursor:pointer;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
     .hm-person:hover{transform:translateX(-50%) translateY(-1cqw)}
