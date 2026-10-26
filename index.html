@@ -6,7 +6,7 @@
 <title>Tripel Tales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600;700&family=Rye&family=Chewy&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600;700&family=Rye&family=Chewy&family=Fredoka:wght@500;600;700&family=IM+Fell+English:ital@0;1&family=Special+Elite&family=Cinzel:wght@600;800&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* =========================================================
@@ -48,11 +48,14 @@
 
   html, body{
     margin:0; padding:0;
+    /* warm cream leather: the quiet floor every themed room (Pool hall, Taproom, Quest Board...) lies on */
     background:
-      radial-gradient(circle at 8% 12%, rgba(255,209,227,.5), transparent 40%),
-      radial-gradient(circle at 92% 18%, rgba(191,227,255,.5), transparent 42%),
-      radial-gradient(circle at 50% 95%, rgba(185,242,217,.45), transparent 45%),
-      var(--paper);
+      radial-gradient(ellipse at 50% 0, rgba(255,255,255,.55), transparent 60%),
+      radial-gradient(circle, rgba(110,70,30,.10) 1px, transparent 1.5px) 0 0 / 9px 9px,
+      radial-gradient(circle, rgba(110,70,30,.07) 1px, transparent 1.5px) 4px 5px / 13px 13px,
+      radial-gradient(ellipse at 50% 120%, rgba(120,70,30,.30), transparent 60%),
+      linear-gradient(180deg, #f2e5c9, #e6d3ab);
+    background-attachment: fixed;
     color: var(--ink);
     font-family: var(--font-body);
     min-height: 100vh;
@@ -330,12 +333,16 @@
   }
 
   .page-header h2{
-    font-size: 26px;
+    font-family: 'Chewy', var(--font-display);
+    font-weight: 400;
+    letter-spacing: .02em;
+    font-size: 32px;
+    color: #4a2e1b;
   }
 
   .page-header .sub{
     font-size: 14px;
-    color: #8a7a6b;
+    color: #7a5b3a;
     font-weight: 700;
     margin-top: 4px;
   }
@@ -3679,6 +3686,192 @@
   .emoji-key:hover, .emoji-key:active{ background: rgba(0,0,0,.08); }
 
 
+
+
+  /* =========================================================
+     Poetry Wall as an elven glade: real parchment scrolls (rolled at both ends) in soft morning light, leaves and fireflies
+  ========================================================= */
+  .pw-room{ position: relative; margin: 0 0 20px; padding: 28px 24px 14px; border: 4px solid #2b2320; border-radius: 30px; box-shadow: 7px 8px 0 #2b2320; overflow: clip;
+    background:
+      conic-gradient(from 200deg at 8% -8%, rgba(255,250,200,.0) 0deg, rgba(255,250,200,.55) 12deg, rgba(255,250,200,0) 24deg, rgba(255,250,200,.4) 38deg, rgba(255,250,200,0) 52deg, rgba(255,250,200,.35) 66deg, rgba(255,250,200,0) 80deg),
+      radial-gradient(ellipse 55% 45% at 90% 100%, rgba(70,140,80,.45), transparent 70%),
+      radial-gradient(ellipse 45% 40% at 5% 95%, rgba(90,160,90,.4), transparent 70%),
+      radial-gradient(ellipse 60% 30% at 50% 0, rgba(255,255,230,.9), transparent 70%),
+      linear-gradient(180deg, #eaf5d6, #c5e3b4 55%, #9fcf93); }
+  .pw-room::before, .pw-room::after{ position: absolute; font-size: 74px; line-height: 1; opacity: .75; pointer-events: none; z-index: 0; filter: drop-shadow(0 3px 0 rgba(43,35,32,.25)); }
+  .pw-room::before{ content: "🌿🍃"; left: -6px; top: -14px; transform: rotate(18deg); }
+  .pw-room::after{ content: "🍃🌿"; right: -4px; bottom: -16px; transform: rotate(198deg); }
+  .pw-room > *{ position: relative; z-index: 1; }
+  .pw-motes{ position: sticky; top: 0; height: 100vh; margin: -28px -24px -100vh; overflow: hidden; pointer-events: none; z-index: 0 !important; }
+  .pw-motes i{ position: absolute; left: var(--x); bottom: -4%; width: var(--s); height: var(--s); border-radius: 50%; background: radial-gradient(circle, #fffbd0, rgba(255,225,110,0) 70%); box-shadow: 0 0 12px 4px rgba(255,235,120,.8); opacity: 0; animation: pw-rise var(--d) ease-in var(--dl) infinite; }
+  @keyframes pw-rise{ 0%{ transform: translate(0, 0) scale(.6); opacity: 0; } 12%{ opacity: .95; } 50%{ transform: translate(calc(var(--w) * 1px), -50vh) scale(1); } 90%{ opacity: .6; } 100%{ transform: translate(calc(var(--w) * -.8px), -108vh) scale(.5); opacity: 0; } }
+  .pw-motes b{ position: absolute; left: var(--x); top: -6%; font-size: var(--s); font-weight: 400; opacity: 0; animation: pw-fall var(--d) linear var(--dl) infinite; filter: drop-shadow(0 2px 0 rgba(43,35,32,.2)); }
+  @keyframes pw-fall{ 0%{ transform: translate(0, 0) rotate(0); opacity: 0; } 8%{ opacity: .9; } 50%{ transform: translate(calc(var(--w) * 1px), 55vh) rotate(180deg); } 92%{ opacity: .8; } 100%{ transform: translate(calc(var(--w) * -.7px), 112vh) rotate(380deg); opacity: 0; } }
+  .pw-banner{ text-align: center; margin: 0 auto 40px; max-width: 660px; padding: 18px 30px 20px; color: #3a2713; position: relative;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.55), transparent 50%), #f1dfae; border: 3px solid #2b2320; border-radius: 6px; box-shadow: 0 0 0 3px #6a9a4a, 0 0 28px 4px rgba(255,240,150,.8), 4px 7px 0 rgba(0,0,0,.4), inset 0 0 28px rgba(120,70,20,.4); }
+  .pw-banner b{ display: block; font: italic 400 32px 'IM Fell English', serif; letter-spacing: .02em; text-shadow: 0 0 12px rgba(255,235,140,.95); }
+  .pw-banner small{ display: block; font: italic 400 15px 'IM Fell English', serif; color: #5a4a22; margin-top: 2px; }
+  .pw-banner::before, .pw-banner::after{ content: "🍃"; position: absolute; top: 50%; margin-top: -16px; font-size: 28px; animation: pw-sway 4s ease-in-out infinite; }
+  .pw-banner::before{ left: 16px; } .pw-banner::after{ right: 16px; animation-delay: -2s; transform: scaleX(-1); }
+  @keyframes pw-sway{ 0%, 100%{ rotate: -12deg; } 50%{ rotate: 12deg; } }
+  .pw-orb{ position: absolute; top: 24px; width: 34px; height: 34px; border-radius: 50%; z-index: 2; pointer-events: none; background: radial-gradient(circle at 40% 35%, #fff, #fff3a0 45%, rgba(255,220,90,.0) 72%); box-shadow: 0 0 24px 10px rgba(255,235,120,.85); animation: pw-bob 4s ease-in-out infinite; }
+  .pw-orb.l{ left: 28px; } .pw-orb.r{ right: 28px; animation-delay: -2s; background: radial-gradient(circle at 40% 35%, #fff, #d4ffb0 45%, rgba(150,230,100,0) 72%); box-shadow: 0 0 24px 10px rgba(180,255,130,.8); }
+  @keyframes pw-bob{ 0%, 100%{ transform: translate(0, 0); } 50%{ transform: translate(6px, -10px); } }
+  /* a section = a real scroll: a parchment sheet between two rolled ends with wooden knobs */
+  .pw-room .section{ margin: 40px 14px 52px; padding: 46px 28px 46px; border: 0; border-radius: 2px; color: #3a2713;
+    background:
+      linear-gradient(180deg, rgba(70,40,10,.38), transparent 56px),
+      linear-gradient(0deg, rgba(70,40,10,.38), transparent 56px),
+      linear-gradient(90deg, rgba(120,70,20,.30), transparent 28px, transparent calc(100% - 28px), rgba(120,70,20,.30)),
+      radial-gradient(ellipse at 15% 20%, rgba(255,255,255,.6), transparent 45%), radial-gradient(circle at 78% 70%, rgba(150,100,40,.16) 0 26px, transparent 27px), radial-gradient(circle at 12% 88%, rgba(150,100,40,.13) 0 16px, transparent 17px),
+      repeating-linear-gradient(8deg, rgba(120,80,30,.045) 0 2px, transparent 2px 7px), #f2e1b0;
+    box-shadow: inset 0 0 0 2px rgba(120,80,30,.32), 6px 9px 0 rgba(43,35,32,.38); }
+  .pw-room .section::before, .pw-room .section::after{ content: ""; position: absolute; left: -22px; right: -22px; height: 34px; z-index: 3; border-radius: 6px;
+    background:
+      radial-gradient(circle at 13px 50%, #c58a4e 0 6px, #7a4a22 7px 10px, #2b2320 11px 12px, transparent 13px),
+      radial-gradient(circle at calc(100% - 13px) 50%, #c58a4e 0 6px, #7a4a22 7px 10px, #2b2320 11px 12px, transparent 13px),
+      linear-gradient(180deg, #c9a15e 0%, #f7e8bd 28%, #fff4d0 42%, #e4c987 66%, #a8793a 100%) 24px 0 / calc(100% - 48px) 100% no-repeat;
+    filter: drop-shadow(0 4px 0 rgba(43,35,32,.45)); }
+  .pw-room .section::before{ top: -22px; } .pw-room .section::after{ bottom: -22px; }
+  .pw-room .section > .section-head h3, .pw-room .section h3{ font: italic 400 29px 'IM Fell English', serif; color: #3a2713; letter-spacing: .01em; }
+  .pw-room .section .section-head{ border-bottom: 2px solid transparent; border-image: linear-gradient(90deg, transparent, #7a5a28 20%, #7a5a28 80%, transparent) 1; padding-bottom: 8px; margin-bottom: 18px; }
+  .pw-room .section .count-chip{ width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; padding: 0; font: 400 18px 'Chewy', cursive; color: #f4ffe0; border: 3px solid #1d4a22; background: radial-gradient(circle at 35% 30%, #8ee08a, #2f9a45 60%, #1d6a30); box-shadow: 0 0 10px rgba(120,220,120,.7), inset -3px -3px 5px rgba(0,0,0,.25); }
+  .pw-room .section .ch-note, .pw-room .section .sub{ color: #6b4a22; }
+  .pw-room .section .sticker-card{ background: linear-gradient(165deg, #fffdf6, #fbf2da); }
+  .pw-room .section .poem-card:not(.pbg){ border-color: #2b2320; }
+  .pw-room .challenge-card, .pw-room .challenge-accepted-banner{ background: repeating-linear-gradient(0deg, transparent 0 29px, rgba(120,80,30,.14) 29px 30px), #f8ebc3; border: 3px solid transparent; border-radius: 6px; box-shadow: none; color: #3a2713;
+    background-clip: padding-box; outline: 2px dashed rgba(90,50,10,.5); outline-offset: -8px; }
+  .pw-room .challenge-prompt-text{ font-family: 'IM Fell English', serif; font-style: italic; font-size: 20px; }
+  .pw-room .laureate-card, .pw-room .potm-banner{ background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.65), transparent 60%), linear-gradient(180deg, #f8e7a6, #efd27a); border: 4px double #9a6d0a; color: #3a2713; box-shadow: inset 0 0 30px rgba(180,120,20,.35); }
+  .pw-room .laureate-card *, .pw-room .potm-banner-label{ color: #3a2713; }
+  .pw-room .laureate-name{ font-family: 'IM Fell English', serif; }
+  .pw-room .laureate-subtitle{ font-family: 'IM Fell English', serif; font-style: italic; }
+  /* spell buttons: the primary is a forest-green wax seal, the rest are inked parchment */
+  .pw-room .btn{ font-family: 'Cinzel', serif; font-weight: 800; letter-spacing: .05em; text-transform: none; transition: transform .2s cubic-bezier(.3,1.6,.5,1), box-shadow .2s; }
+  .pw-room .btn:hover{ transform: translateY(-2px) rotate(-1deg); }
+  .pw-room .btn-primary{ color: #fff3c0; background: radial-gradient(circle at 30% 22%, #5fc46a, #2b8a40 58%, #17582a); border: 3px solid #0f3a1b; box-shadow: 0 4px 0 #0a2812, inset 0 0 0 2px rgba(255,235,140,.55), 0 0 14px rgba(150,230,120,.4); text-shadow: 0 2px 0 rgba(0,0,0,.4); }
+  .pw-room .btn-primary:hover{ box-shadow: 0 6px 0 #0a2812, inset 0 0 0 2px rgba(255,235,140,.75), 0 0 24px rgba(200,255,140,.9); }
+  .pw-room .btn-secondary{ color: #4a2e10; background: radial-gradient(circle at 30% 20%, #fff7da, #f1dfae 70%, #e2c882); border: 3px double #8a5a35; box-shadow: 0 4px 0 rgba(70,40,10,.55), inset 0 0 12px rgba(150,100,40,.25); }
+  .pw-room .btn-secondary:hover{ box-shadow: 0 6px 0 rgba(70,40,10,.55), 0 0 18px rgba(230,255,150,.95), inset 0 0 12px rgba(150,100,40,.25); }
+  .pw-room .btn-ghost{ color: #5a3a14; background: transparent; border: 2px dashed rgba(90,50,10,.6); box-shadow: none; }
+  .pw-room .btn-danger{ color: #ffe9e0; background: linear-gradient(180deg, #b0343c, #7a1822); border: 3px solid #3a0a10; box-shadow: 0 4px 0 #2a060b; }
+  .pw-room .badge{ font-family: 'Cinzel', serif; font-weight: 800; background: #f0dba0; color: #5a3a14; border: 2px solid #8a5a35; }
+  .pw-room .badge.yellow{ background: #ffe08a; border-color: #b3760f; }
+  .pw-room > .section:last-child{ margin-bottom: 36px; }
+  @media (max-width: 640px){ .pw-room{ padding: 20px 10px 8px; } .pw-room .section{ margin: 36px 6px 46px; padding: 42px 14px 40px; } .pw-room .section::before, .pw-room .section::after{ left: -12px; right: -12px; } .pw-banner b{ font-size: 25px; } .pw-banner::before, .pw-banner::after{ display: none; } .pw-orb{ width: 24px; height: 24px; top: 14px; } .pw-orb.l{ left: 12px; } .pw-orb.r{ right: 12px; } .pw-room::before, .pw-room::after{ font-size: 50px; } }
+  @media (prefers-reduced-motion: reduce){ .pw-orb, .pw-banner::before, .pw-banner::after{ animation: none; } .pw-motes{ display: none; } }
+
+  /* the Wall: worn old parchments, nailed up on twine so they cannot fly away (bits do still flake off) */
+  .pw-room .pbg-wrap{ position: relative; padding-top: 30px; transform-origin: 50% 8px; animation: pw-sway-card 7s ease-in-out infinite; filter: drop-shadow(3px 5px 0 rgba(43,35,32,.4)); }
+  .pw-room .pbg-wrap:nth-child(3n+2){ animation-delay: -2.3s; animation-duration: 8s; } .pw-room .pbg-wrap:nth-child(3n){ animation-delay: -4.6s; animation-duration: 6.4s; }
+  @keyframes pw-sway-card{ 0%, 100%{ transform: rotate(-1.1deg); } 50%{ transform: rotate(1.1deg); } }
+  .pw-room .pbg-wrap::before{ content: ""; position: absolute; top: 2px; left: 50%; width: 15px; height: 15px; margin-left: -7px; border-radius: 50%; z-index: 4;
+    background: radial-gradient(circle at 35% 30%, #f3f0e6, #9a9a94 55%, #4b4b47); border: 2px solid #2b2320; box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+  .pw-room .pbg-wrap::after{ content: ""; position: absolute; top: 9px; left: 12%; right: 12%; height: 26px; z-index: 3; pointer-events: none;
+    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'><path d='M50 1 L8 30 M50 1 L92 30' stroke='%236b4a22' stroke-width='2.4' fill='none' stroke-dasharray='3 1.3' vector-effect='non-scaling-stroke'/></svg>") center / 100% 100% no-repeat; }
+  .pw-room .pw-bit{ display: block; position: absolute; right: 6%; bottom: 14%; width: 11px; height: 9px; background: #d8bd82; border: 1px solid rgba(90,50,10,.55); z-index: 5; opacity: 0; clip-path: polygon(0 20%, 40% 0, 100% 35%, 80% 100%, 20% 85%); animation: pw-flake 6s ease-in infinite; pointer-events: none; }
+  .pw-room .pw-bit.b{ right: auto; left: 5%; bottom: 40%; width: 8px; height: 7px; animation-delay: -3s; animation-duration: 7.5s; }
+  .pw-room .pbg-wrap:nth-child(2n) .pw-bit{ animation-delay: -1.5s; } .pw-room .pbg-wrap:nth-child(3n) .pw-bit.b{ animation-delay: -5s; }
+  @keyframes pw-flake{ 0%, 55%{ transform: translate(0, 0) rotate(0); opacity: 0; } 62%{ opacity: .95; } 100%{ transform: translate(26px, 74px) rotate(300deg); opacity: 0; } }
+  .pw-room .pbg-wrap-none > .poem-card{ position: relative; border: 0; color: #3a2713; padding: 24px 22px 20px;
+    background: radial-gradient(ellipse at 20% 12%, rgba(255,255,255,.5), transparent 45%), radial-gradient(circle at 78% 82%, rgba(120,70,20,.22) 0 22px, transparent 40px), radial-gradient(circle at 10% 70%, rgba(120,70,20,.16) 0 12px, transparent 24px),
+      repeating-linear-gradient(8deg, rgba(120,80,30,.05) 0 2px, transparent 2px 7px), linear-gradient(180deg, #ead69c, #d9bd83);
+    box-shadow: inset 0 0 22px 6px rgba(100,55,10,.55), inset 0 0 0 2px rgba(90,45,5,.3);
+    clip-path: polygon(0 3%, 6% 0, 13% 4%, 22% 0, 33% 3%, 43% 0, 55% 4%, 66% 1%, 78% 4%, 88% 0, 100% 4%, 98% 15%, 100% 27%, 97% 40%, 100% 52%, 97% 63%, 100% 76%, 96% 88%, 100% 100%, 90% 96%, 80% 100%, 68% 97%, 56% 100%, 44% 96%, 32% 100%, 20% 97%, 9% 100%, 0 97%, 3% 84%, 0 72%, 4% 58%, 0 46%, 3% 33%, 0 20%, 3% 10%);
+    -webkit-mask-image: radial-gradient(circle 9px at 93% 24%, transparent 96%, #000), radial-gradient(circle 6px at 90% 68%, transparent 96%, #000); -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .pw-room .pbg-wrap-none:nth-child(3n+2) > .poem-card{ clip-path: polygon(0 5%, 8% 1%, 17% 5%, 27% 0, 38% 4%, 50% 1%, 62% 5%, 73% 0, 85% 3%, 100% 0, 97% 12%, 100% 24%, 98% 37%, 100% 50%, 96% 62%, 100% 75%, 97% 88%, 100% 97%, 88% 100%, 76% 96%, 63% 100%, 50% 97%, 37% 100%, 25% 96%, 12% 100%, 0 96%, 3% 83%, 0 70%, 4% 56%, 0 43%, 3% 30%, 0 16%);
+    -webkit-mask-image: radial-gradient(circle 8px at 8% 30%, transparent 96%, #000), radial-gradient(circle 10px at 94% 80%, transparent 96%, #000); }
+  .pw-room .pbg-wrap-none:nth-child(3n) > .poem-card{ clip-path: polygon(0 0, 10% 4%, 20% 0, 31% 4%, 42% 1%, 54% 4%, 66% 0, 77% 3%, 89% 0, 100% 3%, 97% 17%, 100% 30%, 96% 44%, 100% 58%, 97% 70%, 100% 83%, 95% 94%, 100% 100%, 86% 97%, 74% 100%, 60% 96%, 47% 100%, 33% 97%, 21% 100%, 8% 96%, 0 100%, 4% 86%, 0 74%, 3% 60%, 0 47%, 4% 34%, 0 20%, 3% 9%); }
+  .pw-room .pbg-wrap-none > .poem-card::before{ content: none; }
+  .pw-room .pbg-wrap-none > .poem-card .poem-title{ font: italic 400 22px 'IM Fell English', serif; }
+  .pw-room .pbg-wrap-none > .poem-card .poem-body{ font-family: 'IM Fell English', serif; font-size: 16px; line-height: 1.4; color: #3a2713; }
+  .pw-room .pbg-wrap-none > .poem-card .poem-read-more{ font-family: 'IM Fell English', serif; font-style: italic; font-size: 16px; color: #7a3a14; }
+  .pw-room .pbg-wrap > .poem-card:hover{ transform: none; }
+  .pw-room .pbg-wrap:hover{ animation-play-state: paused; }
+  /* the Challenge Board: a plain honour roll, one line per category */
+  .pw-honor{ list-style: none; margin: 0; padding: 0; }
+  .pw-honor-row{ display: flex; align-items: center; justify-content: space-between; gap: 12px 18px; flex-wrap: wrap; padding: 11px 4px; border-bottom: 2px dashed rgba(90,50,10,.35); }
+  .pw-honor-row:last-child{ border-bottom: 0; }
+  .pw-honor-title{ font: italic 400 20px 'IM Fell English', serif; color: #3a2713; }
+  .pw-honor-list{ display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .pw-honor-chip{ display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px 3px 8px; border: 2px solid #8a5a35; border-radius: 999px; background: #f6e8bd; font: 700 13px 'Cinzel', serif; color: #4a2e10; box-shadow: 0 2px 0 rgba(70,40,10,.4); }
+  .pw-honor-chip b{ color: #7a1d12; }
+  .pw-honor-chip.pw-honor-poem{ cursor: pointer; } .pw-honor-chip.pw-honor-poem:hover{ background: #fff3c4; box-shadow: 0 2px 0 rgba(70,40,10,.4), 0 0 14px rgba(230,255,150,.95); }
+  .pw-honor-none{ font: italic 400 15px 'IM Fell English', serif; color: #8a7a6b; }
+  @media (max-width: 640px){ .pw-honor-row{ flex-direction: column; align-items: flex-start; } .pw-honor-list{ justify-content: flex-start; } }
+  @media (prefers-reduced-motion: reduce){ .pw-room .pbg-wrap, .pw-room .pw-bit{ animation: none; } }
+
+  /* =========================================================
+     Poem backgrounds (0087): earned looks for a poem
+  ========================================================= */
+  .pbg-wrap{ display: block; }
+  .pbg-wrap-torn{ filter: drop-shadow(4px 6px 0 rgba(43,35,32,.4)); }
+  .pbg{ position: relative; overflow: hidden; }
+  .pbg > *{ position: relative; z-index: 2; }
+  .pbg > .pbg-deco, .pbg > .pbg-deco > *{ pointer-events: none; }
+  .pbg > .pbg-deco{ position: absolute; inset: 0; z-index: 1; }
+  .pbg.poem-card::before{ content: none; }
+  .pbg .poem-title, .pbg .poem-body, .pbg .poem-body-preview, .pbg .nickname-person, .pbg .poem-context{ color: inherit; }
+  .pbg .poem-read-more{ color: inherit; opacity: .8; }
+  .pbg .poem-body-preview{ max-height: none; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .pbg-sheet{ padding: 26px 24px 20px; margin: 4px 0 6px; border-radius: 12px; }
+  .pbg-sheet .poem-title-sheet{ font-size: 28px; line-height: 1.05; margin: 0 0 10px; }
+  .pbg-sheet .poem-body{ font-size: 18px; line-height: 1.5; }
+  .pbg-sheet .pbg-by{ margin-top: 14px; font-size: 14px; opacity: .85; }
+  .poem-card.pbg{ padding: 22px 20px 16px; }
+  /* 1 parchment */
+  .pbg-parch{ background: radial-gradient(ellipse at 20% 15%, rgba(255,255,255,.5), transparent 45%), radial-gradient(ellipse at 85% 90%, rgba(120,70,20,.35), transparent 50%), radial-gradient(circle at 70% 30%, rgba(150,100,40,.18) 0 18px, transparent 19px), #ecd9a8; color: #3a2713; border-radius: 6px 14px 8px 18px / 12px 6px 16px 8px; border: 0; box-shadow: inset 0 0 0 3px rgba(120,80,30,.35), inset 0 0 60px rgba(120,70,20,.55), 4px 6px 0 rgba(43,35,32,.35); }
+  .pbg-parch .poem-title, .pbg-parch .poem-title-sheet{ font: italic 400 24px 'IM Fell English', serif; }
+  .pbg-parch .poem-body{ font-family: 'IM Fell English', serif; font-size: 17px; line-height: 1.4; }
+  /* 2 magic scroll */
+  .pbg-magic{ background: radial-gradient(ellipse at 50% 0, rgba(255,230,150,.35), transparent 55%), linear-gradient(180deg, #3b2468, #241446); color: #fff0c8; border: 3px solid #d9a21b; border-radius: 16px; box-shadow: 0 0 0 3px #2b2320, 0 0 24px rgba(190,140,255,.7), inset 0 0 40px rgba(255,210,100,.25); padding-bottom: 34px !important; }
+  .pbg-magic .poem-title, .pbg-magic .poem-title-sheet{ font: 800 19px 'Cinzel', serif; letter-spacing: .06em; text-shadow: 0 0 12px #ffd24a; }
+  .pbg-magic .poem-body{ font: 600 15px/1.45 'Cinzel', serif; text-shadow: 0 0 6px rgba(255,220,120,.5); }
+  .pbg-magic::after{ content: "ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ"; position: absolute; left: 0; right: 0; bottom: 6px; text-align: center; letter-spacing: .3em; font-size: 13px; color: rgba(255,220,120,.55); animation: pbg-rune 4s ease-in-out infinite; z-index: 1; }
+  @keyframes pbg-rune{ 0%, 100%{ opacity: .35; } 50%{ opacity: .9; } }
+  .pbg-deco .tw{ position: absolute; color: #ffe58a; font-style: normal; text-shadow: 0 0 8px #ffd24a; animation: pbg-tw 3s ease-in-out infinite; }
+  @keyframes pbg-tw{ 0%, 100%{ opacity: .2; transform: scale(.6) rotate(0); } 50%{ opacity: 1; transform: scale(1.2) rotate(40deg); } }
+  /* 3 love letter */
+  .pbg-love{ background: repeating-linear-gradient(0deg, transparent 0 31px, rgba(214,120,150,.25) 31px 32px), linear-gradient(180deg, #fff4f6, #ffe3ea); color: #7a2440; border: 0; border-radius: 4px; box-shadow: inset 0 0 0 7px #fff4f6, inset 0 0 0 9px #f4a9bd, 4px 6px 0 rgba(43,35,32,.35); }
+  .pbg-love .poem-title, .pbg-love .poem-title-sheet{ font: 700 28px 'Caveat', cursive; }
+  .pbg-love .poem-body{ font: 500 21px/32px 'Caveat', cursive; }
+  .pbg-deco .seal{ position: absolute; right: 16px; bottom: 14px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff7d8b, #c8283f 60%, #8f1428); border: 3px solid #6e0f20; display: grid; place-items: center; font-size: 20px; box-shadow: 0 4px 0 rgba(0,0,0,.3); transform: rotate(-12deg); }
+  .pbg-deco .hz{ position: absolute; font-size: 16px; opacity: .55; animation: pbg-fl 6s ease-in-out infinite; }
+  @keyframes pbg-fl{ 0%, 100%{ transform: translateY(0) rotate(-8deg); } 50%{ transform: translateY(-12px) rotate(8deg); } }
+  /* 4 treasure map */
+  .pbg-map{ background: radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(110,60,10,.55)), repeating-linear-gradient(45deg, rgba(120,80,30,.07) 0 3px, transparent 3px 7px), #e8cf94; color: #3a2713; border: 0; border-radius: 10px; box-shadow: inset 0 0 0 3px rgba(110,60,10,.5), 4px 6px 0 rgba(43,35,32,.35); }
+  .pbg-map .poem-title, .pbg-map .poem-title-sheet{ font: italic 400 24px 'IM Fell English', serif; text-decoration: underline wavy rgba(160,40,30,.6); }
+  .pbg-map .poem-body{ font-family: 'IM Fell English', serif; font-size: 17px; line-height: 1.4; }
+  .pbg-deco svg{ position: absolute; inset: 0; width: 100%; height: 100%; opacity: .7; }
+  /* 6 chalkboard */
+  .pbg-chalk{ background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.08), transparent 60%), #2c3a34; color: #f4f1ea; border: 8px solid #8a5a35; border-radius: 10px; box-shadow: 0 0 0 3px #2b2320, inset 0 0 36px rgba(0,0,0,.55), 4px 6px 0 3px #2b2320; }
+  .pbg-chalk .poem-title, .pbg-chalk .poem-title-sheet{ font: 700 30px 'Caveat', cursive; text-decoration: underline dashed rgba(255,255,255,.5); }
+  .pbg-chalk .poem-body{ font: 500 22px/1.25 'Caveat', cursive; }
+  /* 7 starry night */
+  .pbg-night{ background: radial-gradient(ellipse at 80% 8%, rgba(255,240,180,.9) 0 12px, rgba(255,240,180,.25) 13px 34px, transparent 35px), radial-gradient(ellipse at 50% 100%, #3a2d7a, transparent 70%), linear-gradient(180deg, #0f1030, #1d1a55); color: #e9e4ff; border: 0; border-radius: 20px; box-shadow: inset 0 0 0 3px #8c85d8, 4px 6px 0 rgba(43,35,32,.35); }
+  .pbg-night .poem-title, .pbg-night .poem-title-sheet{ font: 800 18px 'Cinzel', serif; letter-spacing: .07em; color: #fff3b8; }
+  .pbg-night .poem-body{ font: 600 14.5px/1.5 'Cinzel', serif; }
+  .pbg-deco .st{ position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px 2px rgba(255,255,255,.8); animation: pbg-tw 2.8s ease-in-out infinite; }
+  /* 8 illuminated manuscript */
+  .pbg-manu{ background: linear-gradient(90deg, rgba(120,70,20,.35), transparent 7%, transparent 93%, rgba(120,70,20,.35)), #f2e2b4; color: #2c1d0e; border: 4px solid #7a1f2b; border-radius: 4px; box-shadow: inset 0 0 0 3px #f2e2b4, inset 0 0 0 6px #d9a21b, 4px 6px 0 rgba(43,35,32,.35); padding-top: 30px !important; }
+  .pbg-manu .poem-title, .pbg-manu .poem-title-sheet{ font: 400 22px 'IM Fell English', serif; text-align: center; color: #7a1f2b; }
+  .pbg-manu .poem-body{ font: 400 16px/1.4 'IM Fell English', serif; }
+  .pbg-manu .poem-body::first-letter{ float: left; font: 700 52px/.82 'Cinzel Decorative', serif; color: #7a1f2b; margin: 4px 8px 0 0; text-shadow: 2px 2px 0 #d9a21b; padding: 3px 7px; border: 3px solid #d9a21b; background: linear-gradient(135deg, #fff3c0, #f2d575); }
+  .pbg-deco .gl{ position: absolute; left: 12px; right: 12px; height: 3px; background: repeating-linear-gradient(90deg, #d9a21b 0 10px, #7a1f2b 10px 14px, #3a6ea5 14px 20px); opacity: .8; }
+  /* 9 typewriter */
+  .pbg-type{ background: repeating-linear-gradient(0deg, transparent 0 25px, rgba(0,0,0,.04) 25px 26px), radial-gradient(circle at 90% 6%, rgba(110,80,40,.25) 0 22px, transparent 23px), #fbf8f0; color: #25221d; border: 0; border-radius: 2px; box-shadow: 4px 6px 0 rgba(43,35,32,.35), inset 0 0 0 1px rgba(0,0,0,.1); padding-left: 52px !important; }
+  .pbg-type::before{ content: "" !important; position: absolute; left: 34px; top: 0; bottom: 0; width: 2px; background: rgba(220,70,70,.35); z-index: 1; }
+  .pbg-type .poem-title, .pbg-type .poem-title-sheet{ font: 400 19px 'Special Elite', monospace; text-transform: uppercase; letter-spacing: .06em; border-bottom: 2px solid #25221d; display: inline-block; }
+  .pbg-type .poem-body{ font: 400 14px/1.5 'Special Elite', monospace; }
+  /* 5 torn scroll: an old piece with bits missing (edges, holes) */
+  .pbg-torn{ background: radial-gradient(ellipse at 18% 12%, rgba(255,255,255,.35), transparent 45%), radial-gradient(circle at 70% 88%, rgba(110,60,10,.18) 0 34px, transparent 60px), radial-gradient(circle at 12% 84%, rgba(110,60,10,.14) 0 18px, transparent 34px), linear-gradient(180deg, #e9d4a0, #d8bd82); color: #3a2713; border: 0; box-shadow: none; padding: 34px 30px 30px !important;
+    clip-path: polygon(0 4%, 5% 1%, 9% 5%, 16% 0, 24% 3%, 31% 0, 40% 4%, 47% 1%, 55% 5%, 63% 0, 70% 3%, 78% 0, 86% 4%, 93% 1%, 100% 6%, 98% 14%, 100% 22%, 97% 31%, 100% 40%, 98% 49%, 100% 58%, 96% 66%, 100% 74%, 97% 83%, 100% 91%, 94% 96%, 88% 100%, 80% 96%, 72% 100%, 63% 97%, 55% 100%, 45% 96%, 37% 100%, 28% 97%, 20% 100%, 12% 96%, 6% 100%, 0 95%, 3% 88%, 0 80%, 4% 72%, 0 63%, 3% 54%, 0 45%, 4% 36%, 0 27%, 3% 18%, 0 10%);
+    -webkit-mask-image: radial-gradient(circle 13px at 91% 22%, transparent 96%, #000), radial-gradient(circle 9px at 95% 52%, transparent 96%, #000), radial-gradient(circle 17px at 90% 80%, transparent 96%, #000), radial-gradient(circle 7px at 72% 94%, transparent 96%, #000); -webkit-mask-composite: source-in; mask-composite: intersect; }
+  .pbg-torn::before{ content: "" !important; position: absolute; inset: 0; box-shadow: inset 0 0 26px 8px rgba(90,45,5,.6), inset 0 0 0 2px rgba(90,45,5,.4); pointer-events: none; z-index: 1; }
+  .pbg-torn .poem-title, .pbg-torn .poem-title-sheet{ font: italic 400 24px 'IM Fell English', serif; }
+  .pbg-torn .poem-body{ font-family: 'IM Fell English', serif; font-size: 17px; line-height: 1.4; }
+  @media (prefers-reduced-motion: reduce){ .pbg-magic::after, .pbg-deco .tw, .pbg-deco .st, .pbg-deco .hz{ animation: none; } }
+
   /* =========================================================
      Nicknames dressed as a pool hall: Pool / Cards / Compact each get their own look
   ========================================================= */
@@ -4379,6 +4572,7 @@ let APP_DATA = {
   petSpecies: [], petOutfits: [], myPets: [], myPetOutfits: [],
   nicknameFrames: [], myNicknameFrames: [], frameAssignments: [], seasonalOutfits: [],
   wallNeons: [], wallFoundNeons: [], wallCoasters: [], wallProgress: {}, wallHungNeons: [],
+  poemBackgrounds: [], myPoemBackgrounds: [], poemBgAssignments: [],
   userXpTotals: [],
   throneChallenges: [],
   throneChallengeTrials: [],
@@ -4454,6 +4648,7 @@ async function loadAppData(){
     petSpeciesRes, petOutfitsRes, myPetsRes, myPetOutfitsRes,
     framesRes, myFramesRes, frameAssignRes, seasonalRes,
     wallNeonRes, wallFoundRes, wallCoasterRes, wallProgressRes, wallSettingsRes,
+    poemBgRes, myPoemBgRes, poemBgAssignRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -4530,6 +4725,9 @@ async function loadAppData(){
     sb.from('wall_coasters').select('*'),
     sb.from('wall_progress').select('*'),
     sb.from('wall_settings').select('*'),
+    sb.from('poem_backgrounds').select('*').order('sort_order'),   // 0087: poem backgrounds (tolerant)
+    sb.from('user_poem_backgrounds').select('background_id'),
+    sb.from('poem_background_assignments').select('poem_id, background_id, user_id'),
   ]);
 
   for (const res of [
@@ -5048,6 +5246,9 @@ async function loadAppData(){
     wallProgress: Object.fromEntries(((wallProgressRes && wallProgressRes.data) || []).map(r => [r.key, r.value])),
     wallHungNeons: (((wallSettingsRes && wallSettingsRes.data) || []).find(r => r.key === 'hung_neons') || {}).value || [],
     seasonalOutfits: ((seasonalRes && seasonalRes.data) || []).filter(o => o.is_active).map(o => ({ id: o.id, name: o.name, season: o.season, genders: o.genders || [], startsOn: o.starts_on, endsOn: o.ends_on })),
+    poemBackgrounds: ((poemBgRes && poemBgRes.data) || []).filter(b => b.is_active).map(b => ({ id: b.id, name: b.name, tag: b.tag, rarity: b.rarity, hint: b.hint, isStarter: !!b.is_starter, sortOrder: b.sort_order })),
+    myPoemBackgrounds: ((myPoemBgRes && myPoemBgRes.data) || []).map(b => b.background_id),
+    poemBgAssignments: ((poemBgAssignRes && poemBgAssignRes.data) || []).map(a => ({ poemId: a.poem_id, backgroundId: a.background_id, userId: a.user_id })),
     frameAssignments: ((frameAssignRes && frameAssignRes.data) || []).map(a => ({ nicknameId: a.nickname_id, frameId: a.frame_id, userId: a.user_id })),
     gauntletForges: ((forgeRes && forgeRes.data) || []).map(f => ({ id: f.id, createdAt: f.created_at })),
     challenges: {
@@ -5110,6 +5311,7 @@ const REALTIME_TABLES = [
 ];
 let realtimeChannel = null;
 let realtimeFrameChannel = null;
+let realtimePoemBgChannel = null;
 let realtimeWallChannel = null;      // the Taproom wall also has its own channel     // own channel: if 0082 is not applied yet this one fails alone and never takes the main channel down
 let realtimeDebounceTimer = null;
 
@@ -5131,6 +5333,9 @@ function subscribeRealtime(){
   realtimeFrameChannel = sb.channel('tripel-frames');
   realtimeFrameChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'nickname_frame_assignments' }, onRealtimeChange);
   realtimeFrameChannel.subscribe();
+  realtimePoemBgChannel = sb.channel('tripel-poembg');                      // own channel again: a missing 0087 table must never take the main one down
+  realtimePoemBgChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'poem_background_assignments' }, onRealtimeChange);
+  realtimePoemBgChannel.subscribe();
   realtimeWallChannel = sb.channel('tripel-wall');
   ['wall_found_neons', 'wall_coasters', 'wall_progress', 'wall_settings'].forEach(table => realtimeWallChannel.on('postgres_changes', { event: '*', schema: 'public', table }, onRealtimeChange));
   realtimeWallChannel.subscribe();
@@ -5141,6 +5346,7 @@ function unsubscribeRealtime(){
   sb.removeChannel(realtimeChannel);
   realtimeChannel = null;
   if (realtimeFrameChannel){ sb.removeChannel(realtimeFrameChannel); realtimeFrameChannel = null; }
+  if (realtimePoemBgChannel){ sb.removeChannel(realtimePoemBgChannel); realtimePoemBgChannel = null; }
   if (realtimeWallChannel){ sb.removeChannel(realtimeWallChannel); realtimeWallChannel = null; }
 }
 
@@ -10230,7 +10436,7 @@ async function claimChallenge(id){
   try {
     const { data, error } = await sb.rpc('claim_challenge', { p_assignment_id: id });
     if (error){ console.error('claim_challenge failed:', error); CHALLENGE_STATE.flash[id] = { error: error.message || 'Could not claim.' }; }
-    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); announceFrames(data.frames); announceWall(data.wall); }
+    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); announceFrames(data.frames); announceWall(data.wall); announcePoemBgs(data.poem_bgs); }
     else CHALLENGE_STATE.flash[id] = { text: 'Already claimed.' };
     await refreshAppData();
   } finally {
@@ -11285,6 +11491,7 @@ async function openMysteryBox(id){
 function mysteryPrizeLines(p){
   if (p.type === 'cosmetic') return { icon: MYSTERY_CAT_ICON[p.category] || '🎩', name: p.name, sub: p.flavor || '', note: 'Added to your collection' };
   if (p.type === 'wall') return { icon: p.kind === 'neon' ? '🪧' : '🍺', name: p.kind === 'neon' ? `Neon sign: ${p.name}` : `Bierviltje: ${p.name}`, sub: 'It hangs on the Taproom wall for everybody.', note: 'Taproom › De Wand' };
+  if (p.type === 'poem_bg') return { icon: '📜', name: `Poem background: ${p.name}`, sub: 'A new look for your poems.', note: 'Poetry Wall › 🎨 Achtergrond' };
   if (p.type === 'frame') return { icon: '🖼️', name: `Frame: ${p.name}`, sub: 'A new frame for your nicknames.', note: 'Nicknames › 🖼️ Kader' };
   if (p.type === 'pet') return { icon: '🐾', img: PET_IMAGES[p.kind === 'species' ? p.pet_id + '-standaard' : p.pet_id] || '', name: p.kind === 'species' ? p.name : `${p.species_name}: ${p.name}`, sub: p.kind === 'species' ? 'A new pet for your character.' : 'New clothes for your pet.', note: 'Mijn Hoekje › Companion' };
   if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'Mijn Hoekje › Outfit › Title' };
@@ -12197,8 +12404,11 @@ const MODULES = {
     subtitle: 'Waar collega\'s plots ook dichters bleken te zijn.',
     emoji: '✒️',
     render(data){
-      if (POETRY_STATE.view === 'poemDetail') return renderPoemDetailPage(data);
-      return renderPoetryWallPage(data);
+      const page = POETRY_STATE.view === 'poemDetail' ? renderPoemDetailPage(data) : renderPoetryWallPage(data);
+      const motes = Array.from({ length: 16 }, (_, i) => `<i style="--x:${(i * 53) % 96}%;--s:${5 + i % 4 * 3}px;--d:${12 + i % 5 * 3}s;--dl:-${(i * 1.9).toFixed(1)}s;--w:${(i % 2 ? 1 : -1) * (30 + i * 7 % 50)}"></i>`).join('')
+        + Array.from({ length: 8 }, (_, i) => `<b style="--x:${(i * 37 + 8) % 94}%;--s:${16 + i % 3 * 5}px;--d:${20 + i % 4 * 5}s;--dl:-${(i * 3.3).toFixed(1)}s;--w:${(i % 2 ? 1 : -1) * (40 + i * 11 % 60)}">${['🍃', '🌿', '🍂'][i % 3]}</b>`).join('');
+      return `<div class="pw-room"><div class="pw-motes" aria-hidden="true">${motes}</div><span class="pw-orb l" aria-hidden="true"></span><span class="pw-orb r" aria-hidden="true"></span>
+        <div class="pw-banner"><b>✒️ The Poetry Wall</b><small>“Against all expectations, culture has entered the workplace.”</small></div>${page}</div>`;
     }
   },
 
@@ -17483,39 +17693,29 @@ function openTodaysDailyChallengeForm(){
 /* ---- 🎯 Challenge Board: compacte klassementen ---- */
 function renderChallengeBoardSection(){
   const h = getChallengeLeaderboard();
-  const board = (title, icon, entries, formatValue) => `
-    <div class="sticker-card" style="text-align:left;">
-      <div class="lore-item-title" style="margin-bottom:8px;">${icon} ${title}</div>
-      ${entries.length ? `
-        <div class="row-list">
-          ${entries.slice(0, 3).map((e, idx) => `
-            <div class="row-item" style="cursor:default;">
-              <div class="rank">#${idx + 1}</div>
-              ${avatarHtml(e.user, 32)}
-              <div class="info"><div class="name">${escapeHtml(e.user.displayName)}</div></div>
-              <div class="value">${formatValue(e)}</div>
-            </div>
-          `).join('')}
-        </div>
-      ` : emptyState('Nog geen data.')}
-    </div>
-  `;
-  const bestPoemBoard = `
-    <div class="sticker-card" style="text-align:left;">
-      <div class="lore-item-title" style="margin-bottom:8px;">🏆 Best Challenge Poem</div>
-      ${h.bestChallengePoem.length ? renderPoemCard(h.bestChallengePoem[0]) : emptyState('Nog geen data.')}
-    </div>
-  `;
+  const medals = ['🥇', '🥈', '🥉'];
+  const row = (title, icon, entries, formatValue) => `
+    <li class="pw-honor-row">
+      <span class="pw-honor-title">${icon} ${title}</span>
+      <span class="pw-honor-list">${entries.length ? entries.slice(0, 3).map((e, i) => `<span class="pw-honor-chip">${medals[i]} ${avatarHtml(e.user, 22)} ${escapeHtml(e.user.displayName)} <b>${formatValue(e)}</b></span>`).join('') : '<span class="pw-honor-none">Nog niemand</span>'}</span>
+    </li>`;
+  const best = h.bestChallengePoem[0];
+  const bestAuthor = best ? findUser(best.authorUserId) : null;
+  const bestRow = `
+    <li class="pw-honor-row">
+      <span class="pw-honor-title">🏆 Best Challenge Poem</span>
+      <span class="pw-honor-list">${best ? `<a class="pw-honor-chip pw-honor-poem" onclick="openPoemDetail('${best.id}')">“${escapeHtml(best.title)}”${bestAuthor ? ` · ${avatarHtml(bestAuthor, 22)} ${escapeHtml(bestAuthor.displayName)}` : ''}</a>` : '<span class="pw-honor-none">Nog niemand</span>'}</span>
+    </li>`;
   return `
-    <section class="section">
+    <section class="section pw-board">
       <div class="section-head"><h3>🎯 Challenge Board</h3></div>
-      <div class="grid cols-auto">
-        ${board('Most Challenges Completed', '🎯', h.mostCompleted, e => `${e.value} completed`)}
-        ${bestPoemBoard}
-        ${board('Master of Nonsense', '🤪', h.masterOfNonsense, e => `${e.value}×`)}
-        ${board('Office Tragedian', '🥀', h.officeTragedian, e => `${e.value}×`)}
-        ${board('Drunken Bard', '🍺', h.drunkenBard, e => `${e.value}×`)}
-      </div>
+      <ul class="pw-honor">
+        ${row('Most Challenges Completed', '🎯', h.mostCompleted, e => `${e.value}×`)}
+        ${bestRow}
+        ${row('Master of Nonsense', '🤪', h.masterOfNonsense, e => `${e.value}×`)}
+        ${row('Office Tragedian', '🥀', h.officeTragedian, e => `${e.value}×`)}
+        ${row('Drunken Bard', '🍺', h.drunkenBard, e => `${e.value}×`)}
+      </ul>
     </section>
   `;
 }
@@ -17562,17 +17762,19 @@ function renderPoetryWallPage(data){
     </section>
   ` : `<section class="section">${emptyState('Nog geen Poet Laureate — publiceer het eerste gedicht om de troon te openen.')}</section>`;
 
+  const medals = ['🥇', '🥈', '🥉'];
   const leaderboardSection = `
-    <section class="section">
+    <section class="section pw-board">
       <div class="section-head"><h3>🏆 Poetry Leaderboard</h3></div>
-      <div class="grid cols-auto">
-        ${POEM_LEADERBOARD_DEFS.map(def => `
-          <div class="sticker-card" style="text-align:left;">
-            <div class="lore-item-title" style="margin-bottom:8px;">${def.icon} ${def.title}</div>
-            ${renderPodium(def.build().slice(0, 3), { compact: true, restLimit: 0 })}
-          </div>
-        `).join('')}
-      </div>
+      <ul class="pw-honor">
+        ${POEM_LEADERBOARD_DEFS.map(def => {
+          const top = def.build().slice(0, 3);
+          return `<li class="pw-honor-row">
+            <span class="pw-honor-title">${def.icon} ${def.title}</span>
+            <span class="pw-honor-list">${top.length ? top.map((e, i) => `<span class="pw-honor-chip ${e.onClick ? 'pw-honor-poem' : ''}" ${e.onClick ? `onclick="${e.onClick}"` : ''}>${medals[i]} ${entryAvatarHtml(e, 22)} ${escapeHtml(e.title)} <b>${e.value}</b></span>`).join('') : '<span class="pw-honor-none">Nog niemand</span>'}</span>
+          </li>`;
+        }).join('')}
+      </ul>
     </section>
   `;
 
@@ -17582,12 +17784,142 @@ function renderPoetryWallPage(data){
         <h3>✒️ The Wall</h3>
         <span class="count-chip">${data.poems.length}</span>
       </div>
-      <button type="button" class="btn btn-primary" style="margin-bottom:16px;" onclick="openPoemForm('add')">+ Write a Poem</button>
+      <div class="people-toolbar" style="margin-bottom:16px;">
+        <button type="button" class="btn btn-primary" onclick="openPoemForm('add')">+ Write a Poem</button>
+        ${(data.poemBackgrounds || []).length ? `<button type="button" class="btn btn-secondary" onclick="openPoemBackgroundsOverviewModal()">🎨 Backgrounds (${data.poemBackgrounds.filter(b => poemBgOwned(b.id)).length}/${data.poemBackgrounds.length})</button>` : ''}
+      </div>
       ${sortedPoems.length ? `<div class="grid cols-auto">${sortedPoems.map(p => renderPoemCard(p)).join('')}</div>` : emptyState('Nog geen gedichten op de Wall. Wees de eerste.')}
     </section>
   `;
 
   return challengeCardSection + dailyChallengeSection + wallSection + challengeBoardSection + potmSection + laureateSection + leaderboardSection;
+}
+
+/* ---- Poem backgrounds (0087): a poem's author picks one of the looks they earned. Everybody sees it. ---- */
+const POEM_BG_IDS = ['parch', 'type', 'chalk', 'love', 'map', 'torn', 'magic', 'night', 'manu'];
+const POEM_BG_STATE = { error: '', sel: null };
+function getPoemBgId(poemId){
+  const a = (APP_DATA.poemBgAssignments || []).find(x => x.poemId === poemId);
+  return a && POEM_BG_IDS.includes(a.backgroundId) ? a.backgroundId : null;
+}
+function poemBgOwned(id){
+  const b = (APP_DATA.poemBackgrounds || []).find(x => x.id === id);
+  return !!b && (b.isStarter || (APP_DATA.myPoemBackgrounds || []).includes(id));
+}
+function poemBgUsage(id){ return (APP_DATA.poemBgAssignments || []).filter(a => a.userId === STATE.activeUser && a.backgroundId === id); }
+function poemBgDeco(id){
+  const tw = (l, t, d, ch) => `<i class="tw" style="left:${l}%;top:${t}%;animation-delay:${d}s">${ch}</i>`;
+  const st = (l, t, d) => `<i class="st" style="left:${l}%;top:${t}%;animation-delay:${d}s"></i>`;
+  if (id === 'magic') return `<div class="pbg-deco" aria-hidden="true">${tw(14, 10, 0, '✦')}${tw(82, 20, .8, '✧')}${tw(70, 68, 1.4, '✦')}${tw(8, 60, 2, '✧')}${tw(46, 5, .4, '✦')}</div>`;
+  if (id === 'love') return `<div class="pbg-deco" aria-hidden="true"><span class="seal">💌</span><span class="hz" style="left:78%;top:8%">💗</span><span class="hz" style="left:5%;top:72%;animation-delay:2s">💗</span></div>`;
+  if (id === 'map') return `<div class="pbg-deco" aria-hidden="true"><svg viewBox="0 0 300 340" preserveAspectRatio="none"><path d="M20 300 C60 250 90 280 120 230 S190 200 210 150 S250 80 270 60" fill="none" stroke="#a02820" stroke-width="3" stroke-dasharray="9 7"/><g stroke="#a02820" stroke-width="5" stroke-linecap="round"><path d="M262 46l16 16M278 46l-16 16"/></g><circle cx="38" cy="296" r="6" fill="#5c3a12"/><path d="M230 290l12-18 12 18z" fill="#6b4a1a"/></svg></div>`;
+  if (id === 'night') return `<div class="pbg-deco" aria-hidden="true">${st(12, 10, 0)}${st(30, 26, 1)}${st(56, 12, .5)}${st(22, 60, 1.6)}${st(68, 48, .2)}${st(90, 70, 2.1)}${st(8, 84, 1.2)}</div>`;
+  if (id === 'manu') return `<div class="pbg-deco" aria-hidden="true"><span class="gl" style="top:12px"></span><span class="gl" style="bottom:12px"></span></div>`;
+  return '';
+}
+/* wraps a block of poem html in the chosen background (null = untouched) */
+function poemBgWrap(bgId, inner, cls = '', attrs = ''){
+  const bits = '<i class="pw-bit" aria-hidden="true"></i><i class="pw-bit b" aria-hidden="true"></i>';   // only visible on the Poetry Wall
+  if (!bgId) return `<div class="pbg-wrap pbg-wrap-none"><div class="${cls}" ${attrs}>${inner}</div>${bits}</div>`;
+  return `<div class="pbg-wrap pbg-wrap-${bgId}"><div class="pbg pbg-${bgId} ${cls}" ${attrs}>${poemBgDeco(bgId)}${inner}</div>${bits}</div>`;
+}
+function poemBgPreviewHtml(poem, bgId){
+  const author = findUser(poem.authorUserId);
+  const inner = `<h3 class="poem-title-sheet">${escapeHtml(poem.title)}</h3><div class="poem-body">${escapeHtml(poem.content.length > 260 ? poem.content.slice(0, 260) + '…' : poem.content)}</div><div class="pbg-by">${author ? '— ' + escapeHtml(author.displayName) : ''}</div>`;
+  return bgId ? poemBgWrap(bgId, inner, 'pbg-sheet') : `<div class="sticker-card poem-card">${inner}</div>`;
+}
+function poemBgSelectionState(poemId){
+  const cur = getPoemBgId(poemId), sel = POEM_BG_STATE.sel || null;
+  if ((cur || null) === sel) return { ok: false, why: '' };
+  if (sel && !poemBgOwned(sel)) return { ok: false, why: 'Deze achtergrond heb je nog niet verdiend.' };
+  if (sel && poemBgUsage(sel).filter(a => a.poemId !== poemId).length >= 2) return { ok: false, why: 'Deze achtergrond staat al op 2 van je gedichten.' };
+  return { ok: true, why: '' };
+}
+function openPoemBackgroundModal(poemId){
+  const poem = APP_DATA.poems.find(p => p.id === poemId);
+  if (!poem || poem.authorUserId !== STATE.activeUser) return;
+  const cur = getPoemBgId(poemId);
+  POEM_BG_STATE.sel = cur;
+  const all = APP_DATA.poemBackgrounds || [];
+  const optHtml = b => {
+    const mine = poemBgOwned(b.id);
+    const used = poemBgUsage(b.id).filter(a => a.poemId !== poemId).length;
+    return `<button type="button" class="frame-opt ${cur === b.id ? 'cur' : ''} ${POEM_BG_STATE.sel === b.id ? 'sel' : ''} ${mine ? '' : 'locked'}" data-bg="${b.id}" style="--fc:${FRAME_RARITY_COLOR[b.rarity] || '#888'}" onclick="previewPoemBackground('${poemId}', '${b.id}')">
+      <b>${mine ? escapeHtml(b.tag) : '🔒 ' + escapeHtml(b.name)}</b><span>${mine ? escapeHtml(b.name) : escapeHtml(b.hint)}</span>
+      <small>${mine ? (used >= 2 && cur !== b.id ? '2 / 2 in gebruik' : `${used + (cur === b.id ? 1 : 0)} / 2 in gebruik`) : 'Voorbeeld bekijken'}</small></button>`;
+  };
+  openModal(`
+    <div class="frame-modal">
+      <h3>🎨 Achtergrond voor “${escapeHtml(poem.title)}”</h3>
+      <p class="ch-note">Tik op een achtergrond om je gedicht erin te zien. Opslaan doe je zelf. Elke achtergrond mag op maximaal 2 van je eigen gedichten.</p>
+      ${POEM_BG_STATE.error ? `<div class="ch-flash bad" role="alert">${escapeHtml(POEM_BG_STATE.error)}</div>` : ''}
+      <div class="frame-preview-label" id="pbg-preview-label">Zo ziet het eruit</div>
+      <div class="frame-preview" id="pbg-preview">${poemBgPreviewHtml(poem, POEM_BG_STATE.sel)}</div>
+      <div class="frame-list">
+        <button type="button" class="frame-opt ${cur ? '' : 'cur'} ${POEM_BG_STATE.sel ? '' : 'sel'}" data-bg="" onclick="previewPoemBackground('${poemId}', '')"><b>🚫 Geen achtergrond</b><span>Gewone kaart</span></button>
+        ${all.filter(b => poemBgOwned(b.id)).map(optHtml).join('')}
+      </div>
+      ${all.filter(b => !poemBgOwned(b.id)).length ? `<h4 class="room-outfit-sets-title">Nog te verdienen (je kunt ze wel bekijken)</h4><div class="frame-list">${all.filter(b => !poemBgOwned(b.id)).map(optHtml).join('')}</div>` : ''}
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Sluiten</button>
+        <button type="button" class="btn btn-primary" id="pbg-save" onclick="savePoemBackground('${poemId}')" disabled>Opslaan</button>
+      </div>
+    </div>`);
+  refreshPoemBgSaveButton(poemId);
+}
+function refreshPoemBgSaveButton(poemId){
+  const btn = document.getElementById('pbg-save'); if (!btn) return;
+  const st = poemBgSelectionState(poemId);
+  btn.disabled = !st.ok; btn.title = st.why;
+  const lab = document.getElementById('pbg-preview-label');
+  if (lab) lab.textContent = st.why ? 'Voorbeeld · ' + st.why : 'Zo ziet het eruit';
+}
+function previewPoemBackground(poemId, bgId){
+  const poem = APP_DATA.poems.find(p => p.id === poemId); if (!poem) return;
+  POEM_BG_STATE.sel = bgId || null;
+  const box = document.getElementById('pbg-preview'); if (box) box.innerHTML = poemBgPreviewHtml(poem, POEM_BG_STATE.sel);
+  document.querySelectorAll('.frame-modal .frame-opt').forEach(b => b.classList.toggle('sel', (b.dataset.bg || null) === POEM_BG_STATE.sel));
+  refreshPoemBgSaveButton(poemId);
+}
+async function savePoemBackground(poemId){
+  const st = poemBgSelectionState(poemId);
+  if (!st.ok) return;
+  const btn = document.getElementById('pbg-save'); if (btn){ btn.disabled = true; btn.textContent = 'Opslaan…'; }
+  await setPoemBackground(poemId, POEM_BG_STATE.sel || '');
+}
+async function setPoemBackground(poemId, bgId){
+  bgId = bgId || null;
+  POEM_BG_STATE.error = '';
+  const { error } = await sb.rpc('set_poem_background', { p_poem_id: poemId, p_background_id: bgId });
+  if (error){ console.error('set_poem_background failed:', error); POEM_BG_STATE.error = error.message || 'Could not save.'; return openPoemBackgroundModal(poemId); }
+  const list = APP_DATA.poemBgAssignments || (APP_DATA.poemBgAssignments = []);
+  const i = list.findIndex(a => a.poemId === poemId);
+  if (i >= 0) list.splice(i, 1);
+  if (bgId) list.push({ poemId, backgroundId: bgId, userId: STATE.activeUser });
+  renderPage();
+  closeModal();
+  refreshAppData().catch(() => {});
+}
+function openPoemBackgroundsOverviewModal(){
+  const all = APP_DATA.poemBackgrounds || [];
+  openModal(`
+    <div class="frame-modal">
+      <h3>🎨 Poem backgrounds</h3>
+      <p class="ch-note">Everybody starts with Old Parchment. Earn the others from quests and Mystery Rewards. A background can be on at most 2 of your own poems: pick one with “🎨 Achtergrond” on one of your poems.</p>
+      <div class="frame-locked">${all.map(b => {
+        const owned = poemBgOwned(b.id);
+        const uses = poemBgUsage(b.id).map(a => (APP_DATA.poems.find(p => p.id === a.poemId) || {}).title).filter(Boolean);
+        return `<div class="frame-lock"><b style="color:${FRAME_RARITY_COLOR[b.rarity] || '#888'}">${owned ? b.tag : '🔒 ' + escapeHtml(b.name)} ${owned ? `<small>(${uses.length} / 2)</small>` : ''}</b>
+          <span>${owned ? (uses.length ? 'On: ' + uses.map(escapeHtml).join(', ') : 'Not on a poem yet.') : escapeHtml(b.hint)}</span></div>`;
+      }).join('')}</div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Sluiten</button></div>
+    </div>`);
+}
+/* a poem background earned by this claim */
+function announcePoemBgs(list){
+  if (!list || !list.length) return;
+  const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
+  setTimeout(() => showQuestToast(`<b>📜 NEW POEM BACKGROUND</b><span>${escapeHtml(list.map(f => f.name).join(' + '))}</span><small>Poetry Wall › 🎨 Achtergrond</small>`), busy ? 4000 : 0);
 }
 
 /* ---- kaart op de Wall: preview + "Read full poem" bij langere tekst ---- */
@@ -17605,8 +17937,8 @@ function renderPoemCard(poem){
   const isTruncated = lines.length > 3 || poem.content.length > 220;
   const preview = lines.slice(0, 3).join('\n').slice(0, 220);
 
-  return `
-    <div class="sticker-card poem-card" onclick="openPoemDetail('${poem.id}')">
+  const bgId = getPoemBgId(poem.id);
+  const cardInner = `
       <div class="poem-card-top">
         <span class="badge poem-mood-badge">${mood.icon} ${mood.label}</span>
         ${isPotm ? `<span class="badge yellow">🏆 Poem of the Month</span>` : ''}
@@ -17623,9 +17955,8 @@ function renderPoemCard(poem){
         <span class="stat-chip">📅 ${poem.createdAt.slice(0, 10)}</span>
         ${topReactions.map(r => `<span class="stat-chip">${r.icon} ${r.count}</span>`).join('')}
         <span class="stat-chip clickable" onclick="event.stopPropagation(); openPoemDetail('${poem.id}', true)">💬 ${commentCount}</span>
-      </div>
-    </div>
-  `;
+      </div>`;
+  return poemBgWrap(bgId, cardInner, 'sticker-card poem-card', `onclick="openPoemDetail('${poem.id}')"`);
 }
 
 function openPoemDetailFromHome(id){
@@ -17684,6 +18015,7 @@ function renderPoemDetailPage(data){
         </div>
         ${isAuthor ? `
           <div class="detail-actions">
+            ${(APP_DATA.poemBackgrounds || []).length ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openPoemBackgroundModal('${poem.id}')">🎨 Achtergrond</button>` : ''}
             <button type="button" class="btn btn-secondary btn-sm" onclick="openPoemForm('edit','${poem.id}')">✏️ Edit</button>
             <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeletePoem('${poem.id}')">🗑️ Delete</button>
           </div>
@@ -17705,8 +18037,9 @@ function renderPoemDetailPage(data){
           <div class="challenge-prompt-text">"${escapeHtml(poem.promptTextSnapshot)}"</div>
         </div>
       ` : '')}
-      <div class="poem-body">${escapeHtml(poem.content)}</div>
-      ${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}
+      ${getPoemBgId(poem.id)
+        ? poemBgWrap(getPoemBgId(poem.id), `<h3 class="poem-title-sheet">${escapeHtml(poem.title)}</h3><div class="poem-body">${escapeHtml(poem.content)}</div>${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}<div class="pbg-by">${author ? '— ' + escapeHtml(author.displayName) : ''}</div>`, 'pbg-sheet')
+        : `<div class="poem-body">${escapeHtml(poem.content)}</div>${poem.context ? `<div class="poem-context">✒️ ${escapeHtml(poem.context)}</div>` : ''}`}
     </section>
 
     <section class="section">
