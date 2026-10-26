@@ -3678,6 +3678,74 @@
   .emoji-key{ font-size: 24px; line-height: 1; padding: 6px 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
   .emoji-key:hover, .emoji-key:active{ background: rgba(0,0,0,.08); }
 
+
+  /* =========================================================
+     Nickname frames (0082)
+  ========================================================= */
+  .nf-app{ position: relative; display: block; padding: 36px 16px 16px; }
+  .nf-app > :is(.nickname-card, .nf-target){ position: relative; z-index: 1; border-width: 4px; }
+  .nf-deco{ position: absolute; pointer-events: none; z-index: 2; }
+  .nf-top{ left: 20px; right: 20px; top: 0; height: 54px; display: flex; align-items: flex-end; justify-content: space-between; }
+  .nf-orb{ position: absolute; z-index: 3; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #2b2320; display: grid; place-items: center; font-size: 14px; box-shadow: 0 2px 0 rgba(0,0,0,.4); pointer-events: none; }
+  .nf-orb.tl{ left: 6px; top: 22px; } .nf-orb.tr{ right: 6px; top: 22px; } .nf-orb.bl{ left: 6px; bottom: 6px; } .nf-orb.br{ right: 6px; bottom: 6px; }
+  .nf-parts{ position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: visible; }
+  .nf-p{ position: absolute; opacity: 0; }
+  .nf-fl{ display: block; transform-origin: 50% 100%; animation: nfk-flick 1.2s ease-in-out infinite; }
+  .nf-fl svg{ display: block; width: 100%; height: 100%; overflow: visible; }
+  @keyframes nfk-flick{ 0%, 100%{ transform: scaleY(1) skewX(0); } 25%{ transform: scaleY(1.12) skewX(4deg); } 50%{ transform: scaleY(.9) skewX(-3deg); } 75%{ transform: scaleY(1.07) skewX(-5deg); } }
+  @keyframes nfk-rise{ 0%{ transform: translateY(0) scale(1); opacity: 0; } 15%{ opacity: 1; } 100%{ transform: translateY(-58px) translateX(var(--dx, 8px)) scale(.4); opacity: 0; } }
+  @keyframes nfk-fall{ 0%{ transform: translateY(-8px) rotate(0); opacity: 0; } 15%{ opacity: 1; } 100%{ transform: translateY(80px) translateX(var(--dx, 6px)) rotate(240deg); opacity: 0; } }
+  @keyframes nfk-twinkle{ 0%, 100%{ opacity: 0; transform: scale(.4) rotate(0); } 50%{ opacity: 1; transform: scale(1.1) rotate(45deg); } }
+  @keyframes nfk-flash{ 0%, 86%, 100%{ opacity: .25; } 90%, 94%{ opacity: 1; } }
+  @keyframes nfk-sway{ 0%, 100%{ transform: rotate(-2deg); } 50%{ transform: rotate(2deg); } }
+  @keyframes nfk-pulse{ 0%, 100%{ filter: brightness(1); } 50%{ filter: brightness(1.15); } }
+  /* flame */
+  .fr-flame > :is(.nickname-card, .nf-target){ background: radial-gradient(ellipse at 50% 120%, rgba(255,120,30,.38), transparent 62%), linear-gradient(180deg, #fffaf0, #fff0d4); box-shadow: inset 0 0 0 3px #ff9a1f, inset 0 0 22px rgba(255,90,30,.35), 0 0 0 3px #b3260c, 0 0 26px 6px rgba(255,110,30,.55), 4px 6px 0 #2b2320; animation: nfk-pulse 2.4s infinite; }
+  .fr-flame .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff3a0, #ff9a1f 55%, #e8350f); }
+  /* ice */
+  .fr-ice > :is(.nickname-card, .nf-target){ background: radial-gradient(ellipse at 50% 120%, rgba(120,200,255,.4), transparent 62%), linear-gradient(180deg, #f6fcff, #dff1fb); box-shadow: inset 0 0 0 3px #8fd3f5, inset 0 0 22px rgba(120,200,255,.5), 0 0 0 3px #3f8fc4, 0 0 24px 5px rgba(120,200,255,.6), 4px 6px 0 #2b2320; animation: nfk-pulse 3s infinite; }
+  .fr-ice .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff, #bfe8ff 55%, #5fb3e6); }
+  .nf-icicle{ display: block; width: 18px; align-self: flex-start; margin-top: 6px; background: linear-gradient(180deg, #e9f8ff, #9ad8f7); border: 2px solid #2b2320; border-top: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); }
+  /* gold throne */
+  .fr-gold > :is(.nickname-card, .nf-target){ background: radial-gradient(ellipse at 50% 120%, rgba(255,215,90,.4), transparent 62%), linear-gradient(180deg, #fffcec, #fbefc0); box-shadow: inset 0 0 0 3px #e7c04a, inset 0 0 0 6px #fff3b8, inset 0 0 22px rgba(255,200,60,.4), 0 0 0 3px #9a6d0a, 0 0 22px 4px rgba(255,205,70,.55), 4px 6px 0 #2b2320; }
+  .fr-gold .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff7c0, #f1c84a 55%, #b57f0e); border-radius: 6px; transform: rotate(45deg); } .fr-gold .nf-orb span{ transform: rotate(-45deg); }
+  .nf-crown{ position: absolute; left: 50%; top: -4px; transform: translateX(-50%); filter: drop-shadow(0 2px 0 rgba(0,0,0,.4)); }
+  /* hearts and flowers */
+  .fr-heart > :is(.nickname-card, .nf-target){ background: linear-gradient(180deg, #fff7fa, #ffe4ee); box-shadow: inset 0 0 0 3px #ff9fbf, inset 0 0 20px rgba(255,150,190,.45), 0 0 0 3px #d9487c, 0 0 20px 3px rgba(255,140,185,.5), 4px 6px 0 #2b2320; }
+  .fr-heart .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff, #ffc2d6 55%, #ff7aa6); }
+  .nf-sway{ display: block; align-self: flex-end; margin-bottom: -2px; animation: nfk-sway 2.8s ease-in-out infinite; }
+  /* beer foam */
+  .fr-beer > :is(.nickname-card, .nf-target){ background: linear-gradient(180deg, #fffbe9, #fde9a8); box-shadow: inset 0 0 0 3px #f2a81d, inset 0 0 20px rgba(240,170,30,.4), 0 0 0 3px #a8660a, 0 0 18px 3px rgba(245,180,50,.45), 4px 6px 0 #2b2320; }
+  .fr-beer .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff3c0, #f6c64b 55%, #d9890f); }
+  .nf-foam{ display: block; background: #fff; border: 3px solid #2b2320; border-radius: 50%; animation: nfk-sway 3s ease-in-out infinite; }
+  /* confetti */
+  .fr-conf > :is(.nickname-card, .nf-target){ background: linear-gradient(180deg, #fffdf6, #fff1ff); box-shadow: inset 0 0 0 3px #fff, 0 0 0 4px #ff8fb3, 0 0 0 8px #ffe58a, 0 0 0 12px #b9f2d9, 4px 6px 0 #2b2320; }
+  .fr-conf .nf-orb{ background: radial-gradient(circle at 35% 30%, #fff, #ffe58a 60%, #ffc93c); }
+  .fr-conf .nf-top{ top: 8px; height: 44px; align-items: flex-start; }
+  .fr-conf .nf-top:before{ content: ""; position: absolute; left: -8px; right: -8px; top: 0; border-top: 2px dashed #8d6b3a; }
+  .nf-flag{ display: block; width: 26px; height: 34px; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%); transform-origin: 50% 0; animation: nfk-sway 2.8s ease-in-out infinite; }
+  /* lightning */
+  .fr-bolt > :is(.nickname-card, .nf-target){ background: radial-gradient(ellipse at 50% 120%, rgba(160,110,255,.35), transparent 62%), linear-gradient(180deg, #fffef0, #f1ecff); box-shadow: inset 0 0 0 3px #ffd93a, inset 0 0 22px rgba(160,110,255,.4), 0 0 0 3px #5a35b8, 0 0 24px 5px rgba(150,100,255,.6), 4px 6px 0 #2b2320; animation: nfk-pulse 1.8s infinite; }
+  .fr-bolt .nf-orb{ background: radial-gradient(circle at 35% 30%, #fffbd0, #ffd93a 55%, #e8a60c); }
+  .nf-bolt{ display: block; align-self: flex-start; animation: nfk-flash 3.2s infinite; }
+  @media (prefers-reduced-motion: reduce){ .nf-app *, .nf-app > :is(.nickname-card, .nf-target){ animation: none !important; } .nf-p{ opacity: .7; } }
+  /* choosing a frame */
+  .frame-list{ display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 10px 0; }
+  .frame-opt{ display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 8px; border: var(--outline-thin); border-left: 6px solid var(--fc, #2b2320); border-radius: var(--radius-sm); background: var(--card); font: inherit; cursor: pointer; text-align: center; }
+  .frame-opt b{ font-family: var(--font-display); font-size: 14px; } .frame-opt span{ font-size: 12px; color: #6b5d4f; } .frame-opt small{ font-size: 11px; font-weight: 800; color: #8a7a6b; }
+  .frame-opt.on{ background: var(--yellow); } .frame-opt[disabled]{ opacity: .5; cursor: not-allowed; }
+  .modal-box:has(.frame-modal){ max-width: 520px; }
+  .frame-preview-label{ font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #8a7a6b; margin: 6px 0 0; text-align: center; }
+  .frame-preview{ display: flex; justify-content: center; margin: 0 0 10px; padding: 4px 0 8px; background: radial-gradient(ellipse at 50% 60%, rgba(0,0,0,.06), transparent 70%); border-radius: 14px; }
+  .frame-preview .nf-app{ width: 100%; max-width: 400px; }
+  .frame-opt.sel{ background: var(--yellow); outline: 3px solid #2b2320; }
+  .frame-opt.cur:not(.sel){ background: #eaf7ee; }
+  .frame-opt.locked{ background: #f3efe7; }
+  .row-item.nf-row{ position: relative; box-shadow: 0 0 0 2px var(--nfc), 0 0 12px var(--nfc); }
+  .nf-row-ic{ font-size: 15px; margin-right: 4px; }
+  .fr-row-flame{ --nfc: #ff7a2a; } .fr-row-ice{ --nfc: #6fc4f0; } .fr-row-gold{ --nfc: #e7b53a; } .fr-row-heart{ --nfc: #ff7aa6; } .fr-row-beer{ --nfc: #f2a81d; } .fr-row-conf{ --nfc: #ff8fb3; } .fr-row-bolt{ --nfc: #8a5cf0; }
+  .frame-locked{ display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; } .frame-lock{ display: flex; flex-direction: column; font-size: 12px; } .frame-lock span{ color: #6b5d4f; }
+
   /* ---- Home: simple dashboard ---- */
   .home-hello{ margin-bottom: 10px; }
   .home-hello-name{ font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--ink); }
@@ -4139,6 +4207,7 @@ let APP_DATA = {
   titles: [],
   myTitles: [],
   petSpecies: [], petOutfits: [], myPets: [], myPetOutfits: [],
+  nicknameFrames: [], myNicknameFrames: [], frameAssignments: [],
   userXpTotals: [],
   throneChallenges: [],
   throneChallengeTrials: [],
@@ -4212,6 +4281,7 @@ async function loadAppData(){
     roomProfilesRes, userXpTotalsRes,
     throneChallengesRes, absoluteAbtPeriodsRes, throneTrialsRes, gauntletRes, mysteryRes, forgeRes, outfitSetsRes, myOutfitsRes, titlesRes, myTitlesRes, beerMilestonesRes, shieldsRes, chAssignRes, chContribRes, chClaimRes, chGrantRes, chFragRes, chSweepRes, chMemRes,
     petSpeciesRes, petOutfitsRes, myPetsRes, myPetOutfitsRes,
+    framesRes, myFramesRes, frameAssignRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -4279,6 +4349,9 @@ async function loadAppData(){
     sb.from('pet_outfits').select('*').order('sort_order'),
     sb.from('user_pets').select('species_id'),
     sb.from('user_pet_outfits').select('outfit_id'),
+    sb.from('nickname_frames').select('*').order('sort_order'),   // 0082: nickname frames (tolerant)
+    sb.from('user_nickname_frames').select('frame_id'),
+    sb.from('nickname_frame_assignments').select('nickname_id, frame_id, user_id'),
   ]);
 
   for (const res of [
@@ -4789,6 +4862,9 @@ async function loadAppData(){
     petOutfits: ((petOutfitsRes && petOutfitsRes.data) || []).filter(x => x.is_active).map(x => ({ id: x.id, speciesId: x.species_id, family: x.family, name: x.name, rarity: x.rarity, unlockKind: x.unlock_kind, hint: x.hint, sortOrder: x.sort_order })),
     myPets: ((myPetsRes && myPetsRes.data) || []).map(x => x.species_id),
     myPetOutfits: ((myPetOutfitsRes && myPetOutfitsRes.data) || []).map(x => x.outfit_id),
+    nicknameFrames: ((framesRes && framesRes.data) || []).filter(f => f.is_active).map(f => ({ id: f.id, name: f.name, tag: f.tag, rarity: f.rarity, hint: f.hint, sortOrder: f.sort_order })),
+    myNicknameFrames: ((myFramesRes && myFramesRes.data) || []).map(f => f.frame_id),
+    frameAssignments: ((frameAssignRes && frameAssignRes.data) || []).map(a => ({ nicknameId: a.nickname_id, frameId: a.frame_id, userId: a.user_id })),
     gauntletForges: ((forgeRes && forgeRes.data) || []).map(f => ({ id: f.id, createdAt: f.created_at })),
     challenges: {
       assignments: ((chAssignRes && chAssignRes.data) || []).map(a => ({
@@ -4849,6 +4925,7 @@ const REALTIME_TABLES = [
   'group_daily_rounds', 'group_daily_participants', 'group_daily_winners', 'challenge_member_progress', 'mystery_boxes',
 ];
 let realtimeChannel = null;
+let realtimeFrameChannel = null;     // own channel: if 0082 is not applied yet this one fails alone and never takes the main channel down
 let realtimeDebounceTimer = null;
 
 function subscribeRealtime(){
@@ -4866,12 +4943,16 @@ function subscribeRealtime(){
   realtimeChannel.on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'throne_challenges' }, onThroneChallengeResolved);
   realtimeChannel.on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'throne_challenges' }, onThroneChallengeCreated);
   realtimeChannel.subscribe();
+  realtimeFrameChannel = sb.channel('tripel-frames');
+  realtimeFrameChannel.on('postgres_changes', { event: '*', schema: 'public', table: 'nickname_frame_assignments' }, onRealtimeChange);
+  realtimeFrameChannel.subscribe();
 }
 
 function unsubscribeRealtime(){
   if (!realtimeChannel) return;
   sb.removeChannel(realtimeChannel);
   realtimeChannel = null;
+  if (realtimeFrameChannel){ sb.removeChannel(realtimeFrameChannel); realtimeFrameChannel = null; }
 }
 
 function onRealtimeChange(){
@@ -5630,11 +5711,12 @@ function renderNicknameCompactRow(n){
   const subParts = [n.personRealName || 'onbekend'];
   if (n.businessUnit) subParts.push(n.businessUnit);
 
+  const rowFrame = getNicknameFrameId(n.id);
   return `
-    <div class="row-item clickable" onclick="openNicknameDetail('${n.id}')">
+    <div class="row-item clickable ${rowFrame ? `nf-row fr-row-${rowFrame}` : ''}" onclick="openNicknameDetail('${n.id}')">
       ${initialsAvatarHtml(n.personRealName, 36)}
       <div class="info">
-        <div class="name">${escapeHtml(n.text)}${isLegendary ? ' 🔥' : ''}</div>
+        <div class="name">${rowFrame ? `<span class="nf-row-ic" title="${escapeHtml(((APP_DATA.nicknameFrames || []).find(f => f.id === rowFrame) || {}).name || '')}">${FRAME_ART[rowFrame].orb}</span>` : ''}${escapeHtml(n.text)}${isLegendary ? ' 🔥' : ''}</div>
         <div class="sub">${escapeHtml(subParts.join(' · '))}</div>
       </div>
       ${reactionSummary ? `<div class="value" style="font-size:12px;">${reactionSummary}</div>` : ''}
@@ -8417,6 +8499,7 @@ function openRoomCollectionModal(userId){
       }).join('')}
     </div>
     <button type="button" class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="openBeerMilestonesModal('${userId}')">🍺 Brewery Milestones</button>
+    ${userId === STATE.activeUser && (APP_DATA.nicknameFrames || []).length ? `<button type="button" class="btn btn-secondary btn-sm" style="margin-top:12px" onclick="openFramesOverviewModal()">🖼️ Nickname frames (${APP_DATA.myNicknameFrames.length}/${APP_DATA.nicknameFrames.length})</button>` : ''}
   `);
 }
 
@@ -9859,7 +9942,7 @@ async function claimChallenge(id){
   try {
     const { data, error } = await sb.rpc('claim_challenge', { p_assignment_id: id });
     if (error){ console.error('claim_challenge failed:', error); CHALLENGE_STATE.flash[id] = { error: error.message || 'Could not claim.' }; }
-    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); }
+    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); announceFrames(data.frames); }
     else CHALLENGE_STATE.flash[id] = { text: 'Already claimed.' };
     await refreshAppData();
   } finally {
@@ -10913,6 +10996,7 @@ async function openMysteryBox(id){
 
 function mysteryPrizeLines(p){
   if (p.type === 'cosmetic') return { icon: MYSTERY_CAT_ICON[p.category] || '🎩', name: p.name, sub: p.flavor || '', note: 'Added to your collection' };
+  if (p.type === 'frame') return { icon: '🖼️', name: `Frame: ${p.name}`, sub: 'A new frame for your nicknames.', note: 'Nicknames › 🖼️ Kader' };
   if (p.type === 'pet') return { icon: '🐾', img: PET_IMAGES[p.kind === 'species' ? p.pet_id + '-standaard' : p.pet_id] || '', name: p.kind === 'species' ? p.name : `${p.species_name}: ${p.name}`, sub: p.kind === 'species' ? 'A new pet for your character.' : 'New clothes for your pet.', note: 'Mijn Hoekje › Companion' };
   if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'Mijn Hoekje › Outfit › Title' };
   if (p.type === 'fragment') return { icon: '🧩', name: '1 Gauntlet Fragment', sub: p.lord ? 'Kept until your reign ends.' : (p.forged ? '⚔️ It completed a Royal Gauntlet!' : ''), note: '' };
@@ -11623,14 +11707,14 @@ const MODULES = {
         <section class="section">
           <div class="section-head"><h3>🆕 Het laatste nieuws</h3></div>
           <div class="home-latest">
-            <div class="home-latest-card ${newestNickname ? 'clickable' : ''}" ${newestNickname ? `onclick="openNicknameDetail('${newestNickname.id}')"` : ''}>
+            ${(() => { const hf = newestNickname ? getNicknameFrameId(newestNickname.id) : null; return hf ? `<div class="nf-app fr-${hf}"><div class="nf-deco nf-top" aria-hidden="true">${FRAME_ART[hf].top()}</div>` : ''; })()}<div class="home-latest-card ${newestNickname ? 'clickable nf-target' : ''}" ${newestNickname ? `onclick="openNicknameDetail('${newestNickname.id}')"` : ''}>
               <div class="home-latest-kicker">🏷️ Nieuwste nickname</div>
               ${newestNickname ? `
                 <div class="home-latest-main">${escapeHtml(newestNickname.text)}</div>
                 <div class="home-latest-sub">voor ${escapeHtml(newestNickname.personRealName || '?')} · door ${resolveUserLabel(newestNickname.createdByUserId)}</div>
                 <div class="home-latest-date">${String(newestNickname.createdAt).slice(0, 10)}</div>
               ` : '<div class="home-latest-sub">Nog geen nicknames.</div>'}
-            </div>
+            </div>${(() => { const hf = newestNickname ? getNicknameFrameId(newestNickname.id) : null; return hf ? `${['tl', 'tr', 'bl', 'br'].map(c => `<span class="nf-orb ${c}" aria-hidden="true"><span>${FRAME_ART[hf].orb}</span></span>`).join('')}<div class="nf-parts" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => FRAME_ART[hf].parts(i)).join('')}</div></div>` : ''; })()}
             <div class="home-latest-card ${newestPoem ? 'clickable' : ''}" ${newestPoem ? `onclick="openPoemDetailFromHome('${newestPoem.id}')"` : ''}>
               <div class="home-latest-kicker">✒️ Nieuwste gedicht</div>
               ${newestPoem ? `
@@ -12796,7 +12880,161 @@ async function performDeleteBattle(battleId){
    ============================================================= */
 
 /* ---- kaart (compact = Home Wall, zonder acties/stemmen) ---- */
+/* ---- 🖼️ NICKNAME FRAMES (0082): an animated frame around a nickname card, earned from quests and boxes ---- */
+const FRAME_ART = (() => {
+  const rnd = (i, s) => Math.abs(Math.sin((i + 1) * 12.9898 * s) * 43758.5453) % 1;
+  const flameSvg = '<svg viewBox="0 0 100 120" preserveAspectRatio="none"><path d="M50 2C58 26 86 40 82 76 79 100 64 116 50 116 34 116 18 102 18 78 18 58 32 52 38 30 42 44 47 38 50 2Z" fill="#e8350f" stroke="#2b2320" stroke-width="5" stroke-linejoin="round"/><path d="M50 30C56 48 72 56 70 80 68 98 58 108 50 108 40 108 30 98 30 82 30 68 40 64 44 50 47 58 49 52 50 30Z" fill="#ff9a1f"/><path d="M50 62C54 72 62 78 60 90 59 99 54 104 50 104 45 104 40 99 40 91 40 82 47 80 50 62Z" fill="#ffe066"/></svg>';
+  const heart = c => `<svg viewBox="0 0 24 22" width="22" height="20"><path d="M12 21C4 15 1 11 1 7a5.5 5.5 0 0 1 11-1.5A5.5 5.5 0 0 1 23 7c0 4-3 8-11 14Z" fill="${c}" stroke="#2b2320" stroke-width="2" stroke-linejoin="round"/></svg>`;
+  const crown = '<svg viewBox="0 0 60 40" width="64" height="44"><path d="M4 34 L8 10 L20 22 L30 4 L40 22 L52 10 L56 34 Z" fill="#f1c84a" stroke="#2b2320" stroke-width="3" stroke-linejoin="round"/><rect x="4" y="32" width="52" height="7" rx="2" fill="#d9a21b" stroke="#2b2320" stroke-width="3"/><circle cx="30" cy="8" r="3" fill="#e8453c" stroke="#2b2320" stroke-width="2"/><circle cx="8" cy="12" r="2.6" fill="#6fb8ff" stroke="#2b2320" stroke-width="2"/><circle cx="52" cy="12" r="2.6" fill="#4fd8a2" stroke="#2b2320" stroke-width="2"/></svg>';
+  const bolt = '<svg viewBox="0 0 30 60" width="24" height="48"><path d="M18 2 L4 32 H14 L8 58 L26 24 H15 Z" fill="#ffd93a" stroke="#2b2320" stroke-width="3" stroke-linejoin="round"/></svg>';
+  const P = (style, anim, inner = '') => `<span class="nf-p" style="${style};animation:${anim}">${inner}</span>`;
+  return {
+    flame: { orb: '🔥',
+      top: () => Array.from({ length: 9 }, (_, i) => { const h = 30 + Math.round(20 * rnd(i, 1.3)); return `<span class="nf-fl" style="width:${Math.round(h * .78)}px;height:${h}px;animation-duration:${(.9 + rnd(i, 1.3) * .8).toFixed(2)}s;animation-delay:-${(rnd(i, 1.3) * 1.5).toFixed(2)}s">${flameSvg}</span>`; }).join(''),
+      parts: i => P(`left:${8 + i * 10}%;top:44px;width:5px;height:5px;border-radius:50%;background:#ffd24a;box-shadow:0 0 6px 2px rgba(255,150,30,.9);--dx:${(i % 2 ? 1 : -1) * (6 + i % 4 * 3)}px`, `nfk-rise ${2.4 + i % 3 * .5}s ease-out ${i * .35}s infinite`) },
+    ice: { orb: '❄️',
+      top: () => Array.from({ length: 10 }, (_, i) => `<span class="nf-icicle" style="height:${16 + Math.round(24 * rnd(i, 2.1))}px"></span>`).join(''),
+      parts: i => P(`left:${6 + i * 10}%;top:12px;font-size:${10 + i % 3 * 3}px;--dx:${(i % 2 ? 1 : -1) * 8}px`, `nfk-fall ${3.5 + i % 3 * .7}s linear ${i * .45}s infinite`, '❄') },
+    gold: { orb: '◆',
+      top: () => `<span class="nf-crown">${crown}</span>`,
+      parts: i => P(`left:${6 + i * 10}%;top:${i % 2 ? 26 : 90}%;font-size:14px;color:#f1c84a;text-shadow:0 0 6px #ffd24a`, `nfk-twinkle ${2 + i % 3 * .6}s ease-in-out ${i * .4}s infinite`, '✦') },
+    heart: { orb: '🌸',
+      top: () => Array.from({ length: 8 }, (_, i) => `<span class="nf-sway" style="animation-duration:${2.4 + i % 3 * .5}s">${heart(['#ff7aa6', '#ffb3cc', '#ff5c93'][i % 3])}</span>`).join(''),
+      parts: i => P(`left:${6 + i * 10}%;top:44px;font-size:${11 + i % 3 * 3}px;--dx:${(i % 2 ? 1 : -1) * 8}px`, `nfk-rise ${2.8 + i % 3 * .5}s ease-out ${i * .4}s infinite`, '💗') },
+    beer: { orb: '🍺',
+      top: () => Array.from({ length: 8 }, (_, i) => { const sz = 22 + Math.round(18 * rnd(i, 3.7)); return `<span class="nf-foam" style="width:${sz}px;height:${sz}px;margin-bottom:${-4 + i % 3 * 2}px;animation-delay:-${i * .3}s"></span>`; }).join(''),
+      parts: i => P(`left:${8 + i * 10}%;top:${92 - i % 3 * 8}%;width:7px;height:7px;border-radius:50%;border:2px solid #b3760f;background:#fff3c0;--dx:${(i % 2 ? 1 : -1) * 4}px`, `nfk-rise ${2.6 + i % 3 * .6}s ease-out ${i * .4}s infinite`) },
+    conf: { orb: '🎉',
+      top: () => Array.from({ length: 9 }, (_, i) => `<span class="nf-flag" style="background:${['#ff8fb3', '#ffe58a', '#b9f2d9', '#bfe3ff', '#ddd0ff', '#ffd6b8'][i % 6]};animation-delay:-${i * .3}s"></span>`).join(''),
+      parts: i => P(`left:${5 + i * 10}%;top:8px;width:8px;height:12px;background:${['#ff8fb3', '#ffc93c', '#4fd8a2', '#6fb8ff', '#b39dff'][i % 5]};--dx:${(i % 2 ? 1 : -1) * (6 + i % 3 * 4)}px`, `nfk-fall ${2.8 + i % 3 * .6}s linear ${i * .35}s infinite`) },
+    bolt: { orb: '⚡',
+      top: () => Array.from({ length: 5 }, (_, i) => `<span class="nf-bolt" style="animation-delay:-${i * .7}s;transform:scale(${(.8 + rnd(i, 4.4) * .5).toFixed(2)}) rotate(${(i - 2) * 6}deg);margin-top:${2 + i % 2 * 6}px">${bolt}</span>`).join(''),
+      parts: i => P(`left:${6 + i * 11}%;top:${26 + i % 3 * 8}px;font-size:16px`, `nfk-twinkle ${1.2 + i % 3 * .4}s ease-in-out ${i * .3}s infinite`, '⚡') },
+  };
+})();
+function getNicknameFrameId(nicknameId){
+  const a = (APP_DATA.frameAssignments || []).find(x => x.nicknameId === nicknameId);
+  return a && FRAME_ART[a.frameId] ? a.frameId : null;
+}
+function framedHtml(frameId, innerHtml){
+  const art = FRAME_ART[frameId];
+  return `<div class="nf-app fr-${frameId}" data-frame="${frameId}">
+    <div class="nf-deco nf-top" aria-hidden="true">${art.top()}</div>
+    ${innerHtml}
+    ${['tl', 'tr', 'bl', 'br'].map(c => `<span class="nf-orb ${c}" aria-hidden="true"><span>${art.orb}</span></span>`).join('')}
+    <div class="nf-parts" aria-hidden="true">${Array.from({ length: 9 }, (_, i) => art.parts(i)).join('')}</div>
+  </div>`;
+}
 function renderNicknameCard(n, opts = {}){
+  const base = renderNicknameCardBase(n, opts);
+  const fid = getNicknameFrameId(n.id);
+  return fid ? framedHtml(fid, base) : base;
+}
+function frameUsage(frameId){ return (APP_DATA.frameAssignments || []).filter(a => a.userId === STATE.activeUser && a.frameId === frameId); }
+const FRAME_RARITY_COLOR = { common: '#8a8f98', rare: '#4a7fd0', epic: '#9a52d0', legendary: '#d9a21b' };
+function frameCardPreviewHtml(n, frameId){
+  const base = renderNicknameCardBase(n, { compact: true });
+  return frameId && FRAME_ART[frameId] ? framedHtml(frameId, base) : base;
+}
+/* the choice screen: pick a frame to SEE it on your nickname first, then save */
+function openNicknameFrameModal(nicknameId){
+  const n = APP_DATA.nicknames.find(x => x.id === nicknameId);
+  if (!n || n.createdByUserId !== STATE.activeUser) return;
+  const cur = getNicknameFrameId(nicknameId);
+  FRAME_STATE.sel = cur;                                       // what is being previewed (null = no frame)
+  const all = APP_DATA.nicknameFrames || [];
+  const owned = f => APP_DATA.myNicknameFrames.includes(f.id);
+  const optHtml = f => {
+    const mine = owned(f);
+    const used = frameUsage(f.id).filter(a => a.nicknameId !== nicknameId).length;
+    return `<button type="button" class="frame-opt ${cur === f.id ? 'cur' : ''} ${FRAME_STATE.sel === f.id ? 'sel' : ''} ${mine ? '' : 'locked'}" data-frame="${f.id}" style="--fc:${FRAME_RARITY_COLOR[f.rarity] || '#888'}" onclick="previewNicknameFrame('${nicknameId}', '${f.id}')">
+      <b>${mine ? escapeHtml(f.tag) : '🔒 ' + escapeHtml(f.name)}</b><span>${mine ? escapeHtml(f.name) : escapeHtml(f.hint)}</span>
+      <small>${mine ? (used >= 2 && cur !== f.id ? '2 / 2 in gebruik' : `${used + (cur === f.id ? 1 : 0)} / 2 in gebruik`) : 'Voorbeeld bekijken'}</small></button>`;
+  };
+  openModal(`
+    <div class="frame-modal">
+      <h3>🖼️ Kader voor “${escapeHtml(n.text)}”</h3>
+      <p class="ch-note">Tik op een kader om het op je nickname te zien. Opslaan doe je zelf. Elk kader mag op maximaal 2 van je eigen nicknames.</p>
+      ${FRAME_STATE.error ? `<div class="ch-flash bad" role="alert">${escapeHtml(FRAME_STATE.error)}</div>` : ''}
+      <div class="frame-preview-label" id="frame-preview-label">Zo ziet het eruit</div>
+      <div class="frame-preview" id="frame-preview">${frameCardPreviewHtml(n, FRAME_STATE.sel)}</div>
+      <div class="frame-list">
+        <button type="button" class="frame-opt ${cur ? '' : 'cur'} ${FRAME_STATE.sel ? '' : 'sel'}" data-frame="" onclick="previewNicknameFrame('${nicknameId}', '')"><b>🚫 Geen kader</b><span>Gewone kaart</span></button>
+        ${all.filter(owned).map(optHtml).join('')}
+      </div>
+      ${all.filter(f => !owned(f)).length ? `<h4 class="room-outfit-sets-title">Nog te verdienen (je kunt ze wel bekijken)</h4><div class="frame-list">${all.filter(f => !owned(f)).map(optHtml).join('')}</div>` : ''}
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Sluiten</button>
+        <button type="button" class="btn btn-primary" id="frame-save" onclick="saveNicknameFrame('${nicknameId}')" disabled>Opslaan</button>
+      </div>
+    </div>`);
+  refreshFrameSaveButton(nicknameId);
+}
+function frameSelectionState(nicknameId){
+  const cur = getNicknameFrameId(nicknameId), sel = FRAME_STATE.sel || null;
+  if ((cur || null) === sel) return { ok: false, why: '' };
+  if (sel && !APP_DATA.myNicknameFrames.includes(sel)) return { ok: false, why: 'Dit kader heb je nog niet verdiend.' };
+  if (sel && frameUsage(sel).filter(a => a.nicknameId !== nicknameId).length >= 2) return { ok: false, why: 'Dit kader staat al op 2 van je nicknames.' };
+  return { ok: true, why: '' };
+}
+function refreshFrameSaveButton(nicknameId){
+  const btn = document.getElementById('frame-save'); if (!btn) return;
+  const st = frameSelectionState(nicknameId);
+  btn.disabled = !st.ok; btn.title = st.why;
+  const lab = document.getElementById('frame-preview-label');
+  if (lab) lab.textContent = st.why ? 'Voorbeeld · ' + st.why : 'Zo ziet het eruit';
+}
+function previewNicknameFrame(nicknameId, frameId){
+  const n = APP_DATA.nicknames.find(x => x.id === nicknameId); if (!n) return;
+  FRAME_STATE.sel = frameId || null;
+  const box = document.getElementById('frame-preview'); if (box) box.innerHTML = frameCardPreviewHtml(n, FRAME_STATE.sel);
+  document.querySelectorAll('.frame-modal .frame-opt').forEach(b => b.classList.toggle('sel', (b.dataset.frame || null) === FRAME_STATE.sel));
+  refreshFrameSaveButton(nicknameId);
+}
+async function saveNicknameFrame(nicknameId){
+  const st = frameSelectionState(nicknameId);
+  if (!st.ok) return;
+  const btn = document.getElementById('frame-save'); if (btn){ btn.disabled = true; btn.textContent = 'Opslaan…'; }
+  await setNicknameFrame(nicknameId, FRAME_STATE.sel || '');
+}
+const FRAME_STATE = { error: '', sel: null };
+function openFramesOverviewModal(){
+  const frames = APP_DATA.nicknameFrames || [];
+  openModal(`
+    <div class="frame-modal">
+      <h3>🖼️ Nickname frames</h3>
+      <p class="ch-note">Earn frames from quests and Mystery Rewards. A frame can be on at most 2 of your own nicknames: pick them with “🖼️ Kader” on one of your nicknames.</p>
+      <div class="frame-locked">${frames.map(f => {
+        const owned = APP_DATA.myNicknameFrames.includes(f.id);
+        const uses = frameUsage(f.id).map(a => (APP_DATA.nicknames.find(n => n.id === a.nicknameId) || {}).text).filter(Boolean);
+        return `<div class="frame-lock"><b style="color:${FRAME_RARITY_COLOR[f.rarity] || '#888'}">${owned ? f.tag : '🔒 ' + escapeHtml(f.name)} ${owned ? `<small>(${uses.length} / 2)</small>` : ''}</b>
+          <span>${owned ? (uses.length ? 'On: ' + uses.map(escapeHtml).join(', ') : 'Not on a nickname yet.') : escapeHtml(f.hint)}</span></div>`;
+      }).join('')}</div>
+      <div class="modal-actions"><button type="button" class="btn btn-secondary" onclick="closeModal()">Sluiten</button></div>
+    </div>`);
+}
+async function setNicknameFrame(nicknameId, frameId){
+  frameId = frameId || null;
+  FRAME_STATE.error = '';
+  const { error } = await sb.rpc('set_nickname_frame', { p_nickname_id: nicknameId, p_frame_id: frameId });
+  if (error){ console.error('set_nickname_frame failed:', error); FRAME_STATE.error = error.message || 'Could not save.'; return openNicknameFrameModal(nicknameId); }
+  // optimistic local update (the realtime echo and refresh confirm it)
+  const list = APP_DATA.frameAssignments || (APP_DATA.frameAssignments = []);
+  const i = list.findIndex(a => a.nicknameId === nicknameId);
+  if (i >= 0) list.splice(i, 1);
+  if (frameId) list.push({ nicknameId, frameId, userId: STATE.activeUser });
+  renderPage();
+  closeModal();
+  refreshAppData().catch(() => {});
+}
+/* a frame earned by this claim */
+function announceFrames(list){
+  if (!list || !list.length) return;
+  const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
+  setTimeout(() => showQuestToast(`<b>🖼️ NEW FRAME</b><span>${escapeHtml(list.map(f => f.name).join(' + '))}</span><small>Nicknames › 🖼️ Kader</small>`), busy ? 4000 : 0);
+}
+
+function renderNicknameCardBase(n, opts = {}){
   const compact = !!opts.compact;
   const { level, next, progressPct, xpToNext } = getNicknameLevelInfo(n.xp);
   const funnyScore = n.votes.funny.length;
@@ -12877,6 +13115,7 @@ function renderNicknameCard(n, opts = {}){
 
         <div class="nickname-actions">
           <button type="button" class="btn btn-secondary btn-sm" onclick="openLogUsageModal('${n.id}')">➕ Gebruik registreren</button>
+          ${n.createdByUserId === STATE.activeUser && (APP_DATA.myNicknameFrames || []).length ? `<button type="button" class="btn btn-secondary btn-sm" onclick="openNicknameFrameModal('${n.id}')">🖼️ Kader</button>` : ''}
           <button type="button" class="btn btn-ghost btn-sm" onclick="openNicknameForm('edit','${n.id}')">✏️ Bewerken</button>
           <button type="button" class="btn btn-ghost btn-sm" onclick="confirmDeleteNickname('${n.id}')">🗑️</button>
         </div>
