@@ -17629,6 +17629,8 @@ const POEM_MOODS = [
   { id: 'other',         icon: '📝', label: 'Other' },
 ];
 
+/* The reactions a poem can get. A new one is just a line here (id = lowercase letters/underscores; the database only checks that shape, 0089).
+   Everybody can give at most 3 different reactions per poem, and every received reaction is +1 Poetry XP for the author. */
 const POEM_REACTION_TYPES = [
   { id: 'charming',              icon: '🥰', label: 'Charming' },
   { id: 'creative',              icon: '🎨', label: 'Creative' },
@@ -17639,6 +17641,17 @@ const POEM_REACTION_TYPES = [
   { id: 'what_did_i_just_read',  icon: '🤨', label: 'What Did I Just Read?' },
   { id: 'actually_good',         icon: '🔥', label: 'Actually Good' },
   { id: 'emotional_damage',      icon: '💀', label: 'Emotional Damage' },
+  { id: 'standing_ovation',      icon: '👏', label: 'Standing Ovation' },
+  { id: 'mind_blown',            icon: '🤯', label: 'Mind Blown' },
+  { id: 'wholesome',             icon: '🥹', label: 'Wholesome' },
+  { id: 'proost',                icon: '🍻', label: 'Proost!' },
+  { id: 'mic_drop',              icon: '🎤', label: 'Mic Drop' },
+  { id: 'pure_magic',            icon: '✨', label: 'Pure Magic' },
+  { id: 'certified_clown',       icon: '🤡', label: 'Certified Clown' },
+  { id: 'cringe',                icon: '🙄', label: 'Cringe' },
+  { id: 'pretentious',           icon: '🧐', label: 'Very Pretentious' },
+  { id: 'speechless',            icon: '😶', label: 'Speechless' },
+  { id: 'thats_hot',             icon: '🥵', label: "That's Hot" },
 ];
 
 const POEM_XP_RULES = {
