@@ -19,7 +19,9 @@ select * from (values
   (79, 'pet balance',             exists (select 1 from public.challenge_config where key = 'pet_drops' and (value->'chance'->>'personal_daily')::numeric = 0.02)),
   (80, 'quest guide',             to_regprocedure('public.get_quest_guide()') is not null),
   (82, 'nickname frames',         to_regclass('public.nickname_frames') is not null),
-  (83, 'seasonal outfits',        to_regclass('public.character_seasonal_outfits') is not null)
+  (83, 'seasonal outfits',        to_regclass('public.character_seasonal_outfits') is not null),
+  (84, 'taproom wall',            to_regclass('public.wall_neon_signs') is not null),
+  (85, 'wall: 1 neon sign',       exists (select 1 from pg_proc where proname = 'set_wall_neons' and pg_get_functiondef(oid) like '%Only 1 neon sign%'))
 ) as t(migration, wat, toegepast) order by migration;
 -- (de outfit-sets 67 t/m 74 zie je met:  select id, name from public.character_outfit_sets order by sort_order;
 --  verwacht: be1, be2, lk1, bt1, ch1, cp1, pt1, qz1, rb1, lg1, lg2)
