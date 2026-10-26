@@ -3893,7 +3893,7 @@
     .pt-name{font-family:'Chewy',cursive;font-weight:400;font-size:28px;letter-spacing:.02em;line-height:1.05;transform:rotate(-1.5deg);color:#2b2320;background:linear-gradient(180deg,#fff7dc,#f1dfa6);border:3px solid #cfa53d;outline:3px solid #2b2320;border-radius:12px;padding:5px 16px;box-shadow:3px 4px 0 rgba(0,0,0,.35)}
     .pt-name small{display:block;font:600 10px 'Fredoka',sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#7a6a4a}
     .pt-score{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
-    .pt-score span{font-family:'Fredoka',sans-serif;display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border:2.5px solid #2b2320;border-radius:999px;background:#fff7dc;font-weight:800;font-size:12px;box-shadow:2px 2px 0 rgba(0,0,0,.35)}
+    .pt-score span{color:#2b2320;font-family:'Fredoka',sans-serif;display:inline-flex;align-items:center;gap:4px;padding:3px 11px;border:2.5px solid #2b2320;border-radius:999px;background:#fff7dc;font-weight:800;font-size:12px;box-shadow:2px 2px 0 rgba(0,0,0,.35)}
     .pt-rack{position:relative;z-index:3;display:flex;flex-wrap:wrap;gap:6px 14px;padding:0 6px 6px;justify-content:center}
     .pt-unit{position:relative;width:176px;display:flex;flex-direction:column;align-items:center;cursor:pointer;animation:pt-roll .8s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--i) * .09s)}
     @keyframes pt-roll{from{transform:translateX(-90px);opacity:0}to{transform:none;opacity:1}}
@@ -3906,7 +3906,7 @@
     .pt-ball.eight:before{content:"✨";position:absolute;right:-6px;top:-8px;font-size:20px;z-index:3;animation:pt-tw 2s infinite}
     @keyframes pt-tw{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2) rotate(15deg)}}
     .pt-unit:hover .pt-ball{transform:translateX(10px) rotate(70deg)}
-    .pt-plaque{position:relative;width:100%;background:#fffaf0;border:3px solid #2b2320;border-radius:14px;padding:12px 8px 7px;text-align:center;box-shadow:3px 4px 0 rgba(0,0,0,.4);transition:transform .15s}
+    .pt-plaque{position:relative;width:100%;color:#2b2320;background:#fffaf0;border:3px solid #2b2320;border-radius:14px;padding:12px 8px 7px;text-align:center;box-shadow:3px 4px 0 rgba(0,0,0,.4);transition:transform .15s}
     .pt-unit:hover .pt-plaque{transform:translateY(-3px) rotate(-1.2deg)}
     .pt-nick{font-family:'Chewy',cursive;font-weight:400;letter-spacing:.015em;font-size:27px;line-height:1.05;overflow-wrap:anywhere;min-height:30px}
     .pt-meta{font-family:'Fredoka',sans-serif;display:flex;justify-content:center;align-items:center;gap:5px;flex-wrap:wrap;margin-top:5px;font-size:10.5px;font-weight:800;color:#6b5d4f}
@@ -4020,7 +4020,7 @@
     .pt-hall.pt-mode-compact .row-item:hover{background:linear-gradient(180deg,transparent 12%,rgba(255,226,90,.65) 12% 88%,transparent 88%);transform:translateX(4px)}
     .pt-hall.pt-mode-compact .row-item .avatar-emoji{width:30px!important;height:30px!important;font-size:13px!important;border:2px solid #2b2320}
     .pt-hall.pt-mode-compact .row-item .name{font-family:'Chewy',cursive;font-weight:400;font-size:20px;letter-spacing:.015em;line-height:1.1}
-    .pt-hall.pt-mode-compact .row-item .sub{font:500 12px 'Fredoka',sans-serif;color:#6b7a85}
+    .pt-hall.pt-mode-compact .row-item .sub{font:500 12px 'Fredoka',sans-serif;color:#4f5d68}
     .pt-hall.pt-mode-compact .row-item .value{font-family:'Fredoka',sans-serif;font-weight:600}
     @media (max-width:640px){.pt-hall.pt-mode-compact #nicknames-results-mount{padding-left:62px}.pt-hall.pt-mode-compact .row-item:before{left:-44px}.pt-hall{padding:84px 12px 24px!important}.pt-hall .section-head h3{font-size:26px}.pt-views button{font-size:15px}.pt-views{gap:4px;padding:6px 8px}}
     @media (prefers-reduced-motion:reduce){.pt-hall .pt-lamp{animation:none}}
