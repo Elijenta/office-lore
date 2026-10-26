@@ -18,7 +18,8 @@ select * from (values
   (78, 'pets',                    to_regclass('public.pet_species') is not null),
   (79, 'pet balance',             exists (select 1 from public.challenge_config where key = 'pet_drops' and (value->'chance'->>'personal_daily')::numeric = 0.02)),
   (80, 'quest guide',             to_regprocedure('public.get_quest_guide()') is not null),
-  (82, 'nickname frames',         to_regclass('public.nickname_frames') is not null)
+  (82, 'nickname frames',         to_regclass('public.nickname_frames') is not null),
+  (83, 'seasonal outfits',        to_regclass('public.character_seasonal_outfits') is not null)
 ) as t(migration, wat, toegepast) order by migration;
 -- (de outfit-sets 67 t/m 74 zie je met:  select id, name from public.character_outfit_sets order by sort_order;
 --  verwacht: be1, be2, lk1, bt1, ch1, cp1, pt1, qz1, rb1, lg1, lg2)
