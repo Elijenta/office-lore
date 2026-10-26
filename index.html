@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Office Lore</title>
+<title>Tripel Tales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600;700&family=Rye&display=swap" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   /* =========================================================
@@ -226,6 +226,93 @@
     box-shadow: 0 0 0 2px var(--card);
   }
   .nav-btn.active .nav-badge-dot{ background: #fff; box-shadow: 0 0 0 2px var(--pink-deep); }
+
+
+  /* =========================================================
+     3b. TRIPEL TALES HEADER (saloon sign, hanging planks, sheriff star)
+  ========================================================= */
+  .saloon{ margin: 0 0 18px; --sw-dark: #2a1a0b; --sw-text: #f5deb0; }
+  .saloon-beam{ position: relative; height: 12px; border: 3px solid var(--sw-dark); border-bottom-width: 3px; border-radius: 10px 10px 0 0;
+    background: repeating-linear-gradient(95deg, rgba(0,0,0,.14) 0 2px, transparent 2px 13px), linear-gradient(180deg, #7a5a3a, #4d3420); }
+  .saloon-cactus{ position: absolute; right: 22px; top: -17px; font-size: 18px; line-height: 1; }
+  .saloon-row{ display: flex; align-items: flex-start; gap: 12px; padding: 0 14px; }
+  .saloon-sign{ position: relative; flex: 0 0 auto; margin-top: 8px; padding: 5px 18px 4px 12px; border: 2px solid var(--sw-dark); border-radius: 5px 12px 4px 9px; color: #ffdf9a; text-align: left;
+    background: repeating-linear-gradient(92deg, rgba(0,0,0,.18) 0 2px, transparent 2px 12px), linear-gradient(180deg, #8a6a45, #5a3d22);
+    box-shadow: 0 3px 0 rgba(0,0,0,.35); transform: rotate(-3deg); transform-origin: 100% 0; cursor: pointer;
+    clip-path: polygon(0 0, 100% 0, 100% 64%, 95% 72%, 98% 84%, 92% 100%, 0 100%); animation: sign-loose 5.5s ease-in-out infinite; }
+  .saloon-sign b{ display: block; font-family: 'Rye', var(--font-display); font-size: 17px; line-height: 1.15; letter-spacing: .04em; text-shadow: 2px 2px 0 var(--sw-dark); }
+  .saloon-sign small{ display: block; font-family: var(--font-body); font-size: 8px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: #e8c987; }
+  .sign-rope{ position: absolute; top: -10px; right: 12px; width: 2px; height: 12px; background: #b99a66; }
+  @keyframes sign-loose{ 0%, 100%{ transform: rotate(-3deg); } 50%{ transform: rotate(-1deg); } }
+  .saloon .main-nav{ flex: 1 1 auto; display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 8px; min-width: 0; overflow: visible; padding: 0; margin: 0; }
+  .nav-hang{ position: relative; flex: 0 0 auto; padding-top: 10px; transform-origin: 50% 0; }
+  .nav-rope{ position: absolute; top: 0; width: 2px; height: 12px; background: #b99a66; border-left: 1px solid #5b4528; }
+  .nav-rope.l{ left: 10px; } .nav-rope.r{ right: 10px; }
+  .nav-hang.nw1{ animation: nav-wob 4.2s ease-in-out infinite; }
+  .nav-hang.nw2{ animation: nav-wob2 5s ease-in-out infinite; }
+  .nav-hang.nw3{ transform: rotate(-3deg); transform-origin: 12% 0; animation: nav-wob3 3.8s ease-in-out infinite; }
+  .nav-hang.nw3 .nav-rope.r{ display: none; }
+  .nav-hang.nw4{ animation: nav-wob 6s ease-in-out infinite .6s; }
+  .nav-hang.nw5{ transform: rotate(2.5deg); transform-origin: 88% 0; animation: nav-wob4 4.6s ease-in-out infinite 1s; }
+  .nav-hang.nw5 .nav-rope.l{ display: none; }
+  .nav-hang.nw6{ animation: nav-wob2 4.8s ease-in-out infinite .3s; }
+  @keyframes nav-wob{ 0%, 100%{ transform: rotate(-.8deg); } 50%{ transform: rotate(.8deg); } }
+  @keyframes nav-wob2{ 0%, 100%{ transform: rotate(.5deg); } 50%{ transform: rotate(-1deg); } }
+  @keyframes nav-wob3{ 0%, 100%{ transform: rotate(-3deg); } 50%{ transform: rotate(-1deg); } }
+  @keyframes nav-wob4{ 0%, 100%{ transform: rotate(2.5deg); } 50%{ transform: rotate(.8deg); } }
+  .nav-hang:hover{ animation: nav-shake .5s; }
+  @keyframes nav-shake{ 0%, 100%{ transform: rotate(0); } 20%{ transform: rotate(-5deg); } 45%{ transform: rotate(4deg); } 70%{ transform: rotate(-2deg); } }
+  .nav-plank{ position: relative; display: flex; align-items: center; gap: 5px; padding: 4px 10px 4px 5px; border: 2px solid var(--sw-dark); border-radius: 5px 12px 4px 9px; color: var(--sw-text);
+    font: 800 12px var(--font-body); white-space: nowrap; cursor: pointer; box-shadow: 0 3px 0 rgba(0,0,0,.4);
+    background: repeating-linear-gradient(92deg, rgba(0,0,0,.2) 0 2px, transparent 2px 14px), radial-gradient(circle at 78% 40%, rgba(0,0,0,.28) 0 5px, transparent 6px), linear-gradient(180deg, #8d6c47, #5e4126); }
+  .nav-tok{ width: 22px; height: 22px; display: grid; place-items: center; font-size: 12px; border-radius: 50%; background: #f2e1b5; border: 2px solid var(--sw-dark); box-shadow: inset 0 -3px 0 rgba(0,0,0,.15); }
+  .nav-short{ display: none; }
+  .nav-plank.on{ color: #3a2a10; border-color: #5b3a0a; background: repeating-linear-gradient(92deg, rgba(0,0,0,.07) 0 2px, transparent 2px 14px), linear-gradient(180deg, #ffe08a, #e9b43e);
+    box-shadow: 0 3px 0 rgba(0,0,0,.4), 0 0 12px rgba(255,190,60,.65); }
+  .nav-plank.broken{ clip-path: polygon(0 0, 100% 0, 100% 40%, 94% 52%, 100% 66%, 95% 82%, 100% 100%, 0 100%); }
+  .nav-seal{ min-width: 16px; height: 16px; padding: 0 3px; display: grid; place-items: center; border-radius: 999px; background: #c0392b; color: #fff; font-size: 9px; font-weight: 800; border: 2px solid #fff3c9; }
+  .nav-dot{ width: 8px; height: 8px; border-radius: 50%; background: #e8453c; box-shadow: 0 0 0 2px #fff3c9; display: inline-block; }
+  .nav-splinter{ position: absolute; right: -4px; bottom: -10px; width: 12px; height: 6px; background: #6c4a2a; border: 2px solid var(--sw-dark); transform: rotate(-30deg); animation: nav-drop 3s ease-in infinite; pointer-events: none; }
+  @keyframes nav-drop{ 0%, 70%{ transform: rotate(-30deg) translateY(0); opacity: 1; } 100%{ transform: rotate(-80deg) translateY(30px); opacity: 0; } }
+  .saloon .user-switcher{ flex: 0 0 auto; position: relative; }
+  .saloon .profile-menu-btn{ position: relative; width: 50px; height: 50px; margin-top: 4px; padding: 0; border: 0; background: none; box-shadow: none; display: grid; place-items: center; filter: drop-shadow(0 3px 0 rgba(0,0,0,.4)); transform-origin: 50% 0; animation: star-jig 6s ease-in-out infinite; }
+  .saloon .profile-menu-btn:hover{ transform: none; }
+  .star-shape{ position: absolute; inset: 0; background: linear-gradient(145deg, #f3dc8a, #c79a2b 55%, #e8c45a); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+  .star-text{ position: relative; margin-top: 3px; max-width: 34px; font: 800 8px/1.1 var(--font-body); color: #4a3210; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  @keyframes star-jig{ 0%, 90%, 100%{ transform: rotate(0); } 93%{ transform: rotate(8deg); } 96%{ transform: rotate(-6deg); } }
+  .saloon .profile-menu-dropdown{ right: 0; left: auto; }
+  .saloon-notes{ position: relative; display: flex; flex-wrap: wrap; gap: 7px; margin: 8px 14px 0; padding-top: 6px; }
+  .saloon-notes:empty{ display: none; }
+  .saloon-notes:before{ content: ""; position: absolute; left: -8px; right: -8px; top: 0; height: 5px; background: linear-gradient(180deg, #6b4a2a, #4d3420); border-radius: 4px; border: 1.5px solid var(--sw-dark); }
+  .nav-note{ position: relative; margin-top: 5px; padding: 9px 12px 6px; border: 2px solid #7a5a2a; color: #3a2a1a; font: 800 11px var(--font-body); cursor: pointer; box-shadow: 2px 3px 0 rgba(0,0,0,.3);
+    background: linear-gradient(180deg, #f5e6bd, #ead39c); transition: transform .15s;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 92% 96%, 84% 100%, 70% 95%, 55% 100%, 40% 96%, 24% 100%, 10% 95%, 0 100%); }
+  .nav-note:before{ content: ""; position: absolute; top: 2px; left: 50%; width: 5px; height: 5px; margin-left: -3px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #eee, #666); }
+  .nav-note:nth-child(odd){ transform: rotate(-2deg); } .nav-note:nth-child(even){ transform: rotate(1.8deg); }
+  .nav-note:hover{ transform: rotate(3deg) translateY(-2px); }
+  .nav-note.on{ background: linear-gradient(180deg, #fff0b8, #ffd86b); transform: scale(1.06); z-index: 1; }
+  .nav-note.on:after{ content: "WANTED"; position: absolute; top: -1px; right: -1px; font-size: 6px; letter-spacing: .1em; background: #9b1c14; color: #fff; padding: 1px 4px; }
+  @media (prefers-reduced-motion: reduce){ .saloon *, .saloon{ animation: none !important; } }
+  @media (max-width: 720px){ #ol-env-badge{ bottom: 96px !important; } }
+  /* phone: sign + star on top, the planks become a wooden dock with round coins at the bottom */
+  @media (max-width: 720px){
+    .app-shell{ padding-bottom: 110px; }
+    .saloon .main-nav{ position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; height: 86px; padding: 0 6px 8px; margin: 0; gap: 0; align-items: flex-end; justify-content: space-around; flex-wrap: nowrap;
+      border-top: 5px solid var(--sw-dark); background: repeating-linear-gradient(92deg, rgba(0,0,0,.07) 0 2px, transparent 2px 11px), linear-gradient(180deg, #8a5a35, #6b4226); }
+    .saloon .main-nav:before{ content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, transparent, #cfa53d 20%, #ecd48a 50%, #cfa53d 80%, transparent); }
+    .nav-hang{ flex: 1 1 0; padding-top: 0; transform: none !important; animation: none !important; display: flex; justify-content: center; }
+    .nav-rope, .nav-splinter{ display: none; }
+    .nav-plank{ flex-direction: column; gap: 2px; width: 100%; padding: 0; border: 0; background: none; box-shadow: none; clip-path: none; color: #e9d9b0; font-size: 10px; align-items: center; transition: transform .2s; }
+    .nav-tok{ width: 44px; height: 44px; font-size: 21px; border: 3px solid #cfa53d; background: radial-gradient(circle at 35% 30%, #fff6dc, #f7ebca 55%, #e2cd96); box-shadow: inset 0 -3px 0 rgba(0,0,0,.18), 0 3px 0 rgba(0,0,0,.45); }
+    .nav-lbl{ display: none; } .nav-short{ display: inline; }
+    .nav-plank.on{ transform: translateY(-12px); background: none; color: #ffe58a; box-shadow: none; }
+    .nav-plank.on .nav-tok{ border-color: #fff3c9; background: radial-gradient(circle at 35% 30%, #fff, #ffe58a 60%, #f0c24d); box-shadow: inset 0 -3px 0 rgba(0,0,0,.12), 0 4px 0 rgba(0,0,0,.45), 0 0 16px 4px rgba(255,200,80,.85); }
+    .nav-plank .nav-seal{ position: absolute; top: -4px; right: 14%; } .nav-plank .nav-dot{ position: absolute; top: 0; right: 22%; }
+    .saloon-sign small{ display: none; }
+    .saloon-sign b{ font-size: 16px; }
+    .saloon-row{ justify-content: space-between; }
+    .saloon-notes{ margin: 8px 8px 0; }
+  }
 
   /* =========================================================
      4. PAGE / SECTION SCAFFOLDING
@@ -3577,6 +3664,20 @@
   .qg-rewards{ display:flex; flex-direction:column; gap: 4px; margin-top: auto; }
   .qg-rl{ font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: #8a7a6b; }
 
+
+  /* ---- emoji picker ---- */
+  .emoji-pad{ margin-top: 10px; border: var(--outline-thin); border-radius: var(--radius-md); background: var(--card); padding: 8px; }
+  .emoji-count{ display:flex; align-items:center; gap: 8px; font-size: 12px; font-weight: 800; color: #6b5d4f; margin-bottom: 6px; }
+  .emoji-back{ margin-left: auto; padding: 3px 10px; border: var(--outline-thin); border-radius: 999px; background: var(--card); font: inherit; font-weight: 800; font-size: 12px; cursor: pointer; }
+  .emoji-back + .emoji-back{ margin-left: 0; }
+  .emoji-tabs{ display:flex; gap: 4px; margin-bottom: 6px; overflow-x: auto; }
+  .emoji-tab{ flex: 0 0 auto; padding: 4px 10px; font-size: 18px; border: var(--outline-thin); border-radius: 10px; background: var(--card); cursor: pointer; }
+  .emoji-tab.on{ background: var(--yellow); }
+  .emoji-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 4px; }
+  .emoji-grid[hidden]{ display:none; }
+  .emoji-key{ font-size: 24px; line-height: 1; padding: 6px 0; border: 0; border-radius: 8px; background: transparent; cursor: pointer; }
+  .emoji-key:hover, .emoji-key:active{ background: rgba(0,0,0,.08); }
+
   /* ---- Home: simple dashboard ---- */
   .home-hello{ margin-bottom: 10px; }
   .home-hello-name{ font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--ink); }
@@ -3944,32 +4045,32 @@
 
 <div class="app-shell">
 
-  <!-- ============ TOPBAR: brand + user switcher ============ -->
-  <header class="topbar">
-    <div class="brand">
-      <div class="logo-badge">🗂️</div>
-      <div>
-        <h1>Office Lore</h1>
-        <div class="tagline">De officiële bureau-mythologie</div>
+  <!-- ============ HEADER: sign + hanging nav planks + sheriff star (profile) ============ -->
+  <header class="saloon">
+    <div class="saloon-beam"><span class="saloon-cactus" aria-hidden="true">🌵</span></div>
+    <div class="saloon-row">
+      <button type="button" class="saloon-sign" onclick="goToPage('home')" aria-label="Tripel Tales, naar Home">
+        <span class="sign-rope" aria-hidden="true"></span>
+        <b>Tripel Tales</b>
+        <small>Bijnamen · gedichten · terrasjes</small>
+        <span class="sign-splinter" aria-hidden="true"></span>
+      </button>
+      <nav class="main-nav" id="main-nav" aria-label="Hoofdmenu">
+        <!-- gevuld door JS: renderNav() -->
+      </nav>
+      <div class="user-switcher" id="user-switcher">
+        <!-- gevuld door JS: renderUserSwitcher() -- sheriffster met profielmenu (My Profile / Log out) -->
       </div>
     </div>
-
-    <div class="user-switcher" id="user-switcher">
-      <!-- gevuld door JS: renderUserSwitcher() -- profielmenu (My Profile / Switch User) -->
-    </div>
+    <div class="saloon-notes" id="sub-nav" aria-label="Tabbladen"></div>
   </header>
-
-  <!-- ============ MAIN NAV ============ -->
-  <nav class="main-nav" id="main-nav">
-    <!-- gevuld door JS: renderNav() -->
-  </nav>
 
   <!-- ============ PAGES ============ -->
   <main id="page-root">
     <!-- gevuld door JS: renderPage() -->
   </main>
 
-  <footer class="app-footer">Office Lore · intern speeltje, geen HR-document 🍻</footer>
+  <footer class="app-footer">Tripel Tales · intern speeltje, geen HR-document 🍻</footer>
 </div>
 
 <!-- gevuld door JS: openModal()/closeModal() -- herbruikbaar voor toekomstige modules -->
@@ -6455,7 +6556,7 @@ function getAbsoluteAbtPeriods(userId){
 const THRONE_SCHOOLS = {
   pint:      { icon: '🍺', name: 'PINT',      blurb: 'Beer challenges' },
   wisdom:    { icon: '🧠', name: 'WISDOM',    blurb: 'Knowledge & trivia' },
-  lore:      { icon: '📜', name: 'LORE',      blurb: 'Office Lore data' },
+  lore:      { icon: '📜', name: 'LORE',      blurb: 'Tripel Tales data' },
   chaos:     { icon: '🎭', name: 'CHAOS',     blurb: 'Creative nonsense' },
   reflex:    { icon: '⚡', name: 'REFLEX',    blurb: 'Fast games' },
   real_life: { icon: '🌍', name: 'REAL LIFE', blurb: 'Outside the app' },
@@ -7475,7 +7576,7 @@ const PLAYER_LEVELS = [
   { level: 6, title: 'Lore Contributor', minXp: 520 },
   { level: 7, title: 'Office Legend', minXp: 750 },
   { level: 8, title: 'Living Institution', minXp: 1050 },
-  { level: 9, title: 'Office Lore Icon', minXp: 1450 },
+  { level: 9, title: 'Tripel Tales Icon', minXp: 1450 },
   { level: 10, title: 'Mythic Status', minXp: 2000 },
 ];
 function getPlayerLevelInfo(xp){
@@ -7980,8 +8081,8 @@ function announcePets(pet){
   if (!pets.length && !looks.length) return;
   const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
   const html = pets.length
-    ? `<b>🐾 NEW PET</b><span>${escapeHtml(pets.join(' + '))}</span><small>My Room › Companion</small>`
-    : `<b>🧥 NEW PET LOOK</b><span>${escapeHtml(looks.join(' + '))}</span><small>My Room › Companion</small>`;
+    ? `<b>🐾 NEW PET</b><span>${escapeHtml(pets.join(' + '))}</span><small>Mijn Hoekje › Companion</small>`
+    : `<b>🧥 NEW PET LOOK</b><span>${escapeHtml(looks.join(' + '))}</span><small>Mijn Hoekje › Companion</small>`;
   setTimeout(() => showQuestToast(html), busy ? 4000 : 0);
 }
 
@@ -9827,6 +9928,44 @@ function chaosEmojiCount(s){
   return seg.length;
 }
 
+/* ---- emoji picker: a tap-to-add palette under every emoji input (desktop browsers have no emoji keyboard to hand) ---- */
+const EMOJI_PALETTE = [
+  ['😀', ['😀','😂','🤣','😎','🥳','😴','🤔','😡','🥶','😈','🤡','👻','💀','🤓','😍','🥺','😱','🙄','🤪','🤯','🥴','😇','🤠','🫠','😬','🤫','🤢','🤒']],
+  ['🐻', ['🐶','🐱','🐻','🐼','🦊','🐸','🐷','🐮','🐔','🦉','🐢','🐍','🦄','🐝','🦆','🐙','🐧','🐵','🦁','🐯','🐰','🦖','🦈','🐌','🦥','🦔','🐴','🐺']],
+  ['🍺', ['🍺','🍻','🍷','🥂','☕','🍕','🍔','🍟','🌮','🍩','🍪','🍫','🧀','🥐','🍎','🍌','🍉','🍿','🥨','🍳','🍜','🍣','🍦','🥤','🧃','🍾','🌶️','🥑']],
+  ['💼', ['💼','🖨️','📎','✂️','📞','💻','🖱️','📊','📅','⏰','🔑','💡','🎧','📚','✏️','🗑️','🪑','📦','🧯','🔌','📌','📝','🧾','🚪','🪴','🧻','🔒','📣']],
+  ['👑', ['👑','🧙','🦸','🕵️','🤝','👍','👎','🙏','💪','👀','🧠','🫡','👏','🙌','🤷','🤦','💃','🕺','🏃','🧘','🥷','🤴','👸','🎅','🧛','🧟','🧜','🧚']],
+  ['✨', ['🔥','💥','✨','⭐','❤️','💔','💯','🚀','🌈','⚡','🎉','🎭','🏆','⚔️','🛡️','🏰','💰','🚽','🕳️','🚧','⚠️','🎲','🎯','🎸','🌍','🌙','☀️','🌧️']],
+];
+function emojiPickerHtml(inputId){
+  return `<div class="emoji-pad" data-for="${inputId}">
+    <div class="emoji-count"><span id="${inputId}-count">0</span> / 5 <button type="button" class="emoji-back" onclick="emojiBackspace('${inputId}')" aria-label="Remove the last emoji">⌫</button><button type="button" class="emoji-back" onclick="emojiClear('${inputId}')" aria-label="Clear">Clear</button></div>
+    <div class="emoji-tabs" role="tablist">${EMOJI_PALETTE.map(([ic], i) => `<button type="button" class="emoji-tab ${i === 0 ? 'on' : ''}" role="tab" onclick="emojiTab(this, ${i})">${ic}</button>`).join('')}</div>
+    ${EMOJI_PALETTE.map(([, list], i) => `<div class="emoji-grid" data-tab="${i}" ${i === 0 ? '' : 'hidden'}>${list.map(e => `<button type="button" class="emoji-key" onclick="emojiPick('${inputId}', '${e}')" aria-label="${e}">${e}</button>`).join('')}</div>`).join('')}
+  </div>`;
+}
+function emojiTab(btn, i){
+  const pad = btn.closest('.emoji-pad');
+  pad.querySelectorAll('.emoji-tab').forEach((t, k) => t.classList.toggle('on', k === i));
+  pad.querySelectorAll('.emoji-grid').forEach(g => { g.hidden = Number(g.dataset.tab) !== i; });
+}
+function emojiUpdateCount(inputId){
+  const el = document.getElementById(inputId), c = document.getElementById(inputId + '-count');
+  if (el && c) c.textContent = chaosEmojiCount(el.value);
+}
+function emojiPick(inputId, e){
+  const el = document.getElementById(inputId); if (!el) return;
+  if (chaosEmojiCount(el.value + e) > 5){ if (typeof setChaosError === 'function') setChaosError('At most 5 emoji.'); return; }
+  el.value += e; emojiUpdateCount(inputId);
+  if (typeof setChaosError === 'function') setChaosError('');
+}
+function emojiBackspace(inputId){
+  const el = document.getElementById(inputId); if (!el) return;
+  const parts = typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(el.value)].map(x => x.segment) : [...el.value];
+  parts.pop(); el.value = parts.join(''); emojiUpdateCount(inputId);
+}
+function emojiClear(inputId){ const el = document.getElementById(inputId); if (el){ el.value = ''; emojiUpdateCount(inputId); } }
+
 /* a photo, resized in the browser: the image component is isolated here, so Storage can replace it later */
 function chaosResizeImage(file, maxDim){
   return new Promise((resolve, reject) => {
@@ -9924,7 +10063,8 @@ function renderChaosModal(){
   else if (kind === 'emoji') body = `
     <p class="chaos-prompt">Describe this nickname with at most 5 emoji: <b>${escapeHtml(text)}</b></p>
     <p class="chaos-safe">Emoji only, no letters. The others guess which nickname it is.</p>
-    <input type="text" id="chaos-emoji" class="input chaos-emoji-input" placeholder="😀🍺👑" autocomplete="off">`;
+    <input type="text" id="chaos-emoji" class="input chaos-emoji-input" placeholder="😀🍺👑" autocomplete="off" oninput="emojiUpdateCount('chaos-emoji')">
+    ${emojiPickerHtml('chaos-emoji')}`;
   else if (kind === 'impostor') body = `
     <p class="chaos-prompt">Write 3 statements. Two true, one false. Select the false one.</p>
     ${[0, 1, 2].map(i => `<label class="chaos-stmt"><input type="radio" name="chaos-fake" value="${i}" ${i === 2 ? 'checked' : ''}><input type="text" id="chaos-s${i}" class="input" maxlength="140" placeholder="Statement ${i + 1}"></label>`).join('')}
@@ -10299,7 +10439,7 @@ function openGroupEntry(){
   let body = '';
   if (r.kind === 'nickname') body = `<p class="chaos-prompt">${escapeHtml(text)}</p><input type="text" id="gd-text" class="input" maxlength="30" placeholder="Your nickname">`;
   else if (r.kind === 'poetry') body = `<p class="chaos-prompt">${escapeHtml(text)}</p><textarea id="gd-text" class="input" rows="5" maxlength="400" placeholder="Write your poem…"></textarea><div class="chaos-count">20 to 400 characters, at least 6 words</div>`;
-  else if (r.kind === 'emoji') body = `<p class="chaos-prompt">Describe this with at most 5 emoji: <b>${escapeHtml(text)}</b></p><p class="chaos-safe">Emoji only, no letters.</p><input type="text" id="gd-text" class="input chaos-emoji-input" placeholder="😀🍺👑" autocomplete="off">`;
+  else if (r.kind === 'emoji') body = `<p class="chaos-prompt">Describe this with at most 5 emoji: <b>${escapeHtml(text)}</b></p><p class="chaos-safe">Emoji only, no letters.</p><input type="text" id="gd-text" class="input chaos-emoji-input" placeholder="😀🍺👑" autocomplete="off" oninput="emojiUpdateCount('gd-text')">${emojiPickerHtml('gd-text')}`;
   else if (r.kind === 'chaos' && (r.prompt || {}).sub === 'decree') body = `<p class="chaos-prompt">${escapeHtml(text)}</p><textarea id="gd-text" class="input" rows="4" maxlength="280" placeholder="By royal order, …"></textarea><div class="chaos-count">15 to 280 characters, at least 5 words</div>`;
   else body = `<p class="chaos-prompt">${escapeHtml(text)}</p><p class="chaos-safe">Objects only: no people, screens, papers or whiteboards.</p>
     <div id="chaos-preview" class="chaos-preview"><span>No photo yet</span></div>
@@ -10461,14 +10601,14 @@ function announceTitles(list){
   if (!list || !list.length) return;
   const t = list.map(x => x.text).join(' + ');
   const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
-  setTimeout(() => showQuestToast(`<b>🏷️ NEW TITLE</b><span>${escapeHtml(t)}</span><small>My Room › Wardrobe › Title</small>`), busy ? 4000 : 0);
+  setTimeout(() => showQuestToast(`<b>🏷️ NEW TITLE</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Outfit › Title</small>`), busy ? 4000 : 0);
 }
 /* a special Personal Character outfit earned by this very claim */
 function announceOutfits(list){
   if (!list || !list.length) return;
   const t = list.map(o => o.name).join(' + ');
   const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
-  setTimeout(() => showQuestToast(`<b>👗 NEW OUTFIT UNLOCKED</b><span>${escapeHtml(t)}</span><small>My Room › Wardrobe › Outfit</small>`), busy ? 4000 : 0);
+  setTimeout(() => showQuestToast(`<b>👗 NEW OUTFIT UNLOCKED</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Outfit › Outfit</small>`), busy ? 4000 : 0);
 }
 /* a short, satisfying announcement for fragments: 3 / 5 → 4 / 5 */
 function showQuestToast(html){
@@ -10750,8 +10890,8 @@ async function openMysteryBox(id){
 
 function mysteryPrizeLines(p){
   if (p.type === 'cosmetic') return { icon: MYSTERY_CAT_ICON[p.category] || '🎩', name: p.name, sub: p.flavor || '', note: 'Added to your collection' };
-  if (p.type === 'pet') return { icon: '🐾', img: PET_IMAGES[p.kind === 'species' ? p.pet_id + '-standaard' : p.pet_id] || '', name: p.kind === 'species' ? p.name : `${p.species_name}: ${p.name}`, sub: p.kind === 'species' ? 'A new pet for your character.' : 'New clothes for your pet.', note: 'My Room › Companion' };
-  if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'My Room › Wardrobe › Title' };
+  if (p.type === 'pet') return { icon: '🐾', img: PET_IMAGES[p.kind === 'species' ? p.pet_id + '-standaard' : p.pet_id] || '', name: p.kind === 'species' ? p.name : `${p.species_name}: ${p.name}`, sub: p.kind === 'species' ? 'A new pet for your character.' : 'New clothes for your pet.', note: 'Mijn Hoekje › Companion' };
+  if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'Mijn Hoekje › Outfit › Title' };
   if (p.type === 'fragment') return { icon: '🧩', name: '1 Gauntlet Fragment', sub: p.lord ? 'Kept until your reign ends.' : (p.forged ? '⚔️ It completed a Royal Gauntlet!' : ''), note: '' };
   return { icon: '✨', name: `+${p.amount} Player XP`, sub: p.duplicate_bonus ? 'You already own everything here. A bonus instead.' : '', note: '' };
 }
@@ -11354,15 +11494,26 @@ const LEADERBOARD_DEFS = [
    Eén plek om secties toe te voegen/hernoemen. */
 const NAV_ITEMS = [
   { id: 'home',         label: 'Home',         emoji: '🏠' },
-  { id: 'room',         label: 'My Room',      emoji: '🚪' },
+  { id: 'room',         label: 'Mijn Hoekje',  emoji: '🛋️' },
   { id: 'nicknames',    label: 'Nicknames',    emoji: '🏷️' },
   { id: 'lore',         label: 'Lore',         emoji: '📖' },
   { id: 'counters',     label: 'Counters',     emoji: '🔢' },
   { id: 'challenges',   label: 'Quest Board',  emoji: '⚔️' },
-  { id: 'beerclub',     label: 'Beer Club',    emoji: '🍺' },
+  { id: 'beerclub',     label: 'Taproom',      emoji: '🍺' },
   { id: 'poetrywall',   label: 'Poetry Wall',  emoji: '✒️' },
   { id: 'terrace',      label: 'Terrace',      emoji: '🍻' },
-  { id: 'leaderboards', label: 'Leaderboards', emoji: '🏆' },
+  { id: 'leaderboards', label: 'Rankings',     emoji: '🏆' },
+];
+
+/* The header shows 6 hanging planks. Pages that belong together share one plank and appear as notes below it
+   (Lore and Counters under Nicknames, Terrace under the Taproom, Rankings under the Quest Board). Every page keeps its own route. */
+const NAV_GROUPS = [
+  { id: 'home',       label: 'Home',        short: 'Home',      emoji: '🏠', pages: ['home'] },
+  { id: 'nicknames',  label: 'Nicknames',   short: 'Nicknames', emoji: '🏷️', pages: ['nicknames', 'lore', 'counters'], tabs: [['nicknames', 'Nicknames'], ['lore', 'Lore'], ['counters', 'Counters']] },
+  { id: 'challenges', label: 'Quest Board', short: 'Quests',    emoji: '⚔️', pages: ['challenges', 'leaderboards'], tabs: [['challenges', 'Quest Board'], ['leaderboards', 'Rankings']] },
+  { id: 'beerclub',   label: 'Taproom',     short: 'Taproom',   emoji: '🍺', pages: ['beerclub', 'terrace'], tabs: [['beerclub', 'Taproom'], ['terrace', 'Terrace']] },
+  { id: 'poetrywall', label: 'Poetry Wall', short: 'Poetry',    emoji: '✒️', pages: ['poetrywall'], broken: true },
+  { id: 'room',       label: 'Mijn Hoekje', short: 'Hoekje',    emoji: '🛋️', pages: ['room'] },
 ];
 
 /* ---------- 5. PAGE MODULES ----------
@@ -11383,7 +11534,7 @@ const MODULES = {
         <section class="section">
           <div class="home-hello">
             <div class="home-hello-name">Hey ${escapeHtml(activeUser.displayName)} 👋</div>
-            <div class="home-hello-sub">Wat is er te doen in Office Lore?</div>
+            <div class="home-hello-sub">Wat is er te doen in Tripel Tales?</div>
           </div>
           <div class="home-quick">
             <button type="button" class="home-quick-btn" onclick="openNicknameForm('add')">🏷️ Nickname</button>
@@ -11484,8 +11635,8 @@ const MODULES = {
   },
 
   room: {
-    title: 'My Room',
-    subtitle: 'Jouw persoonlijke hoekje van Office Lore.',
+    title: 'Mijn Hoekje',
+    subtitle: 'Jouw persoonlijke hoekje van Tripel Tales.',
     emoji: '🚪',
     render(data){
       return renderRoomPage(data);
@@ -11668,7 +11819,7 @@ const MODULES = {
 
   leaderboards: {
     title: 'Leaderboards',
-    subtitle: 'Automatisch berekende klassementen op basis van alle Office Lore-data.',
+    subtitle: 'Automatisch berekende klassementen op basis van alle Tripel Tales-data.',
     render(data){
       const loreBoards = LEADERBOARD_DEFS.map(def => `
         <section class="section">
@@ -18197,12 +18348,13 @@ function renderUserSwitcher(){
   const mount = document.getElementById('user-switcher');
   const u = findUser(STATE.activeUser);
   if (!u){ mount.innerHTML = ''; return; }
+  let starLevel = 1;
+  try { starLevel = getPlayerLevelInfo(computePlayerXp(u.id).total).level || 1; } catch (e) { /* data not loaded yet */ }
   mount.innerHTML = `
     <div class="profile-menu">
-      <button type="button" class="profile-menu-btn" onclick="toggleProfileMenu(event)">
-        <span class="avatar" style="background:${u.avatarColor}">${u.avatarEmoji}</span>
-        <span class="name">${escapeHtml(u.displayName)}</span>
-        <span class="chevron">▾</span>
+      <button type="button" class="profile-menu-btn" onclick="toggleProfileMenu(event)" aria-label="${escapeHtml(u.displayName)}, level ${starLevel}: menu" title="${escapeHtml(u.displayName)} · level ${starLevel}">
+        <span class="star-shape" aria-hidden="true"></span>
+        <span class="star-text">Lv ${starLevel}<br>${escapeHtml(u.displayName)}</span>
       </button>
       <div class="profile-menu-dropdown" id="profile-menu-dropdown">
         <button type="button" onclick="closeProfileMenu(); goToPage('myprofile');">🙋 My Profile</button>
@@ -18246,7 +18398,7 @@ function renderGateScreen(){
         <div class="gate-header">
           <div class="logo-badge" style="margin:0 auto;">🗂️</div>
           <h1>Nog geen toegang</h1>
-          <p class="gate-sub">Je account bestaat, maar je hebt nog geen toegang tot Office Lore. Vraag een admin om je toe te voegen.</p>
+          <p class="gate-sub">Je account bestaat, maar je hebt nog geen toegang tot Tripel Tales. Vraag een admin om je toe te voegen.</p>
         </div>
         <div class="modal-box" style="text-align:left; max-width:360px;">
           <div class="form-actions" style="justify-content:center;">
@@ -18352,8 +18504,8 @@ function renderGateScreen(){
   root.innerHTML = `
     <div class="gate-screen">
       <div class="gate-header">
-        <div class="logo-badge" style="margin:0 auto;">🗂️</div>
-        <h1>Office Lore</h1>
+        <div class="logo-badge" style="margin:0 auto;">🍻</div>
+        <h1>Tripel Tales</h1>
         <p class="gate-sub">Log in om verder te gaan.</p>
       </div>
       <div class="modal-box" style="text-align:left; max-width:360px;">
@@ -18381,19 +18533,34 @@ function renderGateScreen(){
 }
 
 /* ---------- 7. RENDER: nav ---------- */
+function navGroupOf(page){ return NAV_GROUPS.find(g => g.pages.includes(page)) || null; }
+function navQuestBadge(){
+  try {
+    const sweep = getTodaysSweep();
+    return getMyChallenges().filter(a => challengeStatusOf(a) === 'complete').length + (sweep && !sweep.claimedAt ? 1 : 0);
+  } catch (e) { return 0; }
+}
 function renderNav(){
   const mount = document.getElementById('main-nav');
+  const sub = document.getElementById('sub-nav');
+  const group = navGroupOf(STATE.activePage);
   const terracePending = getTerracePendingVoteCount();
-  mount.innerHTML = NAV_ITEMS.map(item => `
-    <button class="nav-btn ${item.id === STATE.activePage ? 'active' : ''}" data-page="${item.id}">
-      <span class="emoji">${item.emoji}</span>${item.label}${item.id === 'terrace' && terracePending > 0 ? `<span class="nav-badge-dot"></span>` : ''}
-    </button>
-  `).join('');
+  const quests = navQuestBadge();
+  mount.innerHTML = NAV_GROUPS.map((g, i) => {
+    const seal = g.id === 'challenges' && quests > 0 ? `<span class="nav-seal" title="${quests} to claim">${quests}</span>` : '';
+    const dot = g.id === 'beerclub' && terracePending > 0 ? '<span class="nav-dot" title="Terrace: your vote is needed"></span>' : '';
+    return `<div class="nav-hang nw${i + 1}"><span class="nav-rope l"></span><span class="nav-rope r"></span>
+      <button type="button" class="nav-plank ${group && group.id === g.id ? 'on' : ''} ${g.broken ? 'broken' : ''}" data-page="${g.pages[0]}" ${group && group.id === g.id ? 'aria-current="page"' : ''}>
+        <span class="nav-tok" aria-hidden="true">${g.emoji}</span><span class="nav-lbl">${g.label}</span><span class="nav-short">${g.short}</span>${seal}${dot}
+      </button>${g.broken ? '<span class="nav-splinter"></span>' : ''}</div>`;
+  }).join('');
+  sub.innerHTML = group && group.tabs ? group.tabs.map(([page, label]) =>
+    `<button type="button" class="nav-note ${STATE.activePage === page ? 'on' : ''}" data-page="${page}">${label}${page === 'terrace' && terracePending > 0 ? ' <span class="nav-dot"></span>' : ''}</button>`).join('') : '';
 
-  mount.querySelectorAll('.nav-btn').forEach(btn => {
+  [...mount.querySelectorAll('.nav-plank'), ...sub.querySelectorAll('.nav-note')].forEach(btn => {
     btn.addEventListener('click', () => {
       STATE.activePage = btn.dataset.page;
-      if (btn.dataset.page === 'room') ROOM_STATE.viewedUserId = STATE.activeUser; // nav click always resets to your own room
+      if (btn.dataset.page === 'room') ROOM_STATE.viewedUserId = STATE.activeUser; // a nav click always resets to your own room
       renderNav();
       renderPage();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -18434,6 +18601,7 @@ function renderApp(){
   if (!STATE.activeUser){
     mainNav.innerHTML = '';
     switcherMount.innerHTML = '';
+    document.getElementById('sub-nav').innerHTML = '';
     renderGateScreen();
     return;
   }
