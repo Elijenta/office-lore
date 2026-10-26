@@ -4026,6 +4026,104 @@
     @media (prefers-reduced-motion:reduce){.pt-hall .pt-lamp{animation:none}}
     
 
+
+  /* =========================================================
+     Mijn Hoekje: a furnished room. Every piece is a slot (ROOM_LAYOUT) with variants you can earn (desk first).
+  ========================================================= */
+  .rm2{ container-type: inline-size; margin: 0 0 22px; }
+  .rm2-stage{ position: relative; width: 100%; aspect-ratio: 16 / 11; border: 4px solid #2b2320; border-radius: 30px; box-shadow: 7px 8px 0 #2b2320; overflow: hidden; background: #e9c9a0; font-family: 'Fredoka', sans-serif; }
+  .rm2-wall{ position: absolute; inset: 0 0 38% 0; background: radial-gradient(ellipse 40% 70% at 32% 0, rgba(255,240,190,.75), transparent 70%), repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 2.2cqw, transparent 2.2cqw 4.4cqw), radial-gradient(circle, rgba(160,90,60,.16) 0 .35cqw, transparent .45cqw) 0 0 / 4.4cqw 4.4cqw, linear-gradient(180deg, #f3d3a8, #e8b98d); }
+  .rm2-wain{ position: absolute; left: 0; right: 0; top: 44%; bottom: 38%; border-top: .9cqw solid #8a5a35; box-shadow: 0 -.3cqw 0 #5e3a1d; background: repeating-linear-gradient(90deg, rgba(0,0,0,.12) 0 .25cqw, transparent .25cqw 9cqw), linear-gradient(180deg, #b6794a, #a06a3e); }
+  .rm2-floor{ position: absolute; left: 0; right: 0; bottom: 0; top: 62%; background: linear-gradient(180deg, rgba(0,0,0,.28), transparent 14%), repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 .25cqw, transparent .25cqw 7cqw), repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 .2cqw, transparent .2cqw 4.6cqw), linear-gradient(180deg, #c68a52, #a86f3c); border-top: .7cqw solid #5e3a1d; }
+  .rm2-beam{ position: absolute; left: 24cqw; top: 31cqw; width: 20cqw; height: 30cqw; background: linear-gradient(180deg, rgba(255,244,190,.5), rgba(255,244,190,0)); transform: skewX(-24deg); pointer-events: none; }
+  .rm2-vig{ position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(60,30,10,.35)); pointer-events: none; z-index: 9; }
+  .rm2-f{ position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); cursor: pointer; transition: transform .25s cubic-bezier(.3,1.6,.5,1), filter .2s; z-index: var(--z, 2); }
+  .rm2-f.still{ cursor: default; }
+  .rm2-f:not(.still):hover{ transform: translateY(-1cqw); filter: drop-shadow(0 0 1.2cqw rgba(255,235,150,.95)); }
+  .rm2-tag{ position: absolute; left: 50%; bottom: -2.4cqw; transform: translateX(-50%) scale(.9); opacity: 0; white-space: nowrap; background: #2b2320; color: #fff3c0; font: 400 1.6cqw 'Chewy', cursive; letter-spacing: .04em; padding: .3cqw 1.2cqw; border-radius: 99px; transition: .2s; pointer-events: none; z-index: 12; }
+  .rm2-f:hover .rm2-tag, .rm2-f:focus-visible .rm2-tag{ opacity: 1; transform: translateX(-50%) scale(1); }
+  .rm2-rug{ position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h); border-radius: 50%; background: radial-gradient(ellipse, #d9526a 0 38%, #f3d3a8 39% 44%, #2e8c8c 45% 70%, #f3d3a8 71% 76%, #d9526a 77%); border: .4cqw solid #2b2320; box-shadow: 0 .8cqw 0 rgba(0,0,0,.25); z-index: 1; transform: perspective(60cqw) rotateX(55deg); }
+  .rm2-ward{ display: flex; flex-direction: column; }
+  .rm2-ward .cornice{ height: 3.2cqw; margin: 0 -1cqw; background: linear-gradient(180deg, #7a4a22, #5e3a1d); border: .35cqw solid #2b2320; border-radius: .8cqw .8cqw .3cqw .3cqw; }
+  .rm2-ward .body{ flex: 1; display: flex; gap: .4cqw; padding: .8cqw; background: #5e3a1d; border: .35cqw solid #2b2320; border-top: 0; position: relative; perspective: 90cqw; }
+  .rm2-ward .inside{ position: absolute; inset: .8cqw; background: linear-gradient(180deg, #2a1a0e, #3b2515); display: flex; align-items: flex-start; justify-content: center; gap: 1cqw; padding-top: 2.4cqw; }
+  .rm2-ward .inside::before{ content: ""; position: absolute; left: .6cqw; right: .6cqw; top: 1.6cqw; height: .4cqw; background: #c9a15e; }
+  .rm2-ward .inside i{ width: 3cqw; height: 11cqw; border-radius: .6cqw .6cqw 1cqw 1cqw; margin-top: .8cqw; background: var(--c); box-shadow: inset -.5cqw 0 rgba(0,0,0,.2); position: relative; }
+  .rm2-ward .door{ flex: 1; position: relative; background: linear-gradient(135deg, #a8733f, #8a5a35); border: .3cqw solid #2b2320; border-radius: .5cqw; transition: transform .45s cubic-bezier(.3,1.4,.5,1); box-shadow: inset 0 0 0 .6cqw #b88650, inset 0 0 0 .8cqw rgba(0,0,0,.25); }
+  .rm2-ward .door.l{ transform-origin: 0 50%; } .rm2-ward .door.r{ transform-origin: 100% 50%; }
+  .rm2-ward .door::after{ content: ""; position: absolute; top: 48%; width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #d9a21b); border: .25cqw solid #2b2320; }
+  .rm2-ward .door.l::after{ right: 1cqw; } .rm2-ward .door.r::after{ left: 1cqw; }
+  .rm2-ward:hover .door.l{ transform: rotateY(-62deg); } .rm2-ward:hover .door.r{ transform: rotateY(62deg); }
+  .rm2-ward .feet{ display: flex; justify-content: space-between; padding: 0 1.4cqw; } .rm2-ward .feet b{ width: 2.4cqw; height: 1.8cqw; background: #2b2320; border-radius: 0 0 .6cqw .6cqw; }
+  .rm2-win{ border: .6cqw solid #6e4524; border-radius: .8cqw .8cqw .3cqw .3cqw; background: linear-gradient(180deg, #9fd8ff, #d9f2ff 70%, #9ed48b 71%); box-shadow: 0 0 0 .3cqw #2b2320, inset 0 0 0 .3cqw #2b2320; position: relative; overflow: hidden; width: 100%; height: 100%; }
+  .rm2-win::before{ content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: .5cqw; background: #6e4524; margin-left: -.25cqw; } .rm2-win::after{ content: ""; position: absolute; top: 48%; left: 0; right: 0; height: .5cqw; background: #6e4524; }
+  .rm2-win .cloud{ position: absolute; top: 18%; left: 12%; font-size: 3.2cqw; opacity: .9; animation: rm2-drift 24s linear infinite; }
+  @keyframes rm2-drift{ 0%{ transform: translateX(-4cqw); } 100%{ transform: translateX(12cqw); } }
+  .rm2-win .curt{ position: absolute; top: 0; bottom: 0; width: 22%; background: repeating-linear-gradient(90deg, #d9526a 0 .5cqw, #c0384f .5cqw 1cqw); z-index: 2; } .rm2-win .curt.l{ left: 0; border-radius: 0 0 40% 0; } .rm2-win .curt.r{ right: 0; border-radius: 0 0 0 40%; }
+  .rm2-banner{ background: linear-gradient(180deg, #f6e8bd, #e8cf94); border: .35cqw solid #2b2320; border-radius: .6cqw .6cqw 0 0; clip-path: polygon(0 0, 100% 0, 100% 88%, 50% 100%, 0 88%); text-align: center; padding: 1cqw .8cqw 2.4cqw; box-shadow: inset 0 0 1.4cqw rgba(120,70,20,.45); }
+  .rm2-banner b{ display: block; font: 400 2.6cqw 'Chewy', cursive; color: #3a2713; line-height: 1; } .rm2-banner span{ display: block; font: 600 1.3cqw 'Fredoka', sans-serif; color: #6b4a22; margin: .3cqw 0; }
+  .rm2-banner .bar{ height: .8cqw; border: .2cqw solid #2b2320; border-radius: 9px; background: #fff; overflow: hidden; margin: .5cqw 3cqw 0; } .rm2-banner .bar i{ display: block; height: 100%; background: linear-gradient(90deg, #ffd24a, #ff9d4a); }
+  .rm2-banner .tb{ font-size: 1.1cqw; font-weight: 800; letter-spacing: .08em; color: #8f1d2a; }
+  .rm2-shelf{ display: flex; flex-direction: column; justify-content: flex-end; }
+  .rm2-shelf .items{ display: flex; justify-content: space-around; align-items: flex-end; font-size: 3.4cqw; padding: 0 .6cqw; filter: drop-shadow(0 .3cqw 0 rgba(0,0,0,.3)); }
+  .rm2-shelf .plank{ height: 1.5cqw; background: linear-gradient(180deg, #c58a4e, #8a5a35); border: .3cqw solid #2b2320; border-radius: .3cqw; }
+  .rm2-books{ display: flex; flex-direction: column; border: .5cqw solid #5e3a1d; border-radius: .6cqw; background: #3b2515; box-shadow: 0 0 0 .3cqw #2b2320; }
+  .rm2-books .row{ flex: 1; min-height: 0; overflow: hidden; display: flex; align-items: flex-end; gap: .3cqw; padding: .4cqw .8cqw 0; border-bottom: .5cqw solid #7a4a22; } .rm2-books .row:last-child{ border-bottom: 0; }
+  .rm2-books i{ display: block; width: 1.5cqw; border-radius: .2cqw; height: var(--bh); background: var(--c); box-shadow: inset -.3cqw 0 rgba(0,0,0,.25), inset .2cqw 0 rgba(255,255,255,.2); }
+  .rm2-door{ border: .5cqw dashed rgba(94,58,29,.7); border-radius: 6cqw 6cqw .6cqw .6cqw; background: rgba(255,255,255,.22); display: grid; place-items: center; text-align: center; color: #5e3a1d; font: 400 1.7cqw/1.2 'Chewy', cursive; }
+  .rm2-door span{ display: block; font-size: 3.6cqw; filter: grayscale(.6); opacity: .8; } .rm2-door small{ display: block; font: 600 1.05cqw 'Fredoka', sans-serif; letter-spacing: .1em; text-transform: uppercase; opacity: .8; }
+  .rm2-char{ display: flex; justify-content: center; align-items: flex-end; z-index: 5; }
+  .rm2-char svg{ width: 100%; height: auto; filter: drop-shadow(0 1cqw .6cqw rgba(60,30,10,.35)); animation: rm2-idle 4.5s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes rm2-idle{ 0%, 100%{ transform: scale(1, 1); } 50%{ transform: scale(1.012, .99); } }
+  .rm2-bowl{ display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+  .rm2-bowl .pet{ width: 11cqw; margin-bottom: -2.6cqw; z-index: 2; filter: drop-shadow(0 .8cqw .4cqw rgba(60,30,10,.3)); }
+  .rm2-bowl .bowl{ width: 11cqw; height: 5cqw; border-radius: 0 0 50% 50% / 0 0 100% 100%; background: linear-gradient(180deg, #e0576a, #b03045); border: .35cqw solid #2b2320; position: relative; box-shadow: 0 .5cqw 0 rgba(0,0,0,.3); }
+  .rm2-bowl .bowl::before{ content: ""; position: absolute; left: -.35cqw; right: -.35cqw; top: -1.1cqw; height: 2cqw; border-radius: 50%; background: #7a1e2c; border: .35cqw solid #2b2320; }
+  .rm2-bowl .bowl::after{ content: "🐾"; position: absolute; left: 50%; top: .5cqw; transform: translateX(-50%); font-size: 1.9cqw; opacity: .8; }
+  .rm2-bowl.empty .bowl::before{ background: radial-gradient(ellipse, #d8c4a8 0 36%, #7a1e2c 38%); }
+  .rm2-bowl .hint{ font: 600 1.1cqw 'Fredoka', sans-serif; color: #fff7dc; background: rgba(43,35,32,.7); padding: .2cqw .9cqw; border-radius: 99px; margin-top: .9cqw; white-space: nowrap; }
+  .rm2-chest .lid{ height: 38%; background: linear-gradient(180deg, #a8733f, #8a5a35); border: .35cqw solid #2b2320; border-radius: 2.6cqw 2.6cqw .3cqw .3cqw; }
+  .rm2-chest .box{ height: 62%; background: linear-gradient(180deg, #8a5a35, #6e4524); border: .35cqw solid #2b2320; border-top: 0; position: relative; }
+  .rm2-chest .box::before{ content: ""; position: absolute; left: 46%; top: -.8cqw; width: 2.4cqw; height: 2.6cqw; border-radius: .4cqw; background: linear-gradient(180deg, #ffe58a, #d9a21b); border: .3cqw solid #2b2320; }
+  .rm2-ghost{ border: .45cqw dashed rgba(94,58,29,.55); border-radius: 1.4cqw; display: grid; place-items: center; color: rgba(94,58,29,.8); font: 400 1.5cqw/1.15 'Chewy', cursive; text-align: center; background: rgba(255,255,255,.16); }
+  .rm2-ghost b{ display: block; font-size: 3.2cqw; line-height: 1; }
+  @container (max-width: 640px){
+    .rm2-stage{ aspect-ratio: 100 / 150; }
+    .rm2-wall{ bottom: 44%; } .rm2-wain{ top: 36%; bottom: 44%; } .rm2-floor{ top: 56%; }
+    .rm2-f, .rm2-rug{ left: var(--mx); top: var(--my); width: var(--mw); height: var(--mh); }
+    .rm2-tag{ font-size: 3.4cqw; bottom: -5cqw; }
+    .rm2-banner b{ font-size: 5.6cqw; } .rm2-banner span{ font-size: 3cqw; } .rm2-banner .tb{ font-size: 2.4cqw; } .rm2-banner{ padding: 2cqw 1.6cqw 5cqw; } .rm2-banner .bar{ height: 1.6cqw; margin: 1cqw 6cqw 0; }
+    .rm2-shelf .items{ font-size: 7cqw; } .rm2-door{ font-size: 3.6cqw; } .rm2-door span{ font-size: 7cqw; } .rm2-door small{ font-size: 2.2cqw; }
+    .rm2-bowl .hint{ font-size: 2.4cqw; } .rm2-ghost{ font-size: 3.2cqw; } .rm2-ghost b{ font-size: 6cqw; }
+    .rm2-bowl .pet{ width: 24cqw; margin-bottom: -5cqw; } .rm2-bowl .bowl{ width: 22cqw; height: 10cqw; } .rm2-bowl .bowl::before{ height: 4cqw; top: -2.2cqw; } .rm2-bowl .bowl::after{ font-size: 4cqw; }
+  }
+  @media (prefers-reduced-motion: reduce){ .rm2-char svg, .rm2-win .cloud{ animation: none; } }
+  /* the desk: sized by its own width (100cqw = the desk), so the same art works in the room and in the picker */
+  .rm2-desk, .rm2-deskprev{ container-type: inline-size; }
+  .rm2-deskprev{ position: relative; width: min(100%, 320px); aspect-ratio: 28 / 19; margin: 26px auto 10px; }
+  .dk{ position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; --t1: #c58a4e; --t2: #9a6535; --l1: #a8733f; --l2: #8a5a35; }
+  .dk .dk-top{ height: 10.7cqw; background: linear-gradient(180deg, var(--t1), var(--t2)); border: 1.25cqw solid #2b2320; border-radius: 2.1cqw; position: relative; box-shadow: 0 1.8cqw 0 rgba(0,0,0,.3); }
+  .dk .dk-base{ flex: 1; display: flex; justify-content: space-between; padding: 0 4.3cqw; }
+  .dk .dk-leg{ width: 22.9cqw; background: linear-gradient(135deg, var(--l1), var(--l2)); border: 1.25cqw solid #2b2320; border-top: 0; border-radius: 0 0 1.8cqw 1.8cqw; position: relative; }
+  .dk .dk-leg::before{ content: ""; position: absolute; left: 20%; right: 20%; top: 22%; height: 1.8cqw; background: #2b2320; border-radius: 9px; }
+  .dk .dk-leg::after{ content: ""; position: absolute; left: 44%; top: 50%; width: 3.6cqw; height: 3.6cqw; border-radius: 50%; background: #ffd24a; border: .7cqw solid #2b2320; }
+  .dk .dk-plate{ position: absolute; left: 50%; top: -12.2cqw; transform: translateX(-50%); min-width: 53cqw; max-width: 72cqw; text-align: center; background: linear-gradient(180deg, #ffe58a, #d9a21b 55%, #a8780a); border: 1.1cqw solid #2b2320; border-radius: 1.8cqw; padding: 1.1cqw 4.3cqw; box-shadow: 0 1.4cqw 0 rgba(0,0,0,.35), inset 0 0 2.1cqw rgba(255,255,255,.55); z-index: 3; }
+  .dk .dk-plate b{ display: block; font: 400 5.4cqw 'Chewy', cursive; color: #3a2713; line-height: 1.1; } .dk .dk-plate small{ display: block; font: italic 600 4.1cqw Georgia, serif; color: #5a3a08; }
+  .dk .dk-deco > *{ position: absolute; }
+  .dk .dk-deco .lamp{ right: 12%; top: -19.6cqw; font-size: 14.3cqw; filter: drop-shadow(0 0 4cqw rgba(255,230,140,.9)); }
+  .dk .dk-deco .papers{ left: 8%; top: -9.3cqw; width: 17.9cqw; height: 12.1cqw; background: #fffdf0; border: .9cqw solid #2b2320; transform: rotate(-8deg); box-shadow: 1.4cqw 1.1cqw 0 rgba(0,0,0,.25); }
+  .dk-img{ display: block; } .dk-img > img{ position: absolute; left: 0; bottom: 0; width: 100%; height: auto; max-height: 100%; object-fit: contain; object-position: 50% 100%; }
+  .rm2-steps{ display: flex; gap: 8px; justify-content: center; margin: 2px 0 12px; font: 400 15px 'Chewy', cursive; }
+  .rm2-steps span{ padding: 3px 14px; border: 3px solid #2b2320; border-radius: 99px; background: #fff; opacity: .55; } .rm2-steps span.on{ opacity: 1; background: #ffe58a; box-shadow: 0 3px 0 #2b2320; }
+  .rm2-gender{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 6px 0 10px; }
+  .rm2-gender button{ border: 4px solid #2b2320; border-radius: 20px; background: linear-gradient(180deg, #fff7dc, #f1dfae); padding: 10px 6px 8px; cursor: pointer; font: 400 22px 'Chewy', cursive; color: #3a2713; box-shadow: 0 5px 0 #2b2320; transition: transform .2s cubic-bezier(.3,1.6,.5,1); }
+  .rm2-gender button:hover{ transform: translateY(-3px) rotate(-1deg); } .rm2-gender button.on{ background: linear-gradient(180deg, #d6f5d9, #a9e0b2); outline: 4px solid #2e9b4e; }
+  .rm2-gender svg{ display: block; margin: 0 auto; height: 170px; width: auto; }
+  .rm2-back{ font: 700 13px 'Fredoka', sans-serif; background: none; border: 0; cursor: pointer; color: #7a5b3a; text-decoration: underline; margin: 0 0 6px; }
+  .rm2-tabs{ display: flex; gap: 8px; justify-content: center; margin: 0 0 12px; }
+  .rm2-tabs button{ font: 400 17px 'Chewy', cursive; padding: 5px 18px; border: 3px solid #2b2320; border-radius: 99px; background: #fff; cursor: pointer; } .rm2-tabs button.on{ background: #ffe58a; box-shadow: 0 3px 0 #2b2320; }
+  .rm2-desk-list{ display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+
   /* =========================================================
      Nickname frames (0082)
   ========================================================= */
@@ -4573,6 +4671,7 @@ let APP_DATA = {
   nicknameFrames: [], myNicknameFrames: [], frameAssignments: [], seasonalOutfits: [],
   wallNeons: [], wallFoundNeons: [], wallCoasters: [], wallProgress: {}, wallHungNeons: [],
   poemBackgrounds: [], myPoemBackgrounds: [], poemBgAssignments: [],
+  roomFurnitureItems: [], myRoomFurniture: [],
   userXpTotals: [],
   throneChallenges: [],
   throneChallengeTrials: [],
@@ -4648,7 +4747,7 @@ async function loadAppData(){
     petSpeciesRes, petOutfitsRes, myPetsRes, myPetOutfitsRes,
     framesRes, myFramesRes, frameAssignRes, seasonalRes,
     wallNeonRes, wallFoundRes, wallCoasterRes, wallProgressRes, wallSettingsRes,
-    poemBgRes, myPoemBgRes, poemBgAssignRes,
+    poemBgRes, myPoemBgRes, poemBgAssignRes, furnitureRes, myFurnitureRes,
   ] = await Promise.all([
     sb.from('profiles').select('*'),
     sb.from('nicknames').select('*'),
@@ -4728,6 +4827,8 @@ async function loadAppData(){
     sb.from('poem_backgrounds').select('*').order('sort_order'),   // 0087: poem backgrounds (tolerant)
     sb.from('user_poem_backgrounds').select('background_id'),
     sb.from('poem_background_assignments').select('poem_id, background_id, user_id'),
+    sb.from('room_furniture_items').select('*').order('sort_order'),   // 0088: room furniture (tolerant)
+    sb.from('user_room_furniture').select('item_id'),
   ]);
 
   for (const res of [
@@ -5247,6 +5348,8 @@ async function loadAppData(){
     wallHungNeons: (((wallSettingsRes && wallSettingsRes.data) || []).find(r => r.key === 'hung_neons') || {}).value || [],
     seasonalOutfits: ((seasonalRes && seasonalRes.data) || []).filter(o => o.is_active).map(o => ({ id: o.id, name: o.name, season: o.season, genders: o.genders || [], startsOn: o.starts_on, endsOn: o.ends_on })),
     poemBackgrounds: ((poemBgRes && poemBgRes.data) || []).filter(b => b.is_active).map(b => ({ id: b.id, name: b.name, tag: b.tag, rarity: b.rarity, hint: b.hint, isStarter: !!b.is_starter, sortOrder: b.sort_order })),
+    roomFurnitureItems: ((furnitureRes && furnitureRes.data) || []).filter(i => i.is_active).map(i => ({ id: i.id, slot: i.slot, name: i.name, tag: i.tag, rarity: i.rarity, hint: i.hint, isStarter: !!i.is_starter, sortOrder: i.sort_order })),
+    myRoomFurniture: ((myFurnitureRes && myFurnitureRes.data) || []).map(i => i.item_id),
     myPoemBackgrounds: ((myPoemBgRes && myPoemBgRes.data) || []).map(b => b.background_id),
     poemBgAssignments: ((poemBgAssignRes && poemBgAssignRes.data) || []).map(a => ({ poemId: a.poem_id, backgroundId: a.background_id, userId: a.user_id })),
     frameAssignments: ((frameAssignRes && frameAssignRes.data) || []).map(a => ({ nicknameId: a.nickname_id, frameId: a.frame_id, userId: a.user_id })),
@@ -8460,68 +8563,77 @@ function getRoomTrophies(userId){
   ];
 }
 
-/* ---- MY ROOM: main page ---- */
+/* ---- MY ROOM: a furnished room. ROOM_LAYOUT is the only place where furniture stands: [x, y, width, height] in % of the room width.
+   A new piece of furniture = a new entry here + its markup; a new LOOK for a piece (a desk) = a row in room_furniture_items (+ art). ---- */
+const ROOM_LAYOUT = {
+  desktop: { wardrobe: [3.5, 8, 21, 52], window: [27, 8, 10, 20], banner: [40, 5, 20, 15], shelf: [62, 12, 11, 12], books: [75, 3, 11, 27], door: [88.5, 6, 9.5, 28], char: [33, 12, 34, 46], rug: [27, 49, 44, 13], desk: [68, 38, 28, 22], bowl: [62, 50, 13, 15], chest: [5, 59, 12, 8.5], ghost: [19.5, 59.5, 8, 8] },
+  mobile:  { wardrobe: [3, 44, 36, 52], window: [4, 19, 22, 19], banner: [12, 2, 76, 13], shelf: [30, 22, 24, 11], books: [58, 16, 20, 30], door: [81, 16, 16, 28], char: [30, 40, 46, 56], rug: [24, 88, 56, 14], desk: [52, 100, 46, 36], bowl: [8, 110, 26, 26], chest: [34, 134, 20, 13], ghost: [6, 139, 22, 9] },
+};
+const ROOM_Z = { char: 5, desk: 6, bowl: 8, chest: 6 };
+function roomPos(key){
+  const d = ROOM_LAYOUT.desktop[key], m = ROOM_LAYOUT.mobile[key];
+  return `--x:${d[0]}cqw;--y:${d[1]}cqw;--w:${d[2]}cqw;--h:${d[3]}cqw;--mx:${m[0]}cqw;--my:${m[1]}cqw;--mw:${m[2]}cqw;--mh:${m[3]}cqw;${ROOM_Z[key] ? '--z:' + ROOM_Z[key] + ';' : ''}`;
+}
+/* furniture looks: art in code (CSS) for now; a PNG per look can be added later through FURNITURE_IMAGES[id] (anchored bottom-centre, so any size lines up) */
+/* FURNITURE_IMAGES holds one PNG per extra look (key = the id from room_furniture_items), embedded by supabase/tools/build_furniture_images.py.
+   A look only shows up once its row AND its image exist. The Oak starter is drawn in code. */
+/* FURNITURE_IMAGES:START (generated by supabase/tools/build_furniture_images.py) */
+const FURNITURE_IMAGES = {};
+/* FURNITURE_IMAGES:END */
+function deskHasArt(id){ return id === 'desk-classic' || !!FURNITURE_IMAGES[id]; }
+const DESK_DECO = '<span class="lamp">💡</span><span class="papers"></span>';
+function getRoomFurnitureId(userId, slot){
+  const room = APP_DATA.roomProfiles.find(r => r.userId === userId);
+  const id = room && room.loadout && room.loadout.furniture && room.loadout.furniture[slot];
+  return slot === 'desk' && deskHasArt(id) ? id : 'desk-classic';
+}
+function roomFurnitureOwned(id){
+  const it = (APP_DATA.roomFurnitureItems || []).find(i => i.id === id);
+  return !!it && (it.isStarter || (APP_DATA.myRoomFurniture || []).includes(id));
+}
+function deskArtHtml(deskId, name, titleText){
+  const id = deskHasArt(deskId) ? deskId : 'desk-classic';
+  const plate = `<div class="dk-plate"><b>${escapeHtml(name)}</b><small>${titleText}</small></div>`;
+  if (FURNITURE_IMAGES[id]) return `<div class="dk dk-img"><img src="${FURNITURE_IMAGES[id]}" alt="" draggable="false">${plate}</div>`;
+  return `<div class="dk"><div class="dk-deco">${DESK_DECO}</div><div class="dk-top">${plate}</div><div class="dk-base"><i class="dk-leg"></i><i class="dk-leg"></i></div></div>`;
+}
 function renderRoomPage(data){
   const viewedUserId = ROOM_STATE.viewedUserId || STATE.activeUser;
   const viewedUser = findUser(viewedUserId) || findUser(STATE.activeUser);
   const isOwnRoom = viewedUser.id === STATE.activeUser;
   const room = getUserRoomProfile(viewedUser.id);
   const level = getPlayerLevelInfo(computePlayerXp(viewedUser.id).total);
-
+  const title = getWornTitle(viewedUser.id);
+  const pet = getUserPet(viewedUser.id);
+  const uid = viewedUser.id;
+  const hasRoom = APP_DATA.roomProfiles.some(r => r.userId === uid);
+  const f = (cls, key, tag, inner, onclick, z) => `<div class="rm2-f ${cls} ${onclick ? '' : 'still'}" style="${roomPos(key)}" ${onclick ? `onclick="${onclick}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"` : ''} aria-label="${escapeHtml(tag)}">${inner}${tag && onclick ? `<span class="rm2-tag">${escapeHtml(tag)}</span>` : ''}</div>`;
+  const clothes = ['#ff8fb3', '#6fb8ff', '#ffc93c', '#4fd8a2'];
+  const bookRows = ['#d9526a', '#4a7fd0', '#e8b030', '#4fa36a', '#9a52d0'].map((c, i) => `<div class="row">${[c, '#8a5a35', '#4a7fd0', '#d9526a', c].map((cc, j) => `<i style="--c:${cc};--bh:${(2.6 + ((i * 3 + j * 5) % 3) * .7).toFixed(1)}cqw"></i>`).join('')}</div>`).join('');
+  const temp = getTemporaryTitles(uid).map(t => `${t.icon} ${t.label}`).join(' · ') + (getAvatarOverride(uid) ? ` ${getAvatarOverride(uid).icon} ${getAvatarOverride(uid).label.toUpperCase()}` : '');
+  const petSpeciesCount = (APP_DATA.petSpecies || []).length;
   return `
-    <div class="room-page ${getTemporaryTitles(viewedUser.id).map(t => 'room-title-' + t.key).join(' ')}">
-      <div class="room-environment">
-        ${renderRoomUserSwitcher(viewedUser.id)}
-        <div class="room-composition-grid">
-          <div class="room-zone room-nameplate-zone clickable" onclick="openRoomProgressModal('${viewedUser.id}')" title="📈 Progress">
-            <div class="room-nameplate-name">${escapeHtml(viewedUser.displayName)}</div>
-            ${getWornTitle(viewedUser.id) ? `<div class="room-worn-title" style="--tc:${TITLE_RARITY_COLOR[getWornTitle(viewedUser.id).rarity] || '#ecd48a'}">「${escapeHtml(getWornTitle(viewedUser.id).text)}」</div>` : ''}
-            <div class="room-nameplate-title">Level ${level.level} · ${escapeHtml(level.title)}</div>
-            ${getTemporaryTitles(viewedUser.id).map(t => `<div class="room-title-badge">${t.icon} ${t.label}</div>`).join('')}
-            ${getAvatarOverride(viewedUser.id) ? `<div class="room-fallen-badge">${getAvatarOverride(viewedUser.id).icon} ${getAvatarOverride(viewedUser.id).label.toUpperCase()}</div>` : ''}
-            <div class="room-xp-bar"><div class="room-xp-bar-fill" style="width:${level.progressPct}%"></div></div>
-          </div>
-
-          <div class="room-zone room-wardrobe-zone sticker-card clickable" onclick="openRoomWardrobeModal('${viewedUser.id}'${isOwnRoom && !APP_DATA.roomProfiles.some(r => r.userId === viewedUser.id) ? ", 'base'" : ''})" title="👕 Wardrobe">
-            <div class="room-zone-icon">👕</div>
-            <div class="room-zone-label">${isOwnRoom && !APP_DATA.roomProfiles.some(r => r.userId === viewedUser.id) ? '✨ Create your character' : `Outfit${getSeasonalOutfitsNow(characterGenderOf(room.bodyType) === 'female' ? 'f' : 'm').length ? ' ' + (SEASON_ICON[(APP_DATA.seasonalOutfits[0] || {}).season] || '✨') : ''}`}</div>
-          </div>
-
-          <div class="room-zone room-character-zone">
-            <div class="room-character-rug"></div>
-            ${renderPersonalCharacterSvg({ ...room.loadout, bodyType: room.bodyType }, { size: 168 })}
-            ${renderPetImg(viewedUser.id, 'room-pet')}
-          </div>
-
-          <div class="room-zone room-trophy-zone sticker-card clickable" onclick="openRoomTrophyModal('${viewedUser.id}')" title="🏆 Trophies">
-            <div class="room-zone-icon">🏆</div>
-            <div class="room-zone-label">Trophy Shelf</div>
-          </div>
-
-          ${(() => {
-            const pet = getUserPet(viewedUser.id);
-            if (isOwnRoom && (APP_DATA.petSpecies || []).length) return `<div class="room-zone room-companion-zone sticker-card clickable" onclick="openRoomCompanionModal('${viewedUser.id}')" title="🐾 Companion">
-              ${pet ? `<img class="room-pet-zone-img" src="${pet.img}" alt="" draggable="false">` : '<div class="room-zone-icon">🐾</div>'}
-              <div class="room-zone-label">${pet ? escapeHtml(pet.name) : 'Companion'} <small>${APP_DATA.myPets.length}/${APP_DATA.petSpecies.length}</small></div>
-            </div>`;
-            if (pet) return `<div class="room-zone room-companion-zone sticker-card"><img class="room-pet-zone-img" src="${pet.img}" alt="" draggable="false"><div class="room-zone-label">${escapeHtml(pet.name)}</div></div>`;
-            return `<div class="room-zone room-companion-zone sticker-card" style="visibility:hidden" aria-hidden="true"></div>`;
-          })()}
-
-          <div class="room-zone room-book-zone sticker-card clickable" onclick="openRoomCollectionModal('${viewedUser.id}')" title="📖 Collection">
-            <div class="room-zone-icon">📖</div>
-            <div class="room-zone-label">Collection</div>
-          </div>
-
-          <div class="room-zone room-chest-zone sticker-card clickable" onclick="openRoomInventoryModal('${viewedUser.id}')" title="🎒 Inventory">
-            <div class="room-zone-icon">🎒</div>
-            <div class="room-zone-label">Inventory</div>
-          </div>
-        </div>
-      </div>
-      <div class="room-beer-card sticker-card clickable" onclick="openBeerMilestonesModal('${viewedUser.id}')" title="🍺 Brewery Milestones">
-        <div class="room-beer-title">🍻 BREWERY MILESTONES · ${getBeerMilestoneProgress(viewedUser.id).earnedCount}/${getBeerMilestoneProgress(viewedUser.id).total}</div>
-        ${renderBeerProgressBar(viewedUser.id)}
+    <div class="room-page ${getTemporaryTitles(uid).map(t => 'room-title-' + t.key).join(' ')}">
+      ${renderRoomUserSwitcher(uid)}
+      <div class="rm2"><div class="rm2-stage">
+        <div class="rm2-wall"></div><div class="rm2-wain"></div><div class="rm2-floor"></div><div class="rm2-beam"></div>
+        <div class="rm2-rug" style="${roomPos('rug')}"></div>
+        ${f('rm2-ward', 'wardrobe', 'Kleerkast', `<div class="cornice"></div><div class="body"><div class="inside">${clothes.map(c => `<i style="--c:${c}"></i>`).join('')}</div><div class="door l"></div><div class="door r"></div></div><div class="feet"><b></b><b></b></div>`, isOwnRoom ? `openRoomWardrobeModal('${uid}'${hasRoom ? '' : ", 'base'"})` : '')}
+        ${f('', 'window', '', `<div class="rm2-win"><span class="cloud">☁️</span><span class="curt l"></span><span class="curt r"></span></div>`, '')}
+        ${f('', 'banner', 'Voortgang', `<div class="rm2-banner"><b>${escapeHtml(viewedUser.displayName)}</b><span>Level ${level.level} · ${escapeHtml(level.title)}</span>${temp ? `<div class="tb">${temp}</div>` : ''}<div class="bar"><i style="width:${level.progressPct}%"></i></div></div>`, `openRoomProgressModal('${uid}')`)}
+        ${f('rm2-shelf', 'shelf', 'Trofeeën', `<div class="items"><span>🏆</span><span>🥇</span><span>🍺</span></div><div class="plank"></div>`, `openRoomTrophyModal('${uid}')`)}
+        ${f('rm2-books', 'books', 'Collectie', bookRows, `openRoomCollectionModal('${uid}')`)}
+        ${f('rm2-door', 'door', '', `<div><span>🏠</span>Huisje<small>binnenkort</small></div>`, '')}
+        ${f('rm2-char', 'char', '', renderPersonalCharacterSvg({ ...room.loadout, bodyType: room.bodyType }, { size: 340 }), '')}
+        ${f('rm2-desk', 'desk', 'Bureau', deskArtHtml(getRoomFurnitureId(uid, 'desk'), viewedUser.displayName, title ? '「' + escapeHtml(title.text) + '」' : '— geen titel —'), isOwnRoom ? 'openRoomDeskModal()' : '')}
+        ${f('rm2-bowl ' + (pet ? '' : 'empty'), 'bowl', pet ? pet.name : 'Companion', `${pet ? `<img class="pet" src="${pet.img}" alt="" draggable="false">` : ''}<div class="bowl"></div>${pet ? '' : '<div class="hint">leeg voerbakje</div>'}`, (isOwnRoom && petSpeciesCount) ? `openRoomCompanionModal('${uid}')` : '')}
+        ${f('rm2-chest', 'chest', 'Inventory', '<div class="lid"></div><div class="box"></div>', `openRoomInventoryModal('${uid}')`)}
+        ${f('rm2-ghost', 'ghost', '', '<div><b>＋</b>plek vrij</div>', '')}
+        <div class="rm2-vig"></div>
+      </div></div>
+      <div class="room-beer-card sticker-card clickable" onclick="openBeerMilestonesModal('${uid}')" title="🍺 Brewery Milestones">
+        <div class="room-beer-title">🍻 BREWERY MILESTONES · ${getBeerMilestoneProgress(uid).earnedCount}/${getBeerMilestoneProgress(uid).total}</div>
+        ${renderBeerProgressBar(uid)}
       </div>
       ${!isOwnRoom ? `<p class="room-viewonly-note">👀 You're visiting ${escapeHtml(viewedUser.displayName)}'s room — only they can rearrange it.</p>` : ''}
     </div>
@@ -8544,7 +8656,7 @@ function renderRoomUserSwitcher(viewedUserId){
 // A normal player's character is only base + outfit. The gear tabs appear only for somebody who actually OWNS gear of that
 // slot (in practice an Abt Lord with drops), so nothing else is attached to a regular player's character.
 function ownsRoomGear(userId, slot){ return APP_DATA.abtCosmeticItems.some(i => i.isActive && i.category === slot && i.mysteryEligible && userOwnsCosmetic(userId, i.id)); }
-function getRoomWardrobeCategories(userId){ return ['base', 'outfit'].concat(userId === STATE.activeUser && (APP_DATA.titles || []).length ? ['title'] : []).concat(ROOM_WEARABLE_SLOTS.filter(slot => ownsRoomGear(userId, slot))); }
+function getRoomWardrobeCategories(userId){ return ['base', 'outfit'].concat(ROOM_WEARABLE_SLOTS.filter(slot => ownsRoomGear(userId, slot))); }
 const ROOM_WARDROBE_CATEGORIES = ['base', 'outfit', 'title', 'pet', 'armor', 'cape', 'weapon', 'accessory', 'companion'];
 /* 🏷️ titles under your name (0075) */
 const TITLE_RARITY_COLOR = { common: '#8a8f98', rare: '#4a7fd0', epic: '#9a52d0', legendary: '#d9a21b' };
@@ -8650,7 +8762,7 @@ function announcePets(pet){
 }
 
 const ROOM_WARDROBE_LABELS = { base: '🧍 Base', outfit: '👗 Outfit', title: '🏷️ Title', pet: '🐾 Pet', armor: '🛡️ Armor', cape: '🧥 Cape', headwear: '🎩 Headwear', weapon: '⚔️ Weapon', accessory: '🍺 Accessory', companion: '🐾 Companion' };
-const ROOM_WARDROBE_STATE = { activeCategory: 'base', error: '' };
+const ROOM_WARDROBE_STATE = { activeCategory: 'base', step: 'outfits', error: '' };
 
 /* a live preview of the character (and its companion) at the top of both choice screens, so every choice is visible at once */
 function renderRoomPreviewHtml(userId){
@@ -8677,159 +8789,154 @@ async function readBackRoomProfile(){
   return { bodyType: data.body_type, loadout: data.loadout || {} };
 }
 
+/* the wardrobe: first Male or Female, then the outfits. Opening it again goes straight to the outfits. */
 function openRoomWardrobeModal(userId, category){
-  const cats = getRoomWardrobeCategories(userId);
-  if (category && cats.includes(category)) ROOM_WARDROBE_STATE.activeCategory = category;
-  else if (!cats.includes(ROOM_WARDROBE_STATE.activeCategory)) ROOM_WARDROBE_STATE.activeCategory = 'base';
+  const hasRoom = APP_DATA.roomProfiles.some(r => r.userId === userId);
+  if (category === 'base' || !hasRoom) ROOM_WARDROBE_STATE.step = 'base';
+  else if (category === 'outfit') ROOM_WARDROBE_STATE.step = 'outfits';
   openModal(renderRoomWardrobeModalHtml(userId));
+}
+function setRoomWardrobeStep(step){ ROOM_WARDROBE_STATE.step = step; openModal(renderRoomWardrobeModalHtml(STATE.activeUser)); }
+async function pickRoomBase(base){
+  const room = getUserRoomProfile(STATE.activeUser);
+  const keep = characterGenderOf(room.bodyType) === base ? ((room.loadout || {}).outfit || '') : '';
+  ROOM_WARDROBE_STATE.step = 'outfits';
+  await setRoomCharacter(base, keep);
 }
 
 function switchRoomWardrobeCategory(userId, category){
-  ROOM_WARDROBE_STATE.activeCategory = category;
+  ROOM_WARDROBE_STATE.step = category === 'base' ? 'base' : 'outfits';
   openModal(renderRoomWardrobeModalHtml(userId));
 }
 
 function renderRoomWardrobeModalHtml(userId){
   const isOwnRoom = userId === STATE.activeUser;
   const room = getUserRoomProfile(userId);
-  const activeCategory = ROOM_WARDROBE_STATE.activeCategory;
-
-  const tabsHtml = `
-    <div class="room-wardrobe-tabs">
-      ${getRoomWardrobeCategories(userId).map(cat => `
-        <button type="button" class="room-wardrobe-tab ${cat === activeCategory ? 'active' : ''}" onclick="switchRoomWardrobeCategory('${userId}','${cat}')">${ROOM_WARDROBE_LABELS[cat]}</button>
-      `).join('')}
-    </div>
-  `;
-
+  const gender = characterGenderOf(room.bodyType), letter = gender === 'female' ? 'f' : 'm';
+  const worn = (room.loadout || {}).outfit || '';
+  const hair = (room.loadout || {}).hair;
+  const step = ROOM_WARDROBE_STATE.step;
+  const steps = `<div class="rm2-steps"><span class="${step === 'base' ? 'on' : ''}">1 · Basis</span><span class="${step === 'outfits' ? 'on' : ''}">2 · Outfit</span></div>`;
   let bodyHtml;
-  if (activeCategory === 'base'){
-    const bases = CHARACTER_BASES.concat(CHARACTER_BASES.includes(room.bodyType) ? [] : [room.bodyType]);     // an old muscular / skinny body stays until you pick again
+  if (step === 'base'){
     bodyHtml = `
-      <p class="ch-note" style="text-align:center">Choose your base, then pick an outfit. This is your own character: it has nothing to do with the Abt Lord.</p>
-      <div class="room-wardrobe-grid">
-        ${bases.map(type => `
-          <div class="room-wardrobe-item ${room.bodyType === type ? 'equipped' : ''} ${isOwnRoom && CHARACTER_BASES.includes(type) ? 'clickable' : ''}"
-               ${isOwnRoom && CHARACTER_BASES.includes(type) ? `onclick="setRoomCharacter('${type}', '${characterGenderOf(room.bodyType) === type ? (room.loadout || {}).outfit || '' : ''}')"` : ''}>
-            ${renderPersonalCharacterSvg({ bodyType: type, outfit: characterGenderOf(room.bodyType) === type ? (room.loadout || {}).outfit : null, hair: (room.loadout || {}).hair }, { size: 84 })}
-            <div class="room-wardrobe-item-label">${type.charAt(0).toUpperCase() + type.slice(1)}</div>
-            ${room.bodyType === type ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}
-          </div>
-        `).join('')}
-      </div>
-      ${room.bodyType === 'female' ? `
-        <h4 class="room-outfit-sets-title">Hair colour</h4>
-        <div class="room-wardrobe-grid">
-          ${CHARACTER_HAIR_COLORS.map(hair => `
-            <div class="room-wardrobe-item ${characterHairOf((room.loadout || {}).hair) === hair ? 'equipped' : ''} ${isOwnRoom ? 'clickable' : ''}" ${isOwnRoom ? `onclick="setRoomHair('${hair}')"` : ''}>
-              ${renderPersonalCharacterSvg({ bodyType: 'female', outfit: (room.loadout || {}).outfit, hair }, { size: 84 })}
-              <div class="room-wardrobe-item-label">${CHARACTER_HAIR_LABELS[hair]}</div>
-              ${characterHairOf((room.loadout || {}).hair) === hair ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}
-            </div>`).join('')}
-        </div>` : ''}
-    `;
-  } else if (activeCategory === 'outfit'){
-    const gender = characterGenderOf(room.bodyType);
-    const letter = gender === 'female' ? 'f' : 'm';
-    const outfits = getCharacterOutfitKeys(gender);
-    const worn = (room.loadout || {}).outfit || '';
-    const hair = (room.loadout || {}).hair;
+      <p class="ch-note" style="text-align:center">Kies eerst je basis. Daarna kies je een outfit. Dit is je eigen personage: het heeft niets met de Abt Lord te maken.</p>
+      <div class="rm2-gender">${CHARACTER_BASES.slice().reverse().map(b => `
+        <button type="button" class="${gender === b ? 'on' : ''}" ${isOwnRoom ? `onclick="pickRoomBase('${b}')"` : 'disabled'}>
+          ${renderPersonalCharacterSvg({ bodyType: b, hair: b === 'female' ? hair : undefined }, { size: 160 })}${b === 'male' ? 'Male' : 'Female'}
+        </button>`).join('')}</div>`;
+  } else {
+    const classic = getCharacterOutfitKeys(gender);
+    const season = isOwnRoom ? getSeasonalOutfitsNow(letter) : [];
     const sets = isOwnRoom ? (APP_DATA.outfitSets || []).filter(o => CHARACTER_OUTFIT_IMAGES[letter + o.id]) : [];
-    const setTile = o => {
-      const code = letter + o.id, owned = APP_DATA.myOutfitSets.includes(o.id);
-      return `<div class="room-wardrobe-item ${worn === code ? 'equipped' : ''} ${owned ? 'clickable' : 'room-outfit-locked'}" ${owned ? `onclick="setRoomCharacter('${gender}', '${code}')"` : `title="${escapeHtml(o.hint)}"`}>
-        <div class="${owned ? '' : 'room-outfit-silhouette'}">${renderPersonalCharacterSvg({ bodyType: gender, outfit: code, hair }, { size: 84 })}</div>
-        <div class="room-wardrobe-item-label">${owned ? escapeHtml(o.name) : '🔒 ' + escapeHtml(o.name)}</div>
-        ${owned ? '' : `<div class="room-wardrobe-item-label" style="opacity:.7;font-weight:600;font-size:10px">${escapeHtml(o.hint)}</div>`}
-        ${worn === code ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}
-      </div>`;
-    };
+    const tile = (code, label, locked, hint) => `<div class="room-wardrobe-item ${worn === code ? 'equipped' : ''} ${locked ? 'room-outfit-locked' : (isOwnRoom ? 'clickable' : '')}" ${locked ? `title="${escapeHtml(hint || '')}"` : (isOwnRoom ? `onclick="setRoomCharacter('${gender}', '${code}')"` : '')}>
+      <div class="${locked ? 'room-outfit-silhouette' : ''}">${renderPersonalCharacterSvg({ bodyType: gender, outfit: code || undefined, hair }, { size: 84 })}</div>
+      <div class="room-wardrobe-item-label">${locked ? '🔒 ' : ''}${escapeHtml(label)}</div>
+      ${locked && hint ? `<div class="room-wardrobe-item-label" style="opacity:.7;font-weight:600;font-size:10px">${escapeHtml(hint)}</div>` : ''}
+      ${worn === code ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}</div>`;
     bodyHtml = `
-      <div class="room-wardrobe-grid">
-        <div class="room-wardrobe-item ${worn ? '' : 'equipped'} ${isOwnRoom ? 'clickable' : ''}" ${isOwnRoom ? `onclick="setRoomCharacter('${gender}', '')"` : ''}>
-          ${renderPersonalCharacterSvg({ bodyType: gender, hair }, { size: 84 })}
-          <div class="room-wardrobe-item-label">Plain</div>${worn ? '' : '<div class="room-wardrobe-equipped-tag">Equipped</div>'}
-        </div>
-        ${outfits.map(o => `
-          <div class="room-wardrobe-item ${worn === o ? 'equipped' : ''} ${isOwnRoom ? 'clickable' : ''}" ${isOwnRoom ? `onclick="setRoomCharacter('${gender}', '${o}')"` : ''}>
-            ${renderPersonalCharacterSvg({ bodyType: gender, outfit: o, hair }, { size: 84 })}
-            <div class="room-wardrobe-item-label">Outfit ${o.toUpperCase()}</div>
-            ${worn === o ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}
-          </div>`).join('')}
-      </div>
-      ${(() => {
-        const season = isOwnRoom ? getSeasonalOutfitsNow(letter) : [];
-        if (!season.length) return '';
+      ${isOwnRoom ? `<button type="button" class="rm2-back" onclick="setRoomWardrobeStep('base')">← Andere basis (nu: ${gender === 'female' ? 'Female' : 'Male'})</button>` : ''}
+      ${gender === 'female' ? `<h4 class="room-outfit-sets-title">Haarkleur</h4><div class="room-wardrobe-grid">${CHARACTER_HAIR_COLORS.map(h => `
+        <div class="room-wardrobe-item ${characterHairOf(hair) === h ? 'equipped' : ''} ${isOwnRoom ? 'clickable' : ''}" ${isOwnRoom ? `onclick="setRoomHair('${h}')"` : ''}>
+          ${renderPersonalCharacterSvg({ bodyType: 'female', outfit: worn || undefined, hair: h }, { size: 84 })}
+          <div class="room-wardrobe-item-label">${CHARACTER_HAIR_LABELS[h]}</div>
+          ${characterHairOf(hair) === h ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}</div>`).join('')}</div>` : ''}
+      <h4 class="room-outfit-sets-title">Klassiek</h4>
+      <div class="room-wardrobe-grid">${tile('', 'Plain')}${classic.map(o => tile(o, 'Outfit ' + o.toUpperCase())).join('')}</div>
+      ${season.length ? (() => {
         const icon = SEASON_ICON[season[0].season] || '✨';
         const left = Math.min(...season.map(seasonalDaysLeft));
-        return `<h4 class="room-outfit-sets-title">${icon} Seasonal <small class="room-season-left">${left === 0 ? 'last day!' : `${left} day${left === 1 ? '' : 's'} left`}</small></h4>
-          <div class="room-wardrobe-grid">${season.map(o => { const code = letter + o.id; return `<div class="room-wardrobe-item clickable ${worn === code ? 'equipped' : ''}" onclick="setRoomCharacter('${gender}', '${code}')">
-            ${renderPersonalCharacterSvg({ bodyType: gender, outfit: code, hair }, { size: 84 })}
-            <div class="room-wardrobe-item-label">${escapeHtml(o.name)}</div>
-            ${worn === code ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}</div>`; }).join('')}</div>`;
-      })()}
-      ${sets.length ? `<h4 class="room-outfit-sets-title">Special outfits</h4><div class="room-wardrobe-grid">${sets.map(setTile).join('')}</div>` : ''}
+        return `<h4 class="room-outfit-sets-title">${icon} Seizoen <small class="room-season-left">${left === 0 ? 'last day!' : `${left} day${left === 1 ? '' : 's'} left`}</small></h4><div class="room-wardrobe-grid">${season.map(o => tile(letter + o.id, o.name)).join('')}</div>`;
+      })() : ''}
+      ${sets.length ? `<h4 class="room-outfit-sets-title">Speciaal</h4><div class="room-wardrobe-grid">${sets.map(o => tile(letter + o.id, o.name, !APP_DATA.myOutfitSets.includes(o.id), o.hint)).join('')}</div>` : ''}
       ${isOwnRoom ? '' : '<p class="ch-note" style="text-align:center">Only they can change their outfit.</p>'}
     `;
-  } else if (activeCategory === 'title'){
-    const rank = r => ['common', 'rare', 'epic', 'legendary'].indexOf(r);
-    const mine = (APP_DATA.titles || []).filter(t => APP_DATA.myTitles.includes(t.id)).sort((a, b) => rank(b.rarity) - rank(a.rarity) || a.sortOrder - b.sortOrder);
-    const worn = (room.loadout || {}).title || '';
-    const next = [];                                         // for every milestone family the next title still to earn
-    const seen = new Set();
-    (APP_DATA.titles || []).filter(t => t.unlockKind !== 'drop' && !APP_DATA.myTitles.includes(t.id)).sort((a, b) => a.sortOrder - b.sortOrder)
-      .forEach(t => { if (!seen.has(t.family)){ seen.add(t.family); next.push(t); } });
-    const drops = (APP_DATA.titles || []).filter(t => t.unlockKind === 'drop');
-    bodyHtml = `
-      <div class="room-title-list">
-        <button type="button" class="room-title-chip ${worn ? '' : 'on'}" onclick="setRoomTitle('')">No title</button>
-        ${mine.map(t => `<button type="button" class="room-title-chip ${worn === t.id ? 'on' : ''}" style="--tc:${TITLE_RARITY_COLOR[t.rarity] || '#888'}" onclick="setRoomTitle('${t.id}')">${escapeHtml(t.text)}<small>${t.rarity}</small></button>`).join('')}
-      </div>
-      ${mine.length ? '' : '<p class="ch-note" style="text-align:center">No titles yet. Complete quests and open Mystery Rewards to earn them.</p>'}
-      ${next.length ? `<h4 class="room-outfit-sets-title">Next titles</h4>
-        <div class="room-title-next">${next.map(t => `<div class="room-title-next-row"><b style="color:${TITLE_RARITY_COLOR[t.rarity] || '#888'}">🔒 ${escapeHtml(t.text)}</b><span>${escapeHtml(t.hint)}</span></div>`).join('')}</div>` : ''}
-      ${drops.length ? `<p class="ch-note" style="text-align:center">Mystery finds: ${drops.filter(t => APP_DATA.myTitles.includes(t.id)).length} / ${drops.length} collected</p>` : ''}
-    `;
-  } else if (ROOM_WEARABLE_SLOTS.includes(activeCategory)){
-    const owned = APP_DATA.abtCosmeticItems.filter(i => i.isActive && i.category === activeCategory && i.mysteryEligible && userOwnsCosmetic(userId, i.id))
-      .sort((a, b) => ['common', 'rare', 'epic', 'legendary'].indexOf(b.rarity) - ['common', 'rare', 'epic', 'legendary'].indexOf(a.rarity) || a.name.localeCompare(b.name));
-    const total = APP_DATA.abtCosmeticItems.filter(i => i.isActive && i.category === activeCategory && i.mysteryEligible && (!i.lordOnlyDrop || userOwnsCosmetic(userId, i.id) || ABT_LORD_STATE.currentLordId === userId)).length;     // Abt Lord gear only counts for the Lord (or whoever owns it)
-    const wornId = (room.loadout || {})[activeCategory] || null;
-    bodyHtml = `
-      <div class="room-wardrobe-grid">
-        ${isOwnRoom ? `<div class="room-wardrobe-item ${wornId ? '' : 'equipped'} clickable" onclick="equipRoomItem('${activeCategory}', null)">
-          ${renderPersonalCharacterSvg({ bodyType: room.bodyType }, { size: 64 })}
-          <div class="room-wardrobe-item-label">None</div>${wornId ? '' : '<div class="room-wardrobe-equipped-tag">Equipped</div>'}</div>` : ''}
-        ${owned.map(item => `
-          <div class="room-wardrobe-item ${wornId === item.id ? 'equipped' : ''} ${isOwnRoom ? 'clickable' : ''}" style="--rarity-color:${ABT_RARITY_COLORS[item.rarity] || '#aaa'};border-color:${ABT_RARITY_COLORS[item.rarity] || 'inherit'}"
-               ${isOwnRoom ? `onclick="equipRoomItem('${activeCategory}', '${item.id}')"` : ''}>
-            ${renderPersonalCharacterSvg({ bodyType: room.bodyType, [activeCategory]: item.id }, { size: 64 })}
-            <div class="room-wardrobe-item-label">${escapeHtml(item.name)}</div>
-            <div class="room-wardrobe-item-label" style="opacity:.6;font-weight:600">${item.rarity}</div>
-            ${wornId === item.id ? '<div class="room-wardrobe-equipped-tag">Equipped</div>' : ''}
-          </div>`).join('')}
-      </div>
-      ${owned.length ? '' : emptyState('Nothing here yet. Mystery Rewards from the Quest Board can drop items for this slot. 🎁')}
-      ${total ? `<p class="ch-note" style="text-align:center">${owned.length} / ${total} found in the Mystery pool</p>` : ''}
-    `;
-  } else {
-    bodyHtml = emptyState('No items yet — check back soon! 🔒');
   }
-
   return `
     <div class="room-wardrobe-modal">
-      <h3>👗 Outfit</h3>
+      <h3>🚪 Kleerkast</h3>
       ${renderRoomPreviewHtml(userId)}
       ${ROOM_WARDROBE_STATE.error ? `<div class="ch-flash bad" role="alert">${escapeHtml(ROOM_WARDROBE_STATE.error)}</div>` : ''}
-      ${tabsHtml}
+      ${steps}
       ${bodyHtml}
     </div>
   `;
 }
 
+/* ---- the desk: your nameplate (title) and the look of the desk itself ---- */
+const ROOM_DESK_STATE = { tab: 'title', error: '' };
+function openRoomDeskModal(tab){
+  if (tab) ROOM_DESK_STATE.tab = tab;
+  openModal(renderRoomDeskModalHtml());
+}
+function renderRoomDeskModalHtml(){
+  const uid = STATE.activeUser, me = findUser(uid), room = getUserRoomProfile(uid);
+  const tab = ROOM_DESK_STATE.tab;
+  const worn = (room.loadout || {}).title || '';
+  const cur = (APP_DATA.titles || []).find(t => t.id === worn);
+  const deskId = getRoomFurnitureId(uid, 'desk');
+  const desks = (APP_DATA.roomFurnitureItems || []).filter(i => i.slot === 'desk' && deskHasArt(i.id));
+  let body;
+  if (tab === 'title'){
+    const rank = r => ['common', 'rare', 'epic', 'legendary'].indexOf(r);
+    const mine = (APP_DATA.titles || []).filter(t => APP_DATA.myTitles.includes(t.id)).sort((a, b) => rank(b.rarity) - rank(a.rarity) || a.sortOrder - b.sortOrder);
+    const next = [], seen = new Set();                               // for every milestone family the next title still to earn
+    (APP_DATA.titles || []).filter(t => t.unlockKind !== 'drop' && !APP_DATA.myTitles.includes(t.id)).sort((a, b) => a.sortOrder - b.sortOrder).forEach(t => { if (!seen.has(t.family)){ seen.add(t.family); next.push(t); } });
+    const drops = (APP_DATA.titles || []).filter(t => t.unlockKind === 'drop');
+    body = `
+      <p class="ch-note" style="text-align:center">Kies welke titel op je naamplaatje staat.</p>
+      <div class="room-title-list">
+        <button type="button" class="room-title-chip ${worn ? '' : 'on'}" onclick="setRoomTitle('')">Geen titel</button>
+        ${mine.map(t => `<button type="button" class="room-title-chip ${worn === t.id ? 'on' : ''}" style="--tc:${TITLE_RARITY_COLOR[t.rarity] || '#888'}" onclick="setRoomTitle('${t.id}')">${escapeHtml(t.text)}<small>${t.rarity}</small></button>`).join('')}
+      </div>
+      ${mine.length ? '' : '<p class="ch-note" style="text-align:center">Nog geen titels. Voltooi quests en open Mystery Rewards om ze te verdienen.</p>'}
+      ${next.length ? `<h4 class="room-outfit-sets-title">Volgende titels</h4><div class="room-title-next">${next.map(t => `<div class="room-title-next-row"><b style="color:${TITLE_RARITY_COLOR[t.rarity] || '#888'}">🔒 ${escapeHtml(t.text)}</b><span>${escapeHtml(t.hint)}</span></div>`).join('')}</div>` : ''}
+      ${drops.length ? `<p class="ch-note" style="text-align:center">Mystery finds: ${drops.filter(t => APP_DATA.myTitles.includes(t.id)).length} / ${drops.length} verzameld</p>` : ''}`;
+  } else {
+    const tile = d => {
+      const mine = roomFurnitureOwned(d.id);
+      return `<button type="button" class="frame-opt ${deskId === d.id ? 'sel' : ''} ${mine ? '' : 'locked'}" style="--fc:${FRAME_RARITY_COLOR[d.rarity] || '#888'}" ${mine ? `onclick="setRoomFurniture('desk', '${d.id}')"` : 'disabled'}>
+        <b>${mine ? escapeHtml(d.tag) : '🔒 ' + escapeHtml(d.name)}</b><span>${mine ? escapeHtml(d.name) : escapeHtml(d.hint)}</span><small>${deskId === d.id ? 'Staat in je kamer' : (mine ? 'Kiezen' : d.rarity)}</small></button>`;
+    };
+    body = `
+      <p class="ch-note" style="text-align:center">Elk bureau verdien je uit quests of Mystery Rewards. Kies hoe jouw bureau eruitziet: iedereen die je kamer bezoekt ziet het.</p>
+      <div class="rm2-desk-list">${desks.map(tile).join('')}</div>
+      ${desks.length ? '' : '<p class="ch-note" style="text-align:center">Nog geen bureaus beschikbaar.</p>'}`;
+  }
+  return `
+    <div class="room-wardrobe-modal">
+      <h3>🪪 Bureau</h3>
+      <div class="rm2-deskprev">${deskArtHtml(deskId, me.displayName, cur ? '「' + escapeHtml(cur.text) + '」' : '— geen titel —')}</div>
+      ${ROOM_DESK_STATE.error ? `<div class="ch-flash bad" role="alert">${escapeHtml(ROOM_DESK_STATE.error)}</div>` : ''}
+      <div class="rm2-tabs"><button type="button" class="${tab === 'title' ? 'on' : ''}" onclick="openRoomDeskModal('title')">🪪 Titel</button><button type="button" class="${tab === 'desk' ? 'on' : ''}" onclick="openRoomDeskModal('desk')">🪑 Bureau</button></div>
+      ${body}
+    </div>`;
+}
+async function setRoomFurniture(slot, itemId){
+  itemId = itemId || null;
+  ROOM_DESK_STATE.error = '';
+  const { data, error } = await sb.rpc('set_room_furniture', { p_slot: slot, p_item: itemId });
+  if (error){ console.error('set_room_furniture failed:', error); ROOM_DESK_STATE.error = error.message || 'Could not save.'; return openRoomDeskModal(); }
+  const existing = APP_DATA.roomProfiles.find(r => r.userId === STATE.activeUser);
+  if (existing) existing.loadout = data || existing.loadout; else APP_DATA.roomProfiles.push({ userId: STATE.activeUser, bodyType: 'male', loadout: data || {} });
+  const stored = await readBackRoomProfile();
+  if (stored){
+    if (((stored.loadout.furniture || {})[slot] || null) !== itemId) ROOM_DESK_STATE.error = 'The database did not keep this choice. Is migration 0088 applied?';
+    if (existing) existing.loadout = stored.loadout;
+  }
+  renderPage();
+  openRoomDeskModal();
+}
+/* a piece of furniture earned by this claim */
+function announceFurniture(list){
+  if (!list || !list.length) return;
+  const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
+  setTimeout(() => showQuestToast(`<b>🪑 NEW FURNITURE</b><span>${escapeHtml(list.map(f => f.name).join(' + '))}</span><small>Mijn Hoekje › Bureau</small>`), busy ? 4000 : 0);
+}
+
 async function setRoomTitle(titleId){
   titleId = titleId || null;
-  if (titleId && !APP_DATA.myTitles.includes(titleId)){ ROOM_WARDROBE_STATE.error = 'You have not earned this title yet.'; return openRoomWardrobeModal(STATE.activeUser); }
+  if (titleId && !APP_DATA.myTitles.includes(titleId)){ ROOM_DESK_STATE.error = 'You have not earned this title yet.'; return openRoomDeskModal('title'); }
   const existing = APP_DATA.roomProfiles.find(r => r.userId === STATE.activeUser);
   let loadout = null;
   const { data, error } = await sb.rpc('set_room_title', { p_title_id: titleId });
@@ -8838,12 +8945,12 @@ async function setRoomTitle(titleId){
     if (error) console.warn('set_room_title not available, writing room_profiles directly:', error.message);
     loadout = { ...((existing && existing.loadout) || {}) }; delete loadout.title; if (titleId) loadout.title = titleId;
     const res = await sb.from('room_profiles').upsert({ user_id: STATE.activeUser, body_type: (existing && existing.bodyType) || 'male', loadout }, { onConflict: 'user_id' });
-    if (res.error){ console.error('room_profiles upsert failed:', res.error); ROOM_WARDROBE_STATE.error = 'Saving did not work: ' + (res.error.message || 'unknown error'); return openRoomWardrobeModal(STATE.activeUser); }
+    if (res.error){ console.error('room_profiles upsert failed:', res.error); ROOM_DESK_STATE.error = 'Saving did not work: ' + (res.error.message || 'unknown error'); return openRoomDeskModal('title'); }
   }
-  ROOM_WARDROBE_STATE.error = '';
+  ROOM_DESK_STATE.error = '';
   if (existing) existing.loadout = loadout; else APP_DATA.roomProfiles.push({ userId: STATE.activeUser, bodyType: 'male', loadout });
   renderPage();
-  openRoomWardrobeModal(STATE.activeUser);
+  openRoomDeskModal('title');
 }
 
 async function setRoomCharacter(base, outfit){
@@ -10436,7 +10543,7 @@ async function claimChallenge(id){
   try {
     const { data, error } = await sb.rpc('claim_challenge', { p_assignment_id: id });
     if (error){ console.error('claim_challenge failed:', error); CHALLENGE_STATE.flash[id] = { error: error.message || 'Could not claim.' }; }
-    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); announceFrames(data.frames); announceWall(data.wall); announcePoemBgs(data.poem_bgs); }
+    else if (data && (data.status === 'claimed' || data.status === 'consolation')){ CHALLENGE_STATE.flash[id] = { text: (data.status === 'consolation' ? 'Consolation: ' : '') + describeClaimResults(data.results) }; announceClaim(data.results); announceOutfits(data.outfits); announceTitles(data.titles); announcePets(data.pet); announceFrames(data.frames); announceWall(data.wall); announcePoemBgs(data.poem_bgs); announceFurniture(data.furniture); }
     else CHALLENGE_STATE.flash[id] = { text: 'Already claimed.' };
     await refreshAppData();
   } finally {
@@ -11201,14 +11308,14 @@ function announceTitles(list){
   if (!list || !list.length) return;
   const t = list.map(x => x.text).join(' + ');
   const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
-  setTimeout(() => showQuestToast(`<b>🏷️ NEW TITLE</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Outfit › Title</small>`), busy ? 4000 : 0);
+  setTimeout(() => showQuestToast(`<b>🏷️ NEW TITLE</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Bureau › Titel</small>`), busy ? 4000 : 0);
 }
 /* a special Personal Character outfit earned by this very claim */
 function announceOutfits(list){
   if (!list || !list.length) return;
   const t = list.map(o => o.name).join(' + ');
   const busy = document.getElementById('qb-toast') && document.getElementById('qb-toast').classList.contains('show');
-  setTimeout(() => showQuestToast(`<b>👗 NEW OUTFIT UNLOCKED</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Outfit › Outfit</small>`), busy ? 4000 : 0);
+  setTimeout(() => showQuestToast(`<b>👗 NEW OUTFIT UNLOCKED</b><span>${escapeHtml(t)}</span><small>Mijn Hoekje › Kleerkast</small>`), busy ? 4000 : 0);
 }
 /* a short, satisfying announcement for fragments: 3 / 5 → 4 / 5 */
 function showQuestToast(html){
@@ -11491,10 +11598,11 @@ async function openMysteryBox(id){
 function mysteryPrizeLines(p){
   if (p.type === 'cosmetic') return { icon: MYSTERY_CAT_ICON[p.category] || '🎩', name: p.name, sub: p.flavor || '', note: 'Added to your collection' };
   if (p.type === 'wall') return { icon: p.kind === 'neon' ? '🪧' : '🍺', name: p.kind === 'neon' ? `Neon sign: ${p.name}` : `Bierviltje: ${p.name}`, sub: 'It hangs on the Taproom wall for everybody.', note: 'Taproom › De Wand' };
+  if (p.type === 'furniture') return { icon: '🪑', name: `Furniture: ${p.name}`, sub: 'A new look for your room.', note: 'Mijn Hoekje › Bureau' };
   if (p.type === 'poem_bg') return { icon: '📜', name: `Poem background: ${p.name}`, sub: 'A new look for your poems.', note: 'Poetry Wall › 🎨 Achtergrond' };
   if (p.type === 'frame') return { icon: '🖼️', name: `Frame: ${p.name}`, sub: 'A new frame for your nicknames.', note: 'Nicknames › 🖼️ Kader' };
   if (p.type === 'pet') return { icon: '🐾', img: PET_IMAGES[p.kind === 'species' ? p.pet_id + '-standaard' : p.pet_id] || '', name: p.kind === 'species' ? p.name : `${p.species_name}: ${p.name}`, sub: p.kind === 'species' ? 'A new pet for your character.' : 'New clothes for your pet.', note: 'Mijn Hoekje › Companion' };
-  if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'Mijn Hoekje › Outfit › Title' };
+  if (p.type === 'title') return { icon: '🏷️', name: `「${p.text}」`, sub: 'A new title for under your name.', note: 'Mijn Hoekje › Bureau › Titel' };
   if (p.type === 'fragment') return { icon: '🧩', name: '1 Gauntlet Fragment', sub: p.lord ? 'Kept until your reign ends.' : (p.forged ? '⚔️ It completed a Royal Gauntlet!' : ''), note: '' };
   return { icon: '✨', name: `+${p.amount} Player XP`, sub: p.duplicate_bonus ? 'You already own everything here. A bonus instead.' : '', note: '' };
 }

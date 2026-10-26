@@ -61,7 +61,7 @@ begin
     if v_err is null then raise exception 'FAIL B: somebody else opened my box'; end if;
     perform pg_temp.imp(m);
     r := public.open_mystery_box(b);
-    if r->>'status' <> 'opened' or r->'prize'->>'type' not in ('cosmetic', 'xp', 'fragment', 'title', 'pet', 'frame', 'wall', 'poem_bg') then raise exception 'FAIL B: strange prize %', r; end if;
+    if r->>'status' <> 'opened' or r->'prize'->>'type' not in ('cosmetic', 'xp', 'fragment', 'title', 'pet', 'frame', 'wall', 'poem_bg', 'furniture') then raise exception 'FAIL B: strange prize %', r; end if;
     select count(*) into v_n from public.user_abt_cosmetics where user_id = m and unlock_source = 'mystery';
     r2 := public.open_mystery_box(b); perform public.open_mystery_box(b);
     if r2->>'status' <> 'already_opened' or r2->'prize' <> r->'prize' then raise exception 'FAIL B: a second open changed the prize'; end if;
