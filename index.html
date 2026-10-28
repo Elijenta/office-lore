@@ -4257,6 +4257,59 @@
     @media (prefers-reduced-motion:reduce){.hm *{animation:none!important}}
     
   /* =========================================================
+     The Beer Fridge as a café "toog": bottles on shelves, the three best beers on tap
+  ========================================================= */
+
+    .tg{container-type:inline-size;position:relative;border:4px solid #2b2320;border-radius:26px;box-shadow:6px 7px 0 #2b2320;overflow:hidden;color:#fff3d6;
+      background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 .3cqw,transparent .3cqw 3.2cqw),repeating-linear-gradient(90deg,rgba(0,0,0,.2) 0 .3cqw,transparent .3cqw 7.2cqw),linear-gradient(180deg,#7a3a2a,#5a261c)}
+    .tg:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 50% 40% at 50% 0,rgba(255,200,120,.35),transparent 70%);pointer-events:none}
+    .tg-neon{position:relative;text-align:center;padding:14px 10px 4px}
+    .tg-neon b{display:inline-block;font:400 clamp(22px,4.2cqw,40px) 'Chewy',cursive;letter-spacing:.06em;color:#fff3f6;padding:2px 22px;border:3px solid #ff7aa8;border-radius:999px;text-shadow:0 0 6px #ff4f93,0 0 16px #ff4f93,0 0 34px #ff2a7a;box-shadow:0 0 10px #ff4f93,inset 0 0 10px #ff4f93;animation:tg-buzz 5s infinite}
+    .tg-neon small{display:block;margin-top:6px;font:700 12px Fredoka;letter-spacing:.2em;text-transform:uppercase;color:#ffd9b0;opacity:.85}
+    @keyframes tg-buzz{0%,92%,100%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}}
+    .tg-shelves{position:relative;margin:10px 14px 0;padding:16px 10px 0;border:4px solid #3a2012;border-radius:14px;background:linear-gradient(180deg,rgba(20,8,4,.55),rgba(20,8,4,.35));box-shadow:inset 0 0 28px rgba(0,0,0,.6)}
+    .tg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));grid-auto-rows:206px;align-items:end;gap:0;
+      background:repeating-linear-gradient(180deg,transparent 0 190px,#c58a4e 190px 192px,#8a5a35 192px 200px,#4b2d17 200px 206px)}
+    .tg-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:16px;cursor:pointer;height:100%}
+    .tg-bottle{position:relative;width:58px;transition:transform .3s cubic-bezier(.3,1.6,.5,1);transform-origin:50% 100%;filter:drop-shadow(0 6px 3px rgba(0,0,0,.45))}
+    .tg-slot:hover .tg-bottle{transform:translateY(-12px) rotate(-2deg)}
+    .tg-cap{width:22px;height:10px;margin:0 auto;background:var(--cap,#d9a21b);border:2px solid #2b2320;border-radius:3px 3px 1px 1px}
+    .tg-neck{width:20px;height:var(--nh,34px);margin:-1px auto 0;background:linear-gradient(90deg,rgba(255,255,255,.25),transparent 30%,rgba(0,0,0,.28)),var(--bc);border:2px solid #2b2320;border-top:0;border-bottom:0}
+    .tg-body{position:relative;width:58px;height:var(--bh,84px);margin-top:-1px;border:3px solid #2b2320;border-radius:16px 16px 9px 9px/22px 22px 9px 9px;background:linear-gradient(90deg,rgba(255,255,255,.28),transparent 28%,transparent 62%,rgba(0,0,0,.34)),var(--bc);overflow:hidden}
+    .tg-body:after{content:"";position:absolute;left:7px;top:10px;width:5px;height:55%;border-radius:4px;background:rgba(255,255,255,.55);filter:blur(.4px)}
+    .tg-label{position:absolute;left:5px;right:5px;top:30%;bottom:12%;background:#fff3d6 var(--ph) center/cover;border:2px solid #2b2320;border-radius:3px;display:grid;place-items:center;text-align:center;font:400 9.5px/1.05 Chewy;color:#3a2713;padding:2px;overflow:hidden}
+    .tg-label.photo{color:transparent}
+    .tg-medal{position:absolute;top:-8px;right:-9px;font-size:19px;z-index:3;filter:drop-shadow(0 2px 0 rgba(0,0,0,.4));animation:tg-bob 3s ease-in-out infinite}
+    @keyframes tg-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    .tg-tag{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);max-width:94px;padding:1px 8px;background:linear-gradient(180deg,#ffe58a,#d9a21b);border:2px solid #2b2320;border-radius:5px;font:400 11px Chewy;color:#3a2713;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 2px 0 rgba(0,0,0,.35)}
+    .tg-tip{position:absolute;left:50%;bottom:calc(100% - 10px);transform:translateX(-50%) scale(.92);opacity:0;pointer-events:none;z-index:20;min-width:150px;max-width:210px;background:#fff7dc;color:#2b2320;border:3px solid #2b2320;border-radius:12px;padding:7px 10px;box-shadow:3px 4px 0 rgba(0,0,0,.4);transition:.18s;text-align:left}
+    .tg-slot:hover .tg-tip{opacity:1;transform:translateX(-50%) scale(1)}
+    .tg-tip b{display:block;font:400 15px Chewy;line-height:1.1}.tg-tip span{display:block;font:600 11.5px Fredoka;color:#6b5238;margin-top:1px}
+    .tg-slot:nth-child(-n+3) .tg-tip{left:0;transform:none}.tg-slot:hover:nth-child(-n+3) .tg-tip{transform:none}
+    .tg-counter{position:relative;margin:92px 14px 16px;border:4px solid #2b2320;border-radius:0 0 14px 14px}
+    .tg-top{position:relative;height:30px;background:linear-gradient(180deg,#d9a46a,#a8703c);border-bottom:4px solid #2b2320;box-shadow:0 -2px 0 rgba(255,255,255,.2) inset}
+    .tg-vat{position:absolute;left:50%;top:-86px;transform:translateX(-50%);font:400 13px Chewy;letter-spacing:.14em;color:#ffe9a8;text-shadow:1px 2px 0 rgba(0,0,0,.5);white-space:nowrap;opacity:.9}
+    .tg-taps{position:absolute;left:0;right:0;top:-70px;height:76px;display:flex;justify-content:space-evenly;align-items:flex-end}
+    .tg-tap{position:relative;width:96px;display:flex;flex-direction:column;align-items:center;cursor:pointer;transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+    .tg-tap.empty{cursor:default;opacity:.55}
+    .tg-tap:not(.empty):hover{transform:translateY(-6px)}
+    .tg-handle{position:relative;width:24px;height:44px;border:2px solid #2b2320;border-radius:9px 9px 4px 4px;background:linear-gradient(90deg,rgba(255,255,255,.3),transparent 40%,rgba(0,0,0,.25)),var(--tc);box-shadow:0 3px 0 rgba(0,0,0,.35);z-index:2}
+    .tg-handle:before{content:"";position:absolute;left:50%;top:5px;width:10px;height:12px;margin-left:-5px;border-radius:50%;background:rgba(255,255,255,.55)}
+    .tg-body-t{width:30px;height:12px;margin-top:-2px;border:2px solid #2b2320;border-radius:3px;background:linear-gradient(180deg,#fff3b0,#d9a21b 55%,#8a5a0a)}
+    .tg-spout{width:10px;height:11px;margin-top:-1px;border:2px solid #2b2320;border-top:0;border-radius:0 0 4px 4px;background:linear-gradient(90deg,#fff,#c9c9c4)}
+    .tg-glass{position:relative;margin-top:-1px;font-size:25px;line-height:1;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35));z-index:3;animation:tg-pour 4s ease-in-out infinite}
+    @keyframes tg-pour{0%,100%{transform:translateY(0)}50%{transform:translateY(-1px)}}
+    .tg-drip{position:absolute;left:50%;top:78px;width:3px;height:9px;margin-left:-1.5px;border-radius:3px;background:var(--tc);opacity:0;animation:tg-drop 2.8s ease-in infinite}
+    @keyframes tg-drop{0%,70%{opacity:0;transform:translateY(0)}78%{opacity:.9}100%{opacity:0;transform:translateY(14px)}}
+    .tg-plate{position:absolute;top:96px;left:50%;transform:translateX(-50%);z-index:5;min-width:90px;max-width:150px;padding:1px 8px 2px;background:linear-gradient(180deg,#fff3b0,#d9a21b 55%,#a8780a);border:2px solid #2b2320;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.4);text-align:center;color:#3a2713}
+    .tg-plate b{display:block;font:400 12px Chewy;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tg-plate small{display:block;font:700 11px Fredoka}
+    .tg-front{height:78px;background:repeating-linear-gradient(90deg,rgba(0,0,0,.22) 0 2px,transparent 2px 46px),linear-gradient(180deg,#8a5a35,#5e3a1d);position:relative}
+    .tg-front:after{content:"";position:absolute;left:3%;right:3%;bottom:10px;height:8px;border-radius:6px;background:linear-gradient(180deg,#fff3b0,#d9a21b 55%,#8a5a0a);border:2px solid #2b2320}
+    .tg-front span{position:absolute;left:50%;top:26px;transform:translateX(-50%);font:400 14px Chewy;letter-spacing:.08em;color:#ffe9a8;text-shadow:1px 2px 0 rgba(0,0,0,.5);white-space:nowrap}
+    .tg-empty{padding:30px;text-align:center}
+    @media (prefers-reduced-motion:reduce){.tg-neon b,.tg-medal{animation:none}}
+    
+  /* =========================================================
      Nickname frames (0082)
   ========================================================= */
   .nf-app{ position: relative; display: block; padding: 36px 16px 16px; }
@@ -16368,6 +16421,52 @@ function renderSacredRecordsSection(){
   `;
 }
 
+/* ---- the "toog": every beer is a bottle on a shelf (the label photo on the bottle when there is one), the three best-scored beers are on tap ---- */
+function getBeerGlass(style){
+  const t = String(style || '').toLowerCase();
+  if (/quad|donker|stout|porter/.test(t)) return { bc: '#3a1d0c', cap: '#b3760f', nh: 38, bh: 92 };
+  if (/trappist|abdij|bruin|dubbel/.test(t)) return { bc: '#6b3a1a', cap: '#d9a21b', nh: 36, bh: 88 };
+  if (/robijn|rood|kriek|rode|red/.test(t)) return { bc: '#8f2a3d', cap: '#e8c75a', nh: 34, bh: 84 };
+  if (/tripel/.test(t)) return { bc: '#e0a526', cap: '#8a5a0a', nh: 34, bh: 86 };
+  if (/wit|wheat|weiss/.test(t)) return { bc: '#f1dc9a', cap: '#8a5a35', nh: 30, bh: 80 };
+  if (/pils|lager|licht/.test(t)) return { bc: '#e9c24a', cap: '#d9a21b', nh: 26, bh: 76 };
+  if (/ipa|pale|blond|blonde|saison/.test(t)) return { bc: '#e9b53a', cap: '#2e8b57', nh: 32, bh: 82 };
+  return { bc: '#a8641e', cap: '#d9a21b', nh: 34, bh: 84 };
+}
+function renderBeerBarHtml(beers){
+  const top3 = APP_DATA.beers.filter(b => getBeerAverageScore(b.id) !== null).sort((a, b) => getBeerAverageScore(b.id) - getBeerAverageScore(a.id)).slice(0, 3);
+  const medals = ['🥇', '🥈', '🥉'];
+  const bottle = b => {
+    const g = getBeerGlass(b.style), avg = getBeerAverageScore(b.id), n = getBeerTotalQuantity(b.id);
+    const mi = top3.findIndex(t => t.id === b.id);
+    const safePhoto = b.photo && /^(data:image\/|https?:)/.test(b.photo) ? String(b.photo).replace(/["')\\]/g, '') : '';
+    return `<div class="tg-slot" onclick="openBeerDetail('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()" aria-label="${escapeHtml(b.name)}">
+      <div class="tg-tip"><b>${escapeHtml(b.name)}</b><span>${escapeHtml(b.brewery || '')}${b.brewery ? ' · ' : ''}${escapeHtml(b.style || '')}${b.abv != null ? ' · ' + b.abv + '%' : ''}</span><span>${avg !== null ? '⭐ ' + avg + '/10' : 'nog geen score'} · 🍺 ${n}×</span></div>
+      <div class="tg-bottle" style="--bc:${g.bc};--cap:${g.cap};--nh:${g.nh}px;--bh:${g.bh}px">
+        ${mi >= 0 ? `<span class="tg-medal">${medals[mi]}</span>` : ''}
+        <div class="tg-cap"></div><div class="tg-neck"></div>
+        <div class="tg-body"><div class="tg-label ${safePhoto ? 'photo' : ''}" ${safePhoto ? `style="--ph:url('${safePhoto}')"` : ''}>${escapeHtml(b.name)}</div></div>
+      </div>
+      <div class="tg-tag">${escapeHtml(b.name)}</div>
+    </div>`;
+  };
+  const taps = [0, 1, 2].map(i => {
+    const b = top3[i];
+    if (!b) return `<div class="tg-tap empty" aria-hidden="true"><div class="tg-handle" style="--tc:#7a7a74"></div><div class="tg-body-t"></div><div class="tg-spout"></div><div class="tg-plate"><b>leeg vat</b><small>nog geen score</small></div></div>`;
+    const g = getBeerGlass(b.style);
+    return `<div class="tg-tap" onclick="openBeerDetail('${b.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()" aria-label="Van het vat: ${escapeHtml(b.name)}">
+      <div class="tg-handle" style="--tc:${g.bc}"></div><div class="tg-body-t"></div><div class="tg-spout"></div><i class="tg-drip" style="--tc:${g.bc};animation-delay:-${i * .9}s"></i>
+      <div class="tg-glass">🍺</div>
+      <div class="tg-plate"><b>${medals[i]} ${escapeHtml(b.name)}</b><small>⭐ ${getBeerAverageScore(b.id)}</small></div>
+    </div>`;
+  }).join('');
+  return `<div class="tg">
+    <div class="tg-neon"><b>DE TOOG</b><small>Tripel Tales · ${beers.length} bieren in de rekken</small></div>
+    <div class="tg-shelves"><div class="tg-grid">${beers.map(bottle).join('')}</div></div>
+    <div class="tg-counter"><div class="tg-top"><div class="tg-taps">${taps}</div></div><div class="tg-front"><span>🍻 van het vat: de drie best gescoorde bieren · proost!</span></div></div>
+  </div>`;
+}
+
 /* ---- bierkaart (hergebruikt person-card styling) ---- */
 function renderBeerCard(beer){
   const avg = getBeerAverageScore(beer.id);
@@ -16426,9 +16525,9 @@ const BEER_FRIDGE_VIEW_MODE_STORAGE_KEY = 'officeLoreBeerFridgeViewMode';
 function loadBeerFridgeViewMode(){
   try {
     const saved = localStorage.getItem(BEER_FRIDGE_VIEW_MODE_STORAGE_KEY);
-    if (saved === 'bottles' || saved === 'list') return saved;
+    if (saved === 'bar' || saved === 'bottles' || saved === 'list') return saved;
   } catch (e) { /* private browsing etc. */ }
-  return 'bottles';
+  return 'bar';
 }
 const BEER_FRIDGE_VIEW_STATE = { mode: loadBeerFridgeViewMode() };
 
@@ -16467,6 +16566,7 @@ function getFilteredBeers(){
 function renderBeerFridgeResultsHtml(){
   const beers = getFilteredBeers();
   if (!beers.length) return emptyState('Geen bieren gevonden. Pas je zoekopdracht of filter aan.');
+  if (BEER_FRIDGE_VIEW_STATE.mode === 'bar') return renderBeerBarHtml(beers);
   if (BEER_FRIDGE_VIEW_STATE.mode === 'list') return `<div class="row-list">${beers.map(renderBeerListRow).join('')}</div>`;
   return `<div class="grid cols-wide-lg">${beers.map(renderBeerCard).join('')}</div>`;
 }
@@ -16500,6 +16600,7 @@ function renderBeerDatabase(data){
       </div>
 
       <div class="people-toolbar" style="margin-top:10px;">
+        <button type="button" class="nav-btn ${BEER_FRIDGE_VIEW_STATE.mode === 'bar' ? 'active' : ''}" onclick="switchBeerFridgeViewMode('bar')">🍻 Toog</button>
         <button type="button" class="nav-btn ${BEER_FRIDGE_VIEW_STATE.mode === 'bottles' ? 'active' : ''}" onclick="switchBeerFridgeViewMode('bottles')">▦ Bottles</button>
         <button type="button" class="nav-btn ${BEER_FRIDGE_VIEW_STATE.mode === 'list' ? 'active' : ''}" onclick="switchBeerFridgeViewMode('list')">☰ List</button>
       </div>
