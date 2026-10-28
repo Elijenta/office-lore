@@ -4377,6 +4377,62 @@
   }
 
   /* =========================================================
+     Counters as arcade tally-counter gadgets (odometer digits, a big domed +1 button, a lever for -1)
+  ========================================================= */
+
+    .cn-room{position:relative;padding:20px 18px 26px!important;border:4px solid #2b2320!important;border-radius:26px!important;box-shadow:6px 7px 0 #2b2320!important;color:#fff;overflow:hidden;
+      background:radial-gradient(circle,rgba(255,200,140,.22) 0 1.6px,transparent 2.2px) 0 0/46px 46px,radial-gradient(circle,rgba(150,215,205,.18) 0 1.6px,transparent 2.2px) 23px 23px/46px 46px,
+        radial-gradient(ellipse 70% 50% at 50% 0,rgba(255,196,120,.22),transparent 70%),linear-gradient(180deg,#2c3a40,#1f2b30)!important;}
+    .cn-room .section-head h3{font:400 clamp(24px,4vw,34px) 'Chewy',cursive;color:#fff3d6;text-shadow:0 0 10px rgba(255,190,110,.55),2px 3px 0 rgba(0,0,0,.35);letter-spacing:.04em}
+    .cn-room .count-chip{background:#ffe14a;border:3px solid #2b2320;color:#2b2320;font-family:'Chewy',cursive}
+    .cn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px 18px;margin-top:10px}
+    .cn-dev{position:relative;padding:14px 14px 12px;border:4px solid #2b2320;border-radius:22px;color:#2b2320;
+      background:linear-gradient(135deg,rgba(255,255,255,.55),transparent 38%),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 2px,transparent 2px 5px),linear-gradient(180deg,#d6dbe3,#aab2bf);
+      box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),inset 0 -6px 0 rgba(0,0,0,.18),0 8px 0 #2b2320,0 0 0 3px var(--ca)}
+    .cn-dev:before,.cn-dev:after{content:"";position:absolute;top:9px;width:10px;height:10px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#8a8f98 55%,#4b4f57);border:1.5px solid #2b2320}
+    .cn-dev:before{left:10px}.cn-dev:after{right:10px}
+    .cn-plate{margin:6px 8px 8px;padding:5px 10px 6px;text-align:center;background:linear-gradient(180deg,#fff3b0,#d9a21b 55%,#a8780a);border:3px solid #2b2320;border-radius:8px;box-shadow:0 3px 0 rgba(0,0,0,.35),inset 0 0 6px rgba(255,255,255,.55)}
+    .cn-plate b{display:block;font:400 21px/1.1 'Chewy',cursive;color:#3a2713;overflow-wrap:anywhere}
+    .cn-who{display:inline-flex;align-items:center;gap:6px;margin-top:3px;font:800 11px 'Nunito',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#5a3a08;cursor:pointer}
+    .cn-lcd{margin:0 4px 8px;padding:8px 10px;border:3px solid #2b2320;border-radius:10px;background:linear-gradient(180deg,#0b140d,#14281a);box-shadow:inset 0 0 14px rgba(0,0,0,.8);display:flex;justify-content:center;gap:5px}
+    .cn-odo{display:flex;gap:5px;font:700 46px/1 'Chewy','Fredoka',monospace}
+    .cn-digit{position:relative;width:.62em;height:1.08em;overflow:hidden;border-radius:6px;background:linear-gradient(180deg,#1a1a1a,#3a3a3a 48%,#0c0c0c 52%,#262626);border:2px solid #000;box-shadow:inset 0 0 8px rgba(0,0,0,.8)}
+    .cn-digit:after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.9);box-shadow:0 1px 0 rgba(255,255,255,.12)}
+    .cn-strip{display:flex;flex-direction:column;transition:transform .8s cubic-bezier(.2,1.4,.4,1);transform:translateY(calc(var(--d) * -1.08em))}
+    .cn-strip i{display:block;height:1.08em;line-height:1.08em;text-align:center;font-style:normal;color:#7dff9a;text-shadow:0 0 6px rgba(125,255,154,.8)}
+    .cn-sign{align-self:center;color:#ff7a7a;text-shadow:0 0 6px rgba(255,100,100,.8);font:700 40px/1.08 'Chewy',monospace;margin-right:2px}
+    .cn-desc{margin:0 8px 8px;font:600 12.5px/1.25 'Nunito',sans-serif;color:#3d4452;text-align:center}
+    .cn-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:2px 10px 6px}
+    .cn-dome{position:relative;flex:none;width:112px;height:112px;border-radius:50%;border:0;padding:0;cursor:pointer;background:radial-gradient(circle at 50% 100%,#3a3f4a 0 62%,#1e2128 63%);box-shadow:0 0 0 4px #2b2320,0 8px 0 4px #15171c;touch-action:manipulation}
+    .cn-dome i{position:absolute;left:8px;right:8px;top:6px;bottom:14px;border-radius:50%;display:grid;place-items:center;font:400 38px 'Chewy',cursive;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35);font-style:normal;
+      background:radial-gradient(circle at 35% 28%,rgba(255,255,255,.75) 0 9%,transparent 22%),radial-gradient(circle at 50% 40%,var(--cl),var(--cd) 78%);border:3px solid #2b2320;box-shadow:inset 0 -8px 12px rgba(0,0,0,.35),0 6px 0 var(--cd),0 6px 0 3px #2b2320;transition:transform .09s,box-shadow .09s}
+    .cn-dome:hover i{filter:brightness(1.12)}
+    .cn-dome:active i,.cn-dome.pressed i{transform:translateY(6px);box-shadow:inset 0 -4px 8px rgba(0,0,0,.35),0 0 0 var(--cd),0 0 0 3px #2b2320}
+    .cn-dome:focus-visible{outline:4px solid #38e8ff;outline-offset:4px}
+    .cn-lever{flex:none;display:grid;gap:4px;justify-items:center;border:0;background:none;cursor:pointer;padding:0;font:800 10px 'Nunito',sans-serif;letter-spacing:.14em;color:#3d4452}
+    .cn-lever b{display:block;width:44px;height:58px;border-radius:12px;border:3px solid #2b2320;background:linear-gradient(180deg,#444,#1a1a1a);box-shadow:inset 0 0 8px rgba(0,0,0,.8),0 4px 0 rgba(0,0,0,.35);position:relative}
+    .cn-lever b:before{content:"";position:absolute;left:50%;top:8px;width:16px;height:26px;margin-left:-8px;border-radius:8px;background:linear-gradient(90deg,#e8e8e8,#9a9a9a);border:2px solid #2b2320;transform-origin:50% 100%;transition:transform .15s}
+    .cn-lever:active b:before,.cn-lever.pressed b:before{transform:translateY(12px)}
+    .cn-lever:hover b{filter:brightness(1.2)}
+    .cn-key{flex:none;width:40px;height:40px;border-radius:9px;border:3px solid #2b2320;background:linear-gradient(180deg,#fff,#d6dbe3);box-shadow:0 4px 0 #6d7480;cursor:pointer;font-size:19px;transition:transform .08s,box-shadow .08s}
+    .cn-key:active{transform:translateY(4px);box-shadow:0 0 0 #6d7480}
+    .cn-ticker{margin:6px 6px 4px;padding:4px 10px;border:2px solid #2b2320;border-radius:8px;background:#0b140d;color:#7dff9a;font:700 11px/1.3 'Fredoka',monospace;text-shadow:0 0 5px rgba(125,255,154,.7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cn-ticker.top{color:#ffe14a;text-shadow:0 0 5px rgba(255,225,74,.7)}
+    .cn-foot{display:flex;gap:6px;justify-content:center;margin-top:6px}
+    .cn-foot button{padding:4px 11px;border:2px solid #2b2320;border-radius:999px;background:#fff;font:800 11px 'Nunito',sans-serif;cursor:pointer;color:#2b2320;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+    .cn-foot button:hover{background:#ffe9a8}
+    .cn-plus{position:absolute;left:50%;top:40%;pointer-events:none;font:400 34px 'Chewy',cursive;color:var(--cl);-webkit-text-stroke:2px #2b2320;paint-order:stroke fill;animation:cn-float 1s ease-out forwards;z-index:9}
+    @keyframes cn-float{0%{opacity:0;transform:translate(-50%,0) scale(.5)}15%{opacity:1;transform:translate(-50%,-12px) scale(1.2)}100%{opacity:0;transform:translate(calc(-50% + var(--dx,0px)),-90px) scale(1)}}
+    .cn-spark{position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:var(--c);pointer-events:none;animation:cn-spark .7s ease-out forwards;z-index:8}
+    @keyframes cn-spark{0%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(.3)}}
+    .cn-dev.bump{animation:cn-bump .35s ease-out}
+    @keyframes cn-bump{0%{transform:translateY(0)}30%{transform:translateY(3px)}100%{transform:translateY(0)}}
+    .cn-new{display:grid;place-items:center;min-height:300px;border:4px dashed rgba(255,255,255,.5);border-radius:22px;background:rgba(255,255,255,.06);color:#fff;cursor:pointer;text-align:center;font:400 22px 'Chewy',cursive;transition:.2s}
+    .cn-new:hover{background:rgba(255,255,255,.14);transform:translateY(-3px);border-color:#ffd9a0;box-shadow:0 0 18px rgba(255,200,130,.4)}
+    .cn-new b{display:block;font-size:70px;line-height:1;margin-bottom:6px;text-shadow:0 0 10px rgba(255,200,130,.6)}
+    @media (prefers-reduced-motion:reduce){.cn-strip{transition:none}.cn-plus,.cn-spark{display:none}.cn-dev.bump{animation:none}}
+    
+  /* =========================================================
      Nickname frames (0082)
   ========================================================= */
   .nf-app{ position: relative; display: block; padding: 36px 16px 16px; }
@@ -6070,6 +6126,7 @@ const USER_STATE = {
 /* Counters-module: eigen substate voor overzicht / historiekpagina,
    zelfde sub-view patroon als USER_STATE. */
 const COUNTER_STATE = {
+  animUntil: 0,                       // while a press animation runs, the page is not re-rendered (it would cut the animation short)
   view: 'list', // 'list' | 'history'
   historyCounterId: null,
 };
@@ -14544,64 +14601,77 @@ async function toggleLoreReaction(kind, itemId, category){
    dus de gekoppelde persoon krijgt zo automatisch +1 Lore XP.
    ============================================================= */
 
-/* ---- grote speelse kaart ---- */
+/* ---- a counter is a little arcade tally-counter: odometer digits, a big domed +1 button, a lever for -1 ---- */
+const COUNTER_PALETTE = [['#ff6b6b', '#c0272d', '#ff4f4f'], ['#6be58a', '#1f8f43', '#2ee06a'], ['#6bb8ff', '#1f5fc0', '#3d9bff'], ['#ffe066', '#d99a0a', '#ffd324'], ['#c79bff', '#6a35c0', '#a366ff'], ['#ffa85c', '#c4560a', '#ff8a2a'], ['#ff8fcf', '#c02a82', '#ff4fb0'], ['#5ee8d6', '#138f80', '#2ee0c8']];
+function counterHash(str){ let h = 0; for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
+function counterOdometerHtml(total){
+  const neg = total < 0, str = String(Math.abs(total)).padStart(3, '0');
+  return `${neg ? '<span class="cn-sign">−</span>' : ''}<div class="cn-odo">${[...str].map(d => `<span class="cn-digit"><span class="cn-strip" style="--d:${d}">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<i>${n}</i>`).join('')}</span></span>`).join('')}</div>`;
+}
 function renderCounterCard(counter){
   const last = getLastRegistration(counter);
   const top = getMostFrequentRegistrant(counter);
-
+  const [cl, cd, ca] = COUNTER_PALETTE[counterHash(counter.id) % COUNTER_PALETTE.length];
   return `
-    <div class="sticker-card counter-big-card">
-      <div class="counter-big-top">
-        <div>
-          <div class="counter-big-title">${escapeHtml(counter.name)}</div>
-          <div class="nickname-person clickable" onclick="goToNicknamesFilteredByName('${escapeJs(counter.personRealName)}')">
-            ${initialsAvatarHtml(counter.personRealName, 22)}
-            <span>${escapeHtml(counter.personRealName || 'onbekend')}</span>
-          </div>
-          ${counter.businessUnit ? `<span class="badge lilac" style="margin-top:4px;">${escapeHtml(counter.businessUnit)}</span>` : ''}
-        </div>
+    <div class="cn-dev" id="cn-${counter.id}" style="--cl:${cl};--cd:${cd};--ca:${ca}">
+      <div class="cn-plate"><b>${escapeHtml(counter.name)}</b><span class="cn-who" onclick="goToNicknamesFilteredByName('${escapeJs(counter.personRealName)}')">${initialsAvatarHtml(counter.personRealName, 18)} ${escapeHtml(counter.personRealName || 'onbekend')}</span></div>
+      <div class="cn-lcd">${counterOdometerHtml(counter.total)}</div>
+      ${counter.description ? `<div class="cn-desc">${escapeHtml(counter.description)}</div>` : ''}
+      <div class="cn-controls">
+        <button type="button" class="cn-lever" onclick="pressCounter('${counter.id}', -1)" aria-label="min één"><b></b>−1</button>
+        <button type="button" class="cn-dome" onclick="pressCounter('${counter.id}', 1)" aria-label="plus één voor ${escapeHtml(counter.name)}"><i>+1</i></button>
+        <button type="button" class="cn-key" onclick="openCounterRegisterModal('${counter.id}')" title="Registreren met notitie" aria-label="registreren met notitie">📝</button>
       </div>
-
-      ${counter.description ? `<p class="lore-item-desc">${escapeHtml(counter.description)}</p>` : ''}
-
-      <div class="counter-big-total">${counter.total}</div>
-
-      <div class="counter-btn-row">
-        <button type="button" class="btn btn-danger" onclick="registerCounterEvent('${counter.id}', -1, '')">−1</button>
-        <button type="button" class="btn btn-primary" onclick="registerCounterEvent('${counter.id}', 1, '')">+1</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="openCounterRegisterModal('${counter.id}')" title="Registreren met notitie">📝</button>
-      </div>
-
-      <div class="nickname-meta-row">
-        <span class="stat-chip">🕓 ${last ? `${last.delta > 0 ? '+1' : '−1'} · ${resolveUserLabel(last.by)} · ${formatDateTime(last.at)}` : 'Nog geen registraties'}</span>
-      </div>
-      <div class="nickname-meta-row">
-        <span class="stat-chip">🏅 Vaakst: ${top ? `${resolveUserLabel(top.userId)} (${top.count}×)` : '—'}</span>
-      </div>
-
-      <div class="nickname-actions">
-        <button type="button" class="btn btn-secondary btn-sm" onclick="openCounterHistory('${counter.id}')">📜 Historiek</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="openCounterForm('edit','${counter.id}')">✏️ Bewerken</button>
-        <button type="button" class="btn btn-ghost btn-sm" onclick="confirmDeleteCounter('${counter.id}')">🗑️</button>
-      </div>
+      <div class="cn-ticker">🕓 ${last ? `${last.delta > 0 ? '+1' : '−1'} · ${escapeHtml(resolveUserLabel(last.by))} · ${escapeHtml(formatDateTime(last.at))}` : 'nog geen registraties'}</div>
+      <div class="cn-ticker top">🏅 vaakst: ${top ? `${escapeHtml(resolveUserLabel(top.userId))} (${top.count}×)` : '—'}</div>
+      <div class="cn-foot"><button type="button" onclick="openCounterHistory('${counter.id}')">📜 Historiek</button><button type="button" onclick="openCounterForm('edit','${counter.id}')">✏️</button><button type="button" onclick="confirmDeleteCounter('${counter.id}')" aria-label="verwijderen">🗑️</button></div>
     </div>
   `;
+}
+
+/* the press: the animation plays at once (the digits roll to the new number), then the registration is saved; the page only
+   re-renders after the animation is done (registerCounterEvent waits for COUNTER_STATE.animUntil) */
+function pressCounter(counterId, delta){
+  const card = document.getElementById('cn-' + counterId);
+  if (card){
+    const lcd = card.querySelector('.cn-lcd');
+    const digits = [...lcd.querySelectorAll('.cn-strip')].map(el => el.style.getPropertyValue('--d')).join('') || '0';
+    const total = (lcd.querySelector('.cn-sign') ? -1 : 1) * parseInt(digits, 10) + delta;
+    const str = String(Math.abs(total)).padStart(3, '0');
+    if (str.length !== digits.length || (total < 0) !== !!lcd.querySelector('.cn-sign')) lcd.innerHTML = counterOdometerHtml(total);
+    else [...lcd.querySelectorAll('.cn-strip')].forEach((el, i) => el.style.setProperty('--d', str[i]));
+    card.classList.remove('bump'); void card.offsetWidth; card.classList.add('bump');
+    const plus = document.createElement('span');
+    plus.className = 'cn-plus'; plus.textContent = delta > 0 ? '+1' : '−1';
+    plus.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
+    card.appendChild(plus); setTimeout(() => plus.remove(), 1100);
+    if (delta > 0){
+      const col = getComputedStyle(card).getPropertyValue('--cl');
+      for (let i = 0; i < 10; i++){
+        const sp = document.createElement('i'); sp.className = 'cn-spark';
+        const a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 40;
+        sp.style.cssText = `--c:${i % 2 ? col : '#ffe14a'};--x:${Math.cos(a) * r}px;--y:${Math.sin(a) * r - 20}px;top:62%`;
+        card.appendChild(sp); setTimeout(() => sp.remove(), 800);
+      }
+    }
+    COUNTER_STATE.animUntil = Date.now() + 1100;
+  }
+  try { navigator.vibrate && navigator.vibrate(delta > 0 ? 18 : 8); } catch (e) { /* not on every device */ }
+  return registerCounterEvent(counterId, delta, '');
 }
 
 /* ---- overzichtspagina ---- */
 function renderCountersList(data){
   return `
-    <section class="section">
+    <section class="section cn-room">
       <div class="section-head">
         <h3>🔢 Alle counters</h3>
-        <div class="people-toolbar">
-          <span class="count-chip">${data.counters.length}</span>
-          <button type="button" class="btn btn-primary" onclick="openCounterForm('add')">+ Nieuwe counter</button>
-        </div>
+        <div class="people-toolbar"><span class="count-chip">${data.counters.length}</span></div>
       </div>
-      ${data.counters.length
-        ? `<div class="grid cols-wide-lg">${data.counters.map(c => renderCounterCard(c)).join('')}</div>`
-        : emptyState('Nog geen counters. Klik op "+ Nieuwe counter" om te beginnen.')}
+      <div class="cn-grid">
+        ${data.counters.map(c => renderCounterCard(c)).join('')}
+        <button type="button" class="cn-new" onclick="openCounterForm('add')"><span><b>＋</b>Nieuwe counter</span></button>
+      </div>
     </section>
   `;
 }
@@ -14863,6 +14933,8 @@ async function registerCounterEvent(counterId, delta, note){
   });
   // Geeft de gekoppelde persoon +1 Lore XP via de xp_on_counter_event_insert-trigger.
   await refreshAppData();
+  const wait = (COUNTER_STATE.animUntil || 0) - Date.now();        // let a running press animation finish first
+  if (wait > 0) await new Promise(r => setTimeout(r, wait));
   renderPage();
 }
 
