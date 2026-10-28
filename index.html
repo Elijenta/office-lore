@@ -4504,6 +4504,45 @@
   @media (prefers-reduced-motion:reduce){.hm-g *,.hm-person .sp,.hm-person .orb,.hm-party i,.hm-waiter,.hm-fwk,.hm-balloon{animation:none!important}}
 
   /* =========================================================
+     The "Write a Poem" form: a parchment writing desk (lined sheet, wax-stamp moods, a green wax seal to publish)
+  ========================================================= */
+  .modal-box:has(.pf-wrap){ max-width: 620px; background: radial-gradient(ellipse at 15% 6%, rgba(255,255,255,.6), transparent 45%), radial-gradient(ellipse at 92% 96%, rgba(120,70,20,.22), transparent 55%), #f1dfae; box-shadow: inset 0 0 0 3px rgba(120,80,30,.35), inset 0 0 60px rgba(120,70,20,.3), 6px 8px 0 #2b2320; }
+  .pf-wrap{ color: #3a2713; }
+  .pf-head{ display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .pf-quill{ font-size: 40px; transform: rotate(-12deg); filter: drop-shadow(0 3px 0 rgba(0,0,0,.2)); animation: pf-write 3.2s ease-in-out infinite; transform-origin: 20% 90%; }
+  @keyframes pf-write{ 0%, 100%{ transform: rotate(-12deg) translate(0, 0); } 50%{ transform: rotate(-4deg) translate(6px, 2px); } }
+  .pf-head h3{ font: italic 400 30px 'IM Fell English', serif; margin: 0; line-height: 1; }
+  .pf-head small{ display: block; font: 700 12px 'Nunito', sans-serif; letter-spacing: .1em; text-transform: uppercase; color: #7a5b3a; margin-top: 3px; }
+  .pf-label{ display: block; margin: 14px 0 5px; font: 800 11px 'Nunito', sans-serif; letter-spacing: .16em; text-transform: uppercase; color: #7a5b3a; }
+  .pf-label em{ font-style: normal; font-weight: 700; letter-spacing: .04em; text-transform: none; opacity: .8; }
+  .pf-title, .pf-context{ width: 100%; border: 0; border-bottom: 3px solid #8a5a35; background: transparent; padding: 6px 4px; color: #3a2713; outline: none; }
+  .pf-title{ font: italic 400 28px 'IM Fell English', serif; }
+  .pf-context{ font: 500 20px 'Caveat', cursive; border-bottom-style: dashed; }
+  .pf-title::placeholder, .pf-context::placeholder, .pf-sheet::placeholder{ color: rgba(90,58,20,.45); }
+  .pf-title:focus, .pf-context:focus{ border-bottom-color: #2e8b57; box-shadow: 0 6px 0 -4px rgba(46,139,87,.4); }
+  .pf-sheet{ width: 100%; min-height: 264px; resize: vertical; padding: 4px 16px; border: 3px solid #8a5a35; border-radius: 6px; outline: none; color: #2b1d0e; font: 500 23px/32px 'Caveat', cursive;
+    background: linear-gradient(90deg, transparent 38px, rgba(224,87,91,.5) 38px 40px, transparent 40px) local, repeating-linear-gradient(0deg, transparent 0 31px, rgba(90,130,170,.3) 31px 32px) local, #fbf3d8; background-attachment: local; box-shadow: inset 0 0 22px rgba(120,70,20,.2), 3px 4px 0 rgba(43,35,32,.3); padding-left: 52px; }
+  .pf-sheet:focus{ border-color: #2e8b57; box-shadow: inset 0 0 22px rgba(120,70,20,.2), 0 0 0 3px rgba(46,139,87,.3), 3px 4px 0 rgba(43,35,32,.3); }
+  .pf-count{ margin: 5px 2px 0; font: 700 12px 'Nunito', sans-serif; color: #7a5b3a; text-align: right; }
+  .pf-moods{ display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
+  .pf-mood{ display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 7px 4px 6px; border: 2px dashed rgba(90,50,10,.45); border-radius: 12px; background: rgba(255,250,232,.6); cursor: pointer; font: inherit; color: #5a3a14; transition: transform .15s, background .15s; }
+  .pf-mood i{ font-style: normal; font-size: 24px; line-height: 1; }
+  .pf-mood span{ font: 800 10.5px/1.1 'Nunito', sans-serif; text-align: center; }
+  .pf-mood:hover{ transform: translateY(-2px) rotate(-1deg); background: #fff7dc; }
+  .pf-mood.on{ border-style: solid; border-color: #1d6a30; background: radial-gradient(circle at 30% 20%, #bdeccb, #86d19b); color: #0f3a1b; box-shadow: 0 3px 0 #1d6a30, inset 0 0 0 2px rgba(255,255,255,.55); transform: translateY(1px); }
+  .pf-mood:focus-visible, .pf-cancel:focus-visible, .pf-seal:focus-visible{ outline: 3px solid #2e8b57; outline-offset: 2px; }
+  .pf-actions{ display: flex; justify-content: flex-end; align-items: center; gap: 14px; margin-top: 18px; }
+  .pf-cancel{ padding: 8px 16px; border: 2px dashed rgba(90,50,10,.6); border-radius: 999px; background: transparent; color: #5a3a14; font: 800 13px 'Cinzel', serif; cursor: pointer; }
+  .pf-cancel:hover{ background: rgba(255,255,255,.4); }
+  .pf-seal{ display: inline-flex; align-items: center; gap: 8px; padding: 10px 26px; border: 3px solid #0f3a1b; border-radius: 999px; cursor: pointer; font: 800 15px 'Cinzel', serif; letter-spacing: .05em; color: #fff3c0; text-shadow: 0 2px 0 rgba(0,0,0,.4);
+    background: radial-gradient(circle at 30% 22%, #5fc46a, #2b8a40 58%, #17582a); box-shadow: 0 5px 0 #0a2812, inset 0 0 0 2px rgba(255,235,140,.55), 0 0 14px rgba(150,230,120,.4); transition: transform .2s cubic-bezier(.3,1.6,.5,1), box-shadow .2s; }
+  .pf-seal:hover{ transform: translateY(-2px) rotate(-1deg); box-shadow: 0 7px 0 #0a2812, inset 0 0 0 2px rgba(255,235,140,.75), 0 0 24px rgba(200,255,140,.9); }
+  .pf-seal:active{ transform: translateY(3px); box-shadow: 0 2px 0 #0a2812, inset 0 0 0 2px rgba(255,235,140,.55); }
+  .pf-form .challenge-accepted-banner{ margin: 12px 0 0; }
+  @media (max-width: 560px){ .pf-moods{ grid-template-columns: repeat(3, 1fr); } .pf-title{ font-size: 24px; } .pf-sheet{ font-size: 21px; min-height: 220px; } .pf-actions{ flex-direction: row-reverse; justify-content: space-between; } }
+  @media (prefers-reduced-motion: reduce){ .pf-quill{ animation: none; } .pf-mood, .pf-seal{ transition: none; } }
+
+  /* =========================================================
      Nickname frames (0082)
   ========================================================= */
   .nf-app{ position: relative; display: block; padding: 36px 16px 16px; }
@@ -19008,42 +19047,45 @@ function renderPoemFormHtml(mode, poem, prompt, dailyChallenge){
   }
 
   return `
-    <h3>${mode === 'edit' ? '✏️ Gedicht bewerken' : '✒️ Write a Poem'}</h3>
-    <form data-mode="${mode}" data-id="${poem?.id || ''}" data-prompt-id="${challengePromptId}" data-prompt-text="${escapeHtml(challengePromptText)}" data-prompt-category="${challengePromptCategory}" data-daily-challenge-id="${dailyChallengeId || ''}" onsubmit="return submitPoemForm(event)">
+    <div class="pf-wrap">
+      <div class="pf-head"><span class="pf-quill" aria-hidden="true">🪶</span><div><h3>${mode === 'edit' ? 'Gedicht bewerken' : 'Write a Poem'}</h3><small>${mode === 'edit' ? 'Pas je regels aan' : 'Een nieuw gedicht voor de Wall'}</small></div></div>
+    <form class="pf-form" data-mode="${mode}" data-id="${poem?.id || ''}" data-prompt-id="${challengePromptId}" data-prompt-text="${escapeHtml(challengePromptText)}" data-prompt-category="${challengePromptCategory}" data-daily-challenge-id="${dailyChallengeId || ''}" onsubmit="return submitPoemForm(event)">
       ${challengeBanner}
-      <div class="form-field">
-        <label class="form-label" for="pf-title">Title *</label>
-        <input class="form-input" id="pf-title" type="text" value="${poem ? escapeHtml(poem.title) : ''}" placeholder="Give it a title" required>
+      <label class="pf-label" for="pf-title">Titel</label>
+      <input class="pf-title" id="pf-title" type="text" value="${poem ? escapeHtml(poem.title) : ''}" placeholder="Geef het een titel…" maxlength="80" required autocomplete="off">
+      <label class="pf-label" for="pf-content">Het gedicht</label>
+      <textarea class="pf-sheet" id="pf-content" rows="8" placeholder="Schrijf hier je meesterwerk…&#10;elke nieuwe regel is een nieuwe verslijn" oninput="updatePoemCount()">${poem ? escapeHtml(poem.content) : ''}</textarea>
+      <div class="pf-count" id="pf-count" aria-live="polite"></div>
+      <div class="pf-label">Stemming</div>
+      <div class="pf-moods" id="pf-mood-toggle" role="radiogroup" aria-label="Stemming">
+        ${POEM_MOODS.map(m => `<button type="button" class="pf-mood ${selectedMood === m.id ? 'on' : ''}" role="radio" aria-checked="${selectedMood === m.id}" onclick="selectPoemMood('${m.id}', this)"><i>${m.icon}</i><span>${m.label}</span></button>`).join('')}
       </div>
-      <div class="form-field" style="margin-top:10px;">
-        <label class="form-label" for="pf-content">Poem *</label>
-        <textarea class="form-input poem-textarea" id="pf-content" rows="8" placeholder="Write your masterpiece...">${poem ? escapeHtml(poem.content) : ''}</textarea>
-      </div>
-      <div class="form-field" style="margin-top:10px;">
-        <label class="form-label">Mood *</label>
-        <div class="lore-type-toggle" id="pf-mood-toggle">
-          ${POEM_MOODS.map(m => `<button type="button" class="btn ${selectedMood === m.id ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="selectPoemMood('${m.id}', this)">${m.icon} ${m.label}</button>`).join('')}
-        </div>
-        <input type="hidden" id="pf-mood" value="${selectedMood}">
-      </div>
-      <div class="form-field" style="margin-top:10px;">
-        <label class="form-label" for="pf-context">Context (optioneel)</label>
-        <input class="form-input" id="pf-context" type="text" value="${poem ? escapeHtml(poem.context) : ''}" placeholder="Wat inspireerde dit gedicht?">
-      </div>
+      <input type="hidden" id="pf-mood" value="${selectedMood}">
+      <label class="pf-label" for="pf-context">Wat inspireerde dit? <em>(optioneel)</em></label>
+      <input class="pf-context" id="pf-context" type="text" value="${poem ? escapeHtml(poem.context) : ''}" placeholder="Een koffiemachine, een vergadering, een biertje…" maxlength="200" autocomplete="off">
       <div id="pf-error" class="form-error"></div>
-      <div class="form-actions">
-        <button type="button" class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
-        <button type="submit" class="btn btn-primary">${mode === 'edit' ? 'Opslaan' : 'Publiceren'}</button>
+      <div class="pf-actions">
+        <button type="button" class="pf-cancel" onclick="closeModal()">Annuleren</button>
+        <button type="submit" class="pf-seal"><span aria-hidden="true">✒️</span> ${mode === 'edit' ? 'Opslaan' : 'Publiceren'}</button>
       </div>
     </form>
+    </div>
   `;
+}
+
+/* the live counter under the poem: words, lines and characters */
+function updatePoemCount(){
+  const t = document.getElementById('pf-content'), out = document.getElementById('pf-count');
+  if (!t || !out) return;
+  const v = t.value, words = (v.match(/\S+/g) || []).length, lines = v.split('\n').filter(l => l.trim()).length;
+  out.textContent = words ? `${words} woord${words === 1 ? '' : 'en'} · ${lines} regel${lines === 1 ? '' : 's'} · ${v.length} tekens` : 'Nog niets geschreven… de pen staat klaar.';
 }
 
 function selectPoemMood(moodId, btn){
   document.getElementById('pf-mood').value = moodId;
-  document.querySelectorAll('#pf-mood-toggle button').forEach(b => {
-    b.classList.toggle('btn-primary', b === btn);
-    b.classList.toggle('btn-ghost', b !== btn);
+  document.querySelectorAll('#pf-mood-toggle .pf-mood').forEach(b => {
+    b.classList.toggle('on', b === btn);
+    b.setAttribute('aria-checked', b === btn ? 'true' : 'false');
   });
 }
 
@@ -19051,6 +19093,7 @@ function openPoemForm(mode, poemId, prompt, dailyChallenge){
   const poem = mode === 'edit' ? APP_DATA.poems.find(p => p.id === poemId) : null;
   if (mode === 'edit' && !poem) return;
   openModal(renderPoemFormHtml(mode, poem, prompt, dailyChallenge));
+  updatePoemCount();
 }
 
 async function submitPoemForm(event){
