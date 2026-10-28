@@ -4066,6 +4066,13 @@
   .rg-corner.draw-c .rg-boxer{animation:none}
 
   /* entrance */
+  .rg-stack{display:flex;flex-direction:column;gap:30px}
+  .rga .rg-cta{flex-direction:column;align-items:center}
+  .rg-cta button.full{opacity:.7;filter:grayscale(.4);cursor:not-allowed;animation:none}
+  .rg-slots{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:10px;font-size:18px;color:var(--chalk)}
+  .rg-slots span{opacity:.3;filter:grayscale(1)}
+  .rg-slots span.on{opacity:1;filter:none}
+  .rg-slots em{font-style:normal;margin-left:6px;font-size:12px;font-weight:800;letter-spacing:.06em}
   .rg-enter .rg-corner.a{animation:rg-in-l .95s cubic-bezier(.2,.9,.3,1.15) both}
   .rg-enter .rg-corner.b{animation:rg-in-r .95s cubic-bezier(.2,.9,.3,1.15) .3s both}
   .rg-enter .rg-vs{animation:rg-slam .5s cubic-bezier(.3,1.6,.5,1) 1.15s both}
@@ -14586,6 +14593,8 @@ function announceNewBattle(id){
   ringMarkSeen(id);
   NICKNAME_PAGE_STATE.tab = 'battles';
   renderPage();
+  const ring = document.querySelector(`[data-ring-id="${id}"]`);
+  if (ring && ring.scrollIntoView) ring.scrollIntoView({ behavior: 'smooth', block: 'center' });
   showFightAnnouncement(b);
 }
 
@@ -14896,21 +14905,21 @@ function renderNicknameBattlesTab(data){
 
   const openBattles = data.nicknameBattles.filter(b => b.status === 'open').sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const decidedBattles = data.nicknameBattles.filter(b => b.status !== 'open').sort((a, b) => (b.finishedAt || '').localeCompare(a.finishedAt || ''));
-  const main = openBattles.find(b => b.id === RING_STATE.focusId) || openBattles[0] || null;
-  const undercard = openBattles.filter(b => b !== main);
+  const full = openBattles.length >= BATTLE_MAX_OPEN;
+  const slotLabels = ['MAIN EVENT', 'CO-MAIN EVENT', 'UNDERCARD'];
 
   return `
     <div class="rga">
       <span class="rg-beam l"></span><span class="rg-beam r"></span>
       <div class="rg-title"><h2>🥊 THE RING 🥊</h2><p>Nickname battles · 3 votes decide</p></div>
       ${ticker}
-      ${main ? renderRingScene(main, { label: 'MAIN EVENT' }) : renderEmptyRing()}
-      <div class="rg-cta"><button type="button" onclick="openStartBattleForm()">🔔 START A BATTLE</button></div>
-      ${undercard.length ? `
-        <section class="section">
-          <div class="section-head"><h3>🎟️ Undercard</h3><span class="count-chip">${undercard.length}</span></div>
-          <div class="rg-cards">${undercard.map(b => renderBattleCard(b, 'focus')).join('')}</div>
-        </section>` : ''}
+      ${openBattles.length
+        ? `<div class="rg-stack">${openBattles.map((b, i) => renderRingScene(b, { label: slotLabels[i] || 'FIGHT NIGHT' })).join('')}</div>`
+        : renderEmptyRing()}
+      <div class="rg-cta">
+        <button type="button" onclick="openStartBattleForm()" ${full ? 'class="full" aria-disabled="true"' : ''}>${full ? '🔒 THE RING IS FULL' : '🔔 START A BATTLE'}</button>
+        <div class="rg-slots" aria-label="${openBattles.length} of ${BATTLE_MAX_OPEN} fights">${Array.from({ length: BATTLE_MAX_OPEN }, (_, i) => `<span class="${i < openBattles.length ? 'on' : ''}">🥊</span>`).join('')}<em>${openBattles.length}/${BATTLE_MAX_OPEN} fights tonight</em></div>
+      </div>
       ${renderHallOfChampionsSection()}
       <section class="section">
         <div class="section-head"><h3>📜 Fight Results</h3><span class="count-chip">${decidedBattles.length}</span></div>
@@ -14920,8 +14929,18 @@ function renderNicknameBattlesTab(data){
   `;
 }
 
-/* ---- start a battle ---- */
+/* ---- start a battle (at most BATTLE_MAX_OPEN fights can be open at the same time) ---- */
+const BATTLE_MAX_OPEN = 3;
+function getOpenBattleCount(){ return APP_DATA.nicknameBattles.filter(b => b.status === 'open').length; }
+function openRingFullModal(){
+  openModal(`
+    <h3>🔒 The ring is full</h3>
+    <p>There are already ${BATTLE_MAX_OPEN} fights going on. Let one of them finish (or stop it) before the next pair steps in.</p>
+    <div class="modal-actions"><button type="button" class="btn btn-primary" onclick="closeModal()">Understood</button></div>
+  `);
+}
 function openStartBattleForm(){
+  if (getOpenBattleCount() >= BATTLE_MAX_OPEN){ openRingFullModal(); return; }
   const options = [...APP_DATA.nicknames].sort((a, b) => a.text.localeCompare(b.text))
     .map(n => `<option value="${n.id}">"${escapeHtml(n.text)}" — ${escapeHtml(n.personRealName || 'onbekend')}</option>`).join('');
   openModal(`
@@ -14950,6 +14969,7 @@ async function submitStartBattleForm(event){
   const aId = document.getElementById('sb-a').value;
   const bId = document.getElementById('sb-b').value;
   const errorEl = document.getElementById('sb-error');
+  if (getOpenBattleCount() >= BATTLE_MAX_OPEN){ errorEl.textContent = `Er lopen al ${BATTLE_MAX_OPEN} battles tegelijk.`; return false; }
   if (!aId || !bId){ errorEl.textContent = 'Kies twee nicknames.'; return false; }
   if (aId === bId){ errorEl.textContent = 'Een nickname kan niet tegen zichzelf battlen.'; return false; }
   const a = APP_DATA.nicknames.find(n => n.id === aId);
@@ -15027,6 +15047,7 @@ async function forceCloseBattle(battleId){
 async function startRematch(battleId){
   const old = APP_DATA.nicknameBattles.find(b => b.id === battleId);
   if (!old) return;
+  if (getOpenBattleCount() >= BATTLE_MAX_OPEN){ openRingFullModal(); return; }
   const { data, error } = await sb.from('nickname_battles').insert({
     nickname_a_id: old.nicknameAId, nickname_a_text: old.nicknameAText, nickname_a_person_name: old.nicknameAPersonName, nickname_a_business_unit: old.nicknameABusinessUnit,
     nickname_b_id: old.nicknameBId, nickname_b_text: old.nicknameBText, nickname_b_person_name: old.nicknameBPersonName, nickname_b_business_unit: old.nicknameBBusinessUnit,
