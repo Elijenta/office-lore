@@ -7,7 +7,7 @@ import os, numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'character-images'))
-FILES = ['halloween-pirate-f', 'halloween-vampire-f']
+FILES = ['halloween-pirate-f', 'halloween-vampire-f', 'halloween-zombienurse-f']
 
 def hsv(a):
     rgb = a[..., :3]; mx = rgb.max(2); mn = rgb.min(2); d = mx - mn
@@ -36,6 +36,7 @@ for name in FILES:
     for i in range(1, n + 1):
         ys, xs = np.where(lab == i)
         if len(ys) > 3000 and ys.max() < 0.54 * H: keep |= lab == i       # the big brown regions in the upper half (the hair); belts, boots and trim are lower or smaller
+        elif 'nurse' in name and len(ys) > 150 and ys.max() < 0.62 * H and (xs.mean() < 0.32 * a.shape[1] or xs.mean() > 0.68 * a.shape[1] or ys.mean() < 0.12 * H): keep |= lab == i     # long wavy hair: the strands cut off by outlines (behind the cap, down to the hips)
     # soften: also take thin anti-aliased fringes next to the hair
     grown = ndi.binary_dilation(keep, iterations=2) & (a[..., 3] > .5) & (h >= 0) & (h <= 45) & (s > .15) & (v > .1) & (v < .7)
     mask = keep | grown

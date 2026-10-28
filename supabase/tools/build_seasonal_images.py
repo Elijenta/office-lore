@@ -1,7 +1,7 @@
 """Embeds character-images/outfit/seasonal/*.png into index.html as character outfit images (same size as the other outfits: 458 px tall).
   python3 build_seasonal_images.py
 Add a new seasonal outfit: put the PNG in that folder, add it to FILES below (+ a row in public.character_seasonal_outfits), re-run.
-Codes are 'f'/'m' + a seasonal id of two letters and a digit (hw1 = Halloween pirate, hw2 = vampire (f), hw3 = zombie (m))."""
+Codes are 'f'/'m' + a seasonal id of two letters and a digit (hw1 = Halloween pirate, hw2 = vampire (f + m), hw3 = zombie (m) / zombie nurse (f))."""
 import base64, io, os, re
 from PIL import Image
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -9,9 +9,10 @@ SRC = os.path.join(ROOT, 'character-images', 'outfit', 'seasonal')
 HTML = os.path.join(ROOT, 'index.html')
 FILES = {
   'halloween-pirate-f': 'fhw1', 'halloween-pirate-m': 'mhw1',
-  'halloween-vampire-f': 'fhw2', 'halloween-zombie-m': 'mhw3',
+  'halloween-vampire-f': 'fhw2', 'halloween-vampire-m': 'mhw2',
+  'halloween-zombie-m': 'mhw3', 'halloween-zombienurse-f': 'fhw3',
 }
-BLOND = {'halloween-pirate-f': 'fhw1', 'halloween-vampire-f': 'fhw2'}     # blond hair versions (made by make_blond_variants.py) of the female outfits
+BLOND = {'halloween-pirate-f': 'fhw1', 'halloween-vampire-f': 'fhw2', 'halloween-zombienurse-f': 'fhw3'}     # blond hair versions (made by make_blond_variants.py) of the female outfits
 BLOND_SRC = os.path.join(ROOT, 'character-images', 'outfit-blond')
 imgs, dims, blond_imgs = [], [], []
 for name, code in FILES.items():
