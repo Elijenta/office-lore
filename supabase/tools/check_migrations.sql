@@ -25,7 +25,8 @@ select * from (values
   (86, 'daily rewards',           exists (select 1 from public.challenge_config where key = 'difficulty_rewards' and (value->'easy') @> '[{"kind":"mystery"}]'::jsonb)),
   (87, 'poem backgrounds',        to_regclass('public.poem_backgrounds') is not null),
   (88, 'room furniture',          to_regclass('public.room_furniture_items') is not null),
-  (89, 'more poem reactions',     exists (select 1 from pg_constraint where conname = 'poem_reactions_type_format'))
+  (89, 'more poem reactions',     exists (select 1 from pg_constraint where conname = 'poem_reactions_type_format')),
+  (90, 'public player xp',        exists (select 1 from pg_proc where proname = 'player_challenge_xp'))
 ) as t(migration, wat, toegepast) order by migration;
 -- (de outfit-sets 67 t/m 74 zie je met:  select id, name from public.character_outfit_sets order by sort_order;
 --  verwacht: be1, be2, lk1, bt1, ch1, cp1, pt1, qz1, rb1, lg1, lg2)
