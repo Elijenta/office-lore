@@ -4310,6 +4310,73 @@
     @media (prefers-reduced-motion:reduce){.tg-neon b,.tg-medal{animation:none}}
     
   /* =========================================================
+     Beer XP as a vintage enamel pub sign on a brick wall (Taproom pages)
+  ========================================================= */
+
+    .bx-wall{position:relative;container-type:inline-size;margin:0 0 22px;padding:34px 18px 26px;border:4px solid #2b2320;border-radius:26px;box-shadow:6px 7px 0 #2b2320;overflow:hidden;
+      background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 .3cqw,transparent .3cqw 3.2cqw),repeating-linear-gradient(90deg,rgba(0,0,0,.2) 0 .3cqw,transparent .3cqw 7.2cqw),linear-gradient(180deg,#7a3a2a,#5a261c)}
+    .bx-wall:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 50% 15%,rgba(255,205,130,.38),transparent 70%);pointer-events:none}
+    .bx-chain{position:absolute;top:0;width:6px;height:40px;background:repeating-linear-gradient(180deg,#9a9a94 0 6px,#4b4b47 6px 9px);border-radius:3px;z-index:1}
+    .bx-chain.l{left:18%}.bx-chain.r{right:18%}
+    .bx-sign{position:relative;max-width:640px;margin:0 auto;padding:14px 16px 16px;background:linear-gradient(180deg,#fbf3dc,#f1e4c0);border:7px solid #1f3553;border-radius:22px;box-shadow:0 0 0 3px #2b2320,inset 0 0 0 4px #c8312a,inset 0 0 26px rgba(120,80,30,.35),0 12px 0 -2px rgba(0,0,0,.35);transform:rotate(-.6deg);transform-origin:50% 0;animation:bx-sway 8s ease-in-out infinite}
+    @keyframes bx-sway{0%,100%{transform:rotate(-.6deg)}50%{transform:rotate(.6deg)}}
+    .bx-rivet{position:absolute;width:11px;height:11px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9a9a94 55%,#4b4b47);border:1.5px solid #2b2320}
+    .bx-rivet.a{left:7px;top:7px}.bx-rivet.b{right:7px;top:7px}.bx-rivet.c{left:7px;bottom:7px}.bx-rivet.d{right:7px;bottom:7px}
+    .bx-foam{position:absolute;left:10px;right:10px;top:-22px;height:30px;pointer-events:none;z-index:2}
+    .bx-foam i{position:absolute;bottom:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#fff7e6 60%,#efe3c4);box-shadow:inset -2px -3px 0 rgba(0,0,0,.06)}
+    .bx-head{text-align:center;margin:6px 0 10px}
+    .bx-head b{display:block;font:400 clamp(28px,6cqw,44px)/1 'Rye','Chewy',serif;color:#c8312a;letter-spacing:.04em;text-shadow:2px 2px 0 #1f3553}
+    .bx-head small{display:block;margin-top:4px;font:800 11px 'Nunito',sans-serif;letter-spacing:.28em;text-transform:uppercase;color:#1f3553}
+    .bx-head:after{content:"";display:block;margin:8px auto 0;width:70%;height:6px;border-top:2px solid #1f3553;border-bottom:2px solid #1f3553}
+    .bx-row{position:relative;display:flex;align-items:center;gap:12px;padding:8px 10px;margin:6px 0;border-radius:12px;color:#1f3553}
+    .bx-row+.bx-row{border-top:2px dashed rgba(31,53,83,.25)}
+    .bx-row.lord{background:linear-gradient(90deg,rgba(217,162,27,.28),rgba(217,162,27,.08));box-shadow:inset 0 0 0 2px rgba(179,118,15,.55)}
+    .bx-rank{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:400 18px 'Chewy',cursive;color:#3a2713;background:radial-gradient(circle at 35% 30%,#fff3b0,#d9a21b 60%,#8a5a0a);border:2.5px solid #2b2320;box-shadow:0 2px 0 rgba(0,0,0,.3)}
+    .bx-rank.p2{background:radial-gradient(circle at 35% 30%,#fff,#c9c9c4 60%,#7a7a74)}.bx-rank.p3{background:radial-gradient(circle at 35% 30%,#ffe0c0,#c98a55 60%,#7a4a22)}
+    .bx-mat{flex:none;position:relative;width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#fff6dc 0 62%,#e8cf94 63%);border:3px solid #b3760f;box-shadow:inset 0 0 0 3px #fff3c0,0 3px 0 rgba(0,0,0,.25)}
+    .bx-mat .avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:19px;border:2px solid #2b2320}
+    .bx-who{flex:1;min-width:0}
+    .bx-who b{display:block;font:400 22px/1.05 'Chewy',cursive;color:#1f3553}
+    .bx-who span{display:block;font:800 11.5px 'Nunito',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#c8312a}
+    .bx-who small{display:block;font:700 11.5px 'Nunito',sans-serif;color:#5c6b80;margin-top:1px}
+    .bx-glass{flex:none;position:relative;width:34px;height:46px;clip-path:polygon(6% 0,94% 0,84% 100%,16% 100%);background:rgba(31,53,83,.14);border:0}
+    .bx-glass:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#fff var(--foam),#fff calc(var(--foam) + 9%),#f3b02a calc(var(--foam) + 9%));transform-origin:50% 100%;clip-path:inset(calc(100% - var(--fill)) 0 0 0)}
+    .bx-glass:after{content:"";position:absolute;inset:0;border:2.5px solid #1f3553;clip-path:polygon(6% 0,94% 0,84% 100%,16% 100%);box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+    .bx-xp{flex:none;min-width:84px;text-align:center;padding:3px 10px;border-radius:8px;background:#1f3553;color:#fff3d6;font:400 20px 'Chewy',cursive;box-shadow:0 3px 0 rgba(0,0,0,.35);border:2px solid #2b2320}
+    .bx-xp small{display:block;font:800 9px 'Nunito',sans-serif;letter-spacing:.22em;color:#ffd24a;margin-top:-2px}
+    .bx-crown{position:absolute;left:-4px;top:-12px;font-size:20px;transform:rotate(-14deg);filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+    @media (max-width:560px){.bx-wall{padding:30px 8px 20px}.bx-sign{padding:12px 8px 14px;border-width:5px}.bx-row{gap:8px;padding:6px 4px}.bx-mat{width:44px;height:44px}.bx-mat .avatar{width:28px;height:28px;font-size:16px}.bx-who b{font-size:18px}.bx-xp{min-width:64px;font-size:16px}.bx-glass{display:none}}
+    @media (prefers-reduced-motion:reduce){.bx-sign{animation:none}}
+    
+  /* the sign is slim: a column beside the page on wide screens, a thin strip above it on narrow ones */
+  .tp-split{ display: grid; grid-template-columns: minmax(0, 1fr) 232px; gap: 20px; align-items: start; }
+  .tp-main{ min-width: 0; }
+  .tp-side{ position: sticky; top: 14px; }
+  .tp-side .bx-wall{ margin: 0; padding: 26px 10px 16px; border-radius: 22px; }
+  .tp-side .bx-chain{ height: 28px; }
+  .tp-side .bx-sign{ padding: 10px 8px 12px; border-width: 5px; border-radius: 16px; }
+  .tp-side .bx-foam{ top: -18px; transform: scale(.8); transform-origin: 50% 100%; }
+  .tp-side .bx-head{ margin: 2px 0 6px; } .tp-side .bx-head b{ font-size: 28px; } .tp-side .bx-head small{ font-size: 8.5px; letter-spacing: .18em; } .tp-side .bx-head:after{ margin-top: 5px; width: 80%; height: 4px; }
+  .tp-side .bx-row{ gap: 7px; padding: 6px 4px; margin: 3px 0; }
+  .tp-side .bx-rank{ width: 24px; height: 24px; font-size: 13px; border-width: 2px; }
+  .tp-side .bx-mat{ width: 38px; height: 38px; border-width: 2px; } .tp-side .bx-mat .avatar{ width: 24px; height: 24px; font-size: 13px; border-width: 1.5px; }
+  .tp-side .bx-who b{ font-size: 17px; } .tp-side .bx-who span{ font-size: 9.5px; letter-spacing: .08em; } .tp-side .bx-who small{ display: none; }
+  .tp-side .bx-glass{ display: none; }
+  .tp-side .bx-xp{ min-width: 50px; font-size: 15px; padding: 2px 6px; } .tp-side .bx-xp small{ font-size: 7px; }
+  .tp-side .bx-crown{ font-size: 15px; left: -6px; top: -9px; }
+  @media (max-width: 1000px){
+    .tp-split{ grid-template-columns: 1fr; gap: 14px; }
+    .tp-side{ position: static; order: -1; }
+    .tp-side .bx-wall{ padding: 22px 8px 12px; }
+    .tp-side .bx-sign{ display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; }
+    .tp-side .bx-head{ margin: 0; text-align: left; } .tp-side .bx-head:after{ display: none; } .tp-side .bx-head b{ font-size: 24px; } .tp-side .bx-head small{ display: none; }
+    .tp-side .bx-rows{ display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; flex: 1; }
+    .tp-side .bx-row{ margin: 0; padding: 3px 6px; border-top: 0 !important; } .tp-side .bx-row .bx-rank{ display: none; } .tp-side .bx-who span{ display: none; } .tp-side .bx-who b{ font-size: 15px; }
+    .tp-side .bx-mat{ width: 30px; height: 30px; } .tp-side .bx-mat .avatar{ width: 19px; height: 19px; font-size: 10px; }
+    .tp-side .bx-row{ gap: 5px; } .tp-side .bx-xp{ min-width: 42px; font-size: 13px; padding: 1px 5px; } .tp-side .bx-xp small{ display: none; } .tp-side .bx-foam{ transform: scale(.6); }
+  }
+
+  /* =========================================================
      Nickname frames (0082)
   ========================================================= */
   .nf-app{ position: relative; display: block; padding: 36px 16px 16px; }
@@ -12726,7 +12793,7 @@ const MODULES = {
       else body = renderTaproomPage(data); // 'taproom' -- de nieuwe standaard landingspagina
 
       const xpOverview = (BEER_STATE.view === 'taproom' || BEER_STATE.view === 'wardrobe' || BEER_STATE.view === 'throne') ? '' : renderBeerXpOverview();
-      return `<div class="taproom-page">${navHtml}${xpOverview}${body}</div>`;
+      return `<div class="taproom-page ${xpOverview ? 'tp-split' : ''}"><div class="tp-main">${navHtml}${body}</div>${xpOverview ? `<aside class="tp-side">${xpOverview}</aside>` : ''}</div>`;
     }
   },
 
@@ -16037,28 +16104,29 @@ function renderBeerXpOverview(){
   const rows = APP_DATA.users
     .map(u => ({ user: u, xp: computeBeerXp(u.id) }))
     .sort((a, b) => b.xp - a.xp);
-
+  const foam = Array.from({ length: 11 }, (_, i) => { const s = 18 + (i * 7) % 14; return `<i style="left:${i * 9.2}%;width:${s}px;height:${s}px;bottom:${(i * 5) % 7 - 3}px"></i>`; }).join('');
   return `
-    <section class="section">
-      <div class="section-head"><h3>🍻 Beer XP</h3></div>
-      <div class="row-list">
-        ${rows.map(r => {
-          const { level } = getBeerLevelInfo(r.xp);
+    <div class="bx-wall"><span class="bx-chain l"></span><span class="bx-chain r"></span>
+      <div class="bx-sign">
+        <div class="bx-foam" aria-hidden="true">${foam}</div>
+        <span class="bx-rivet a"></span><span class="bx-rivet b"></span><span class="bx-rivet c"></span><span class="bx-rivet d"></span>
+        <div class="bx-head"><b>BIER XP</b><small>Tripel Tales · de stand aan de toog</small></div>
+        <div class="bx-rows">${rows.map((r, i) => {
+          const info = getBeerLevelInfo(r.xp), level = info.level;
           const isLord = ABT_LORD_STATE.currentLordId === r.user.id;
           const isFallen = !isLord && ABT_LORD_STATE.fallenAbtId === r.user.id;
-          return `
-            <div class="row-item">
-              <div class="avatar" style="background:${r.user.avatarColor}">${r.user.avatarEmoji}</div>
-              <div class="info">
-                <div class="name">${escapeHtml(r.user.displayName)} ${isLord ? '👑' : ''}${isFallen ? '💀' : ''}</div>
-                <div class="sub">${level.icon} ${level.label}</div>
-              </div>
-              <div class="value">${r.xp} XP</div>
-            </div>
-          `;
-        }).join('')}
+          const fill = Math.max(8, info.progressPct);
+          return `<div class="bx-row ${isLord ? 'lord' : ''}">
+            ${isLord ? '<span class="bx-crown">👑</span>' : ''}
+            <div class="bx-rank p${Math.min(i + 1, 3)}">${i + 1}</div>
+            <div class="bx-mat"><div class="avatar" style="background:${r.user.avatarColor}">${r.user.avatarEmoji}</div></div>
+            <div class="bx-who"><b>${escapeHtml(r.user.displayName)}${isFallen ? ' 💀' : ''}</b><span>${level.icon} ${level.label}</span><small>${info.next ? 'nog ' + info.xpToNext + ' XP tot ' + info.next.label : 'hoogste level bereikt'}</small></div>
+            <div class="bx-glass" style="--fill:${fill}%;--foam:${100 - fill}%" title="${info.progressPct}% naar het volgende level"></div>
+            <div class="bx-xp">${r.xp}<small>XP</small></div>
+          </div>`;
+        }).join('')}</div>
       </div>
-    </section>
+    </div>
   `;
 }
 
