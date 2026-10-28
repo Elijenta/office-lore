@@ -5424,7 +5424,7 @@ async function loadAppData(){
   const nicknames = (nicknamesRes.data || []).map(n => {
     const events = (nicknameEventsRes.data || []).filter(e => e.nickname_id === n.id);
     const votesForN = (nicknameVotesRes.data || []).filter(v => v.nickname_id === n.id);
-    const votes = { funny: [], accurate: [], savage: [], legendary: [], doubt: [] };
+    const votes = Object.fromEntries(NICKNAME_REACTIONS.map(r => [r.key, []]));
     votesForN.forEach(v => { if (votes[v.vote_type]) votes[v.vote_type].push(v.user_id); });
     return {
       id: n.id,
@@ -6430,6 +6430,9 @@ const NICKNAME_SORT_DEFS = [
   { id: 'real-name',      label: 'Real Name (A-Z)', compare: (a, b) => (a.personRealName || '').localeCompare(b.personRealName || '') },
   { id: 'most-legendary', label: 'Most Legendary', compare: (a, b) => b.votes.legendary.length - a.votes.legendary.length },
   { id: 'most-doubt',     label: 'Most Doubt',   compare: (a, b) => b.votes.doubt.length - a.votes.doubt.length },
+  { id: 'most-genius',    label: 'Most Genius',  compare: (a, b) => b.votes.genius.length - a.votes.genius.length },
+  { id: 'most-inside-joke', label: 'Most Inside Joke', compare: (a, b) => b.votes.inside_joke.length - a.votes.inside_joke.length },
+  { id: 'most-hall-of-fame', label: 'Most Hall of Fame', compare: (a, b) => b.votes.hall_of_fame.length - a.votes.hall_of_fame.length },
 ];
 function getNicknameSortCompare(){
   const def = NICKNAME_SORT_DEFS.find(d => d.id === NICKNAME_SORT_STATE.sortBy);
@@ -6636,8 +6639,15 @@ function getUserNicknames(userId){
   return APP_DATA.nicknames.filter(n => n.createdByUserId === userId);
 }
 
+/* every way to react to a nickname, in display order; the database only checks the key's format (0093), so a new
+   reaction is one line here. Votes never give XP. */
+const NICKNAME_REACTIONS = [
+  { key: 'funny', icon: '😂', label: 'Funny' }, { key: 'savage', icon: '💀', label: 'Savage' }, { key: 'accurate', icon: '🎯', label: 'Accurate' },
+  { key: 'legendary', icon: '🔥', label: 'Legendary' }, { key: 'doubt', icon: '🤔', label: 'Doubt' },
+  { key: 'genius', icon: '🧠', label: 'Genius' }, { key: 'inside_joke', icon: '🤝', label: 'Inside joke' }, { key: 'hall_of_fame', icon: '🏆', label: 'Hall of Fame' },
+];
 function nicknamePopularity(n){
-  return n.votes.funny.length + n.votes.accurate.length + n.votes.savage.length + n.votes.legendary.length + n.votes.doubt.length;
+  return NICKNAME_REACTIONS.reduce((sum, r) => sum + n.votes[r.key].length, 0);
 }
 
 function getLegendaryScore(n){ return n.votes.legendary.length; }
@@ -6648,6 +6658,10 @@ function getDoubtScore(n){ return n.votes.doubt.length; }
    iemand die stem intrekt (zelfde filosofie als getPoemOfTheMonth). */
 function isLegendaryNickname(n){
   return APP_DATA.users.length > 0 && APP_DATA.users.every(u => n.votes.legendary.includes(u.id));
+}
+/* same idea: everyone put it in the Hall of Fame */
+function isHallOfFameNickname(n){
+  return APP_DATA.users.length > 0 && APP_DATA.users.every(u => n.votes.hall_of_fame.includes(u.id));
 }
 
 /* Alle groepen van nicknames die exact dezelfde "personRealName"
@@ -6756,7 +6770,7 @@ function renderNicknamesResultsHtml(){
 const POOL_BALL_COLORS = { 1: '#f3c40f', 2: '#2f6fd6', 3: '#e0382f', 4: '#7a3fb0', 5: '#f28a1c', 6: '#2e9b4e', 7: '#8b2a2a' };
 const POOL_BALL_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15];
 const POOL_CUE_COLORS = ['#ff8fb3', '#ffc93c', '#4fd8a2', '#6fb8ff', '#b39dff', '#ff9d5c'];
-const POOL_REACTIONS = [['funny', '😂'], ['savage', '💀'], ['accurate', '🎯'], ['legendary', '🔥'], ['doubt', '🤔']];
+const POOL_REACTIONS = NICKNAME_REACTIONS.map(r => [r.key, r.icon]);
 function poolHash(s){ let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return h; }
 function renderPoolUnit(n, rank){
   const legendary = isLegendaryNickname(n);
@@ -6808,11 +6822,7 @@ function nicknamesHallClasses(){ return `pt-hall pt-mode-${NICKNAME_VIEW_STATE.m
    mobiel-bewezen patroon als leaderboards/counter-historiek. ---- */
 function renderNicknameCompactRow(n){
   const isLegendary = isLegendaryNickname(n);
-  const reactionDefs = [
-    { key: 'funny', icon: '😂' }, { key: 'savage', icon: '💀' }, { key: 'accurate', icon: '🎯' },
-    { key: 'legendary', icon: '🔥' }, { key: 'doubt', icon: '🤔' },
-  ];
-  const reactionSummary = reactionDefs
+  const reactionSummary = NICKNAME_REACTIONS
     .map(r => ({ ...r, count: n.votes[r.key].length }))
     .filter(r => r.count > 0)
     .map(r => `${r.icon}${r.count}`)
@@ -14336,13 +14346,9 @@ function announceFrames(list){
 function renderNicknameCardBase(n, opts = {}){
   const compact = !!opts.compact;
   const { level, next, progressPct, xpToNext } = getNicknameLevelInfo(n.xp);
-  const funnyScore = n.votes.funny.length;
-  const savageScore = n.votes.savage.length;
-  const accurateScore = n.votes.accurate.length;
-  const legendaryScore = n.votes.legendary.length;
-  const doubtScore = n.votes.doubt.length;
   const statusClass = statusBadgeClass(n.status);
   const isLegendary = isLegendaryNickname(n);
+  const isHallOfFame = isHallOfFameNickname(n);
 
   return `
     <div class="sticker-card nickname-card ${compact ? 'nickname-card-compact' : ''}">
@@ -14358,6 +14364,7 @@ function renderNicknameCardBase(n, opts = {}){
         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
           <span class="badge ${statusClass}">${escapeHtml(n.status)}</span>
           ${isLegendary ? `<span class="badge yellow">🔥 LEGENDARY NICKNAME</span>` : ''}
+          ${isHallOfFame ? `<span class="badge yellow">🏆 HALL OF FAME</span>` : ''}
         </div>
       </div>
 
@@ -14372,22 +14379,14 @@ function renderNicknameCardBase(n, opts = {}){
 
       ${compact ? `
         <div class="nickname-meta-row">
-          <span class="stat-chip">😂 ${funnyScore}</span>
-          <span class="stat-chip">💀 ${savageScore}</span>
-          <span class="stat-chip">🎯 ${accurateScore}</span>
-          <span class="stat-chip">🔥 ${legendaryScore}</span>
-          <span class="stat-chip">🤔 ${doubtScore}</span>
+          ${NICKNAME_REACTIONS.map(r => `<span class="stat-chip">${r.icon} ${n.votes[r.key].length}</span>`).join('')}
         </div>
       ` : `
         <p class="nickname-origin">${n.description ? escapeHtml(n.description) : 'Geen oorsprong toegevoegd.'}</p>
         ${n.anecdote ? `<p class="nickname-anecdote">💭 ${escapeHtml(n.anecdote)}</p>` : ''}
 
         <div class="vote-row">
-          <button type="button" class="vote-btn ${n.votes.funny.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','funny')">😂 Funny <span>${funnyScore}</span></button>
-          <button type="button" class="vote-btn ${n.votes.savage.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','savage')">💀 Savage <span>${savageScore}</span></button>
-          <button type="button" class="vote-btn ${n.votes.accurate.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','accurate')">🎯 Accurate <span>${accurateScore}</span></button>
-          <button type="button" class="vote-btn ${n.votes.legendary.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','legendary')">🔥 Legendary <span>${legendaryScore}</span></button>
-          <button type="button" class="vote-btn ${n.votes.doubt.includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','doubt')">🤔 Doubt <span>${doubtScore}</span></button>
+          ${NICKNAME_REACTIONS.map(r => `<button type="button" class="vote-btn ${n.votes[r.key].includes(STATE.activeUser) ? 'voted' : ''}" onclick="toggleNicknameVote('${n.id}','${r.key}')">${r.icon} ${r.label} <span>${n.votes[r.key].length}</span></button>`).join('\n          ')}
         </div>
 
         <div class="nickname-meta-row">
@@ -14664,7 +14663,8 @@ async function toggleNicknameVote(nicknameId, category){
   if (alreadyVoted){
     await sb.from('nickname_votes').delete().eq('nickname_id', nicknameId).eq('user_id', STATE.activeUser).eq('vote_type', category);
   } else {
-    await sb.from('nickname_votes').insert({ nickname_id: nicknameId, user_id: STATE.activeUser, vote_type: category });
+    const { error } = await sb.from('nickname_votes').insert({ nickname_id: nicknameId, user_id: STATE.activeUser, vote_type: category });
+    if (error) console.error('nickname vote failed (is migration 0093 applied for new reactions?):', error);
   }
   await refreshAppData();
   renderPage();

@@ -1,4 +1,4 @@
--- DEV bundle part 5/5: migrations 0078 to 0092. Run the parts in order, each once, in a NEW empty Supabase project (never in production).
+-- DEV bundle part 5/5: migrations 0078 to 0093. Run the parts in order, each once, in a NEW empty Supabase project (never in production).
 
 -- =========== 0078_pets.sql ===========
 -- =================================================================
@@ -2352,3 +2352,28 @@ insert into public.character_outfit_sets (id, name, hint, unlock_kind, sources, 
      {"def":"gw_fellowship","chance":0.12},{"def":"gw_gathering","chance":0.10},{"def":"gw_nickname_factory","chance":0.10},{"def":"gw_council","chance":0.12},
      {"def":"rb_storm","chance":0.10},{"def":"rb_seeds","chance":0.10},{"def":"rb_pamphlet","chance":0.10},{"def":"gd_nickname_of_the_day","chance":0.06}]', 15, 120)
 on conflict (id) do update set name = excluded.name, hint = excluded.hint, unlock_kind = excluded.unlock_kind, sources = excluded.sources, pity_after = excluded.pity_after, sort_order = excluded.sort_order, is_active = true;
+
+-- =========== 0093_more_nickname_reactions.sql ===========
+-- =================================================================
+-- OFFICE LORE / TRIPEL TALES — MORE NICKNAME REACTIONS
+-- =================================================================
+-- A nickname could only get 5 fixed reactions: nickname_votes had a CHECK with that exact list (funny, accurate, savage,
+-- legendary, doubt), so every new reaction needed a migration. The list now lives in the app (NICKNAME_REACTIONS in
+-- index.html): the database only checks that the key looks sane (lowercase letters and underscores), like poem_reactions
+-- since 0089. New in the app: genius, inside_joke, hall_of_fame. Everything else stays as it was: one vote per person per
+-- reaction per nickname, own vote only, open read, and votes never give XP.
+-- Additive + idempotent. Run after 0092.
+-- =================================================================
+do $$
+declare c text;
+begin
+  for c in
+    select con.conname from pg_constraint con
+    where con.conrelid = 'public.nickname_votes'::regclass and con.contype = 'c'
+      and pg_get_constraintdef(con.oid) ilike '%vote_type%' and pg_get_constraintdef(con.oid) ilike '%legendary%'
+  loop
+    execute format('alter table public.nickname_votes drop constraint %I', c);
+  end loop;
+end $$;
+alter table public.nickname_votes drop constraint if exists nickname_votes_type_format;
+alter table public.nickname_votes add constraint nickname_votes_type_format check (vote_type ~ '^[a-z][a-z_]{1,29}$');
