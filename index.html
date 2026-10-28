@@ -1925,6 +1925,190 @@
   .taproom-seat-name{ font-size: 10.5px; font-weight: 800; color: var(--chalk); }
   .taproom-table-stats{ display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 
+  /* ---- Our Table: a pub full of little tables, one per session ---- */
+  .ot{position:relative;border:3px solid var(--wood-deep);border-radius:var(--radius-md);overflow:hidden;box-shadow:var(--shadow-pop-sm);background:#2a1a0f}
+  .ot-wall{position:relative;padding:20px 16px 40px;text-align:center;color:var(--chalk);
+    background:
+      radial-gradient(ellipse at 50% 0,rgba(255,200,110,.28),transparent 62%),
+      repeating-linear-gradient(90deg,#4a2e1a 0 46px,#42281770 46px 48px),
+      linear-gradient(#4a2e1a,#33200f)}
+  .ot-wall::before{content:"";position:absolute;left:0;right:0;top:0;height:34px;opacity:.95;
+    background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='34' viewBox='0 0 140 34'><path d='M0 3Q35 26 70 3Q105 26 140 3' fill='none' stroke='%231c120a' stroke-width='1.6'/><g stroke='%231c120a' stroke-width='1'><circle cx='17' cy='15' r='4.4' fill='%23ffd36b'/><circle cx='52' cy='19' r='4.4' fill='%23ff8f6b'/><circle cx='88' cy='19' r='4.4' fill='%23ffd36b'/><circle cx='123' cy='15' r='4.4' fill='%237fd6a8'/></g></svg>") repeat-x 0 0/140px 34px;
+    animation:ot-twinkle 3.2s ease-in-out infinite alternate}
+  @keyframes ot-twinkle{from{filter:brightness(.82)}to{filter:brightness(1.18)}}
+  .ot-sign{display:inline-block;margin-top:22px;padding:6px 24px 8px;border:3px solid #1c120a;border-radius:10px;background:#1b1410;font-family:var(--font-display);font-size:26px;letter-spacing:.06em;color:#ffd9a0;
+    text-shadow:0 0 6px #ff9a3c,0 0 16px rgba(255,140,50,.7);box-shadow:0 0 0 3px #6f4a2c,0 6px 0 rgba(0,0,0,.35)}
+  .ot-sub{margin:12px 0 0;font-weight:700;font-size:13px;opacity:.85}
+  .ot-stats{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .ot-stats span{padding:4px 12px;border-radius:999px;background:rgba(0,0,0,.35);border:2px solid rgba(245,240,230,.22);font-weight:800;font-size:12px}
+  .ot-new{margin-top:14px}
+  .ot-order{position:relative;display:block;width:230px;max-width:100%;margin:0 auto;padding:22px 16px 12px 30px;text-align:left;cursor:pointer;border:0;color:#2b2320;font-family:var(--font-body,inherit);
+    transform:rotate(-2.5deg);transition:transform .2s;filter:drop-shadow(0 6px 0 rgba(0,0,0,.35));
+    background:
+      linear-gradient(90deg,transparent 22px,rgba(214,76,76,.65) 22px 24px,transparent 24px),
+      repeating-linear-gradient(180deg,transparent 0 21px,rgba(80,120,170,.35) 21px 22px),
+      linear-gradient(#fffaf0,#fdf1d6);
+    -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/12px 100%,linear-gradient(#000 0 0) 0 0/100% calc(100% - 6px) no-repeat;
+    -webkit-mask-composite:source-over}
+  .ot-order::before{content:"";position:absolute;left:0;right:0;top:0;height:10px;background:radial-gradient(circle at 7px 5px,rgba(43,35,32,.5) 0 2.4px,transparent 3px) 0 0/14px 10px repeat-x,linear-gradient(#e8d3a6,#fdf1d6)}
+  .ot-order:hover{transform:rotate(1.5deg) translateY(-3px)}
+  .ot-order:active{transform:rotate(0) scale(.97)}
+  .ot-order-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;font-family:var(--font-display);font-size:13px;letter-spacing:.06em;border-bottom:2px dashed rgba(43,35,32,.45)}
+  .ot-order-head em{font-style:normal;font-size:11px;font-weight:900;color:#a8362b}
+  .ot-order-line{display:block;font-family:'Caveat','Comic Sans MS',cursive;font-size:19px;font-weight:700;line-height:22px;white-space:nowrap}
+  .ot-order-line i{font-style:normal;font-weight:900;color:#a8362b;margin-right:6px}
+  .ot-order-line.faint{opacity:.45;font-size:16px}
+  .ot-order-foot{display:block;margin-top:6px;font-size:11px;font-weight:900;letter-spacing:.04em;color:var(--wood-deep);text-align:right}
+  .ot-floor{position:relative;margin-top:-20px;padding:30px 14px 20px;border-radius:22px 22px 0 0;
+    background:
+      radial-gradient(ellipse at 50% 0,rgba(255,196,110,.22),transparent 70%),
+      repeating-linear-gradient(90deg,transparent 0 118px,rgba(0,0,0,.2) 118px 120px),
+      repeating-linear-gradient(0deg,#8a5a35 0 54px,#7b4d2c 54px 108px);
+    box-shadow:inset 0 10px 0 rgba(0,0,0,.28)}
+  .ot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(212px,1fr));gap:6px 10px}
+  .ot-mgrp{margin-top:14px}
+  .ot-month{display:flex;align-items:center;gap:8px;position:relative;margin:0 auto 6px;padding:5px 18px 6px;border:3px solid var(--wood-deep);border-radius:8px;background:linear-gradient(#e0ab63,#c78f4a);color:var(--wood-deep);font-family:var(--font-display);font-size:16px;text-transform:uppercase;letter-spacing:.06em;box-shadow:0 3px 0 rgba(0,0,0,.3);cursor:pointer;transition:transform .15s}
+  .ot-month:hover{transform:translateY(2px)}
+  .ot-month::before,.ot-month::after{content:"";position:absolute;top:-16px;width:2px;height:14px;background:#1c120a}
+  .ot-month::before{left:18px}.ot-month::after{right:18px}
+  .ot-month small{font-family:var(--font-body,inherit);font-size:11px;font-weight:900;letter-spacing:0;padding:1px 8px;border-radius:999px;background:rgba(61,37,19,.22)}
+  .ot-month .ot-chev{display:inline-block;font-size:13px;transition:transform .2s}
+  .ot-mgrp.closed .ot-chev{transform:rotate(-90deg)}
+  .ot-mgrp.closed .ot-grid{display:none}
+  .ot-fold{display:flex;justify-content:center;gap:8px;margin:2px 0 6px}
+  .ot-fold button{padding:3px 12px;border-radius:999px;border:2px solid rgba(245,240,230,.4);background:rgba(0,0,0,.28);color:var(--chalk);font-weight:800;font-size:11.5px;cursor:pointer}
+  .ot-fold button:hover{background:rgba(0,0,0,.45)}
+  .ot-tbl{position:relative;height:212px;cursor:pointer;transition:transform .18s;-webkit-tap-highlight-color:transparent}
+  .ot-tbl:hover{transform:translateY(-4px)}
+  .ot-tbl:nth-child(3n+2){margin-top:12px}
+  .ot-guests{position:absolute;left:0;right:0;top:4px;height:92px;display:flex;justify-content:center;gap:2px;z-index:1}
+  .ot-guest{position:relative;width:88px;height:92px;overflow:hidden;animation:ot-bob 2.8s ease-in-out infinite}
+  .ot-guest:nth-child(even){animation-delay:-1.1s}
+  @keyframes ot-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+  .ot-guest svg,.ot-guest .avatar{display:block;margin:0 auto}
+  .ot-guest svg{width:100px;height:83px}
+  .ot-empty-seat{align-self:flex-end;font-size:11px;font-weight:800;color:rgba(255,243,224,.8);padding-bottom:20px}
+  .ot-top{position:absolute;left:12px;right:12px;top:82px;height:58px;z-index:2;border:3px solid var(--wood-deep);border-radius:50%;
+    background:radial-gradient(ellipse at 50% 35%,#f3d9a4,#d9ab62);box-shadow:0 8px 0 #7a4b25,0 14px 0 rgba(0,0,0,.28)}
+  .ot-top::before{content:"";position:absolute;inset:7px 14px;border-radius:50%;border:2px dashed rgba(122,75,37,.28)}
+  .ot-mugs{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;gap:2px;font-size:22px;line-height:1;filter:drop-shadow(0 2px 0 rgba(43,35,32,.3))}
+  .ot-mugs i{font-style:normal;font-size:12px;font-weight:900;color:var(--wood-deep);align-self:center;margin-left:2px}
+  .ot-candle{position:absolute;right:30px;top:12px;font-size:16px;animation:ot-flick 1.4s ease-in-out infinite alternate}
+  @keyframes ot-flick{from{transform:scale(1) rotate(-3deg)}to{transform:scale(1.15) rotate(3deg)}}
+  .ot-trophy{position:absolute;left:26px;top:-6px;font-size:20px;filter:drop-shadow(0 2px 0 rgba(43,35,32,.35))}
+  .ot-leg{position:absolute;top:128px;width:9px;height:62px;z-index:0;background:linear-gradient(90deg,#8a5a30,#6b4a2a);border:2px solid var(--wood-deep);border-radius:2px 2px 4px 4px}
+  .ot-leg.l{left:44px;transform:rotate(6deg)}.ot-leg.r{right:44px;transform:rotate(-6deg)}.ot-leg.f{left:50%;margin-left:-4px;height:70px}
+  .ot-plate{position:absolute;left:14px;right:14px;bottom:0;z-index:3;text-align:center;padding:4px 8px 5px;border:2.5px solid var(--wood-deep);border-radius:8px;background:linear-gradient(#fff3e0,#f1d9ad);color:var(--ink);box-shadow:0 3px 0 rgba(0,0,0,.3)}
+  .ot-plate b{display:block;font-family:var(--font-display);font-size:14px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ot-plate small{display:block;font-size:10.5px;font-weight:800;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ot-no{position:absolute;left:6px;top:4px;z-index:4;padding:1px 8px;border-radius:5px;background:var(--brass,#cfa53d);border:2px solid var(--wood-deep);color:var(--wood-deep);font-size:10px;font-weight:900;letter-spacing:.06em;transform:rotate(-4deg)}
+  .ot-tbl.live .ot-top{box-shadow:0 8px 0 #7a4b25,0 14px 0 rgba(0,0,0,.28),0 0 26px 6px rgba(255,150,70,.65)}
+  .ot-live{position:absolute;right:6px;top:4px;z-index:4;padding:1px 8px;border-radius:999px;background:#ff6b45;border:2px solid var(--wood-deep);color:#fff;font-size:10px;font-weight:900;letter-spacing:.06em;transform:rotate(4deg)}
+  .ot-tbl.reserve .ot-top{background:rgba(255,243,224,.18);border-style:dashed;box-shadow:none}
+  .ot-tbl.reserve .ot-leg{opacity:.35}
+  .ot-reserve-plus{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:34px;color:var(--chalk);text-shadow:0 2px 0 rgba(0,0,0,.4)}
+  .ot-tbl.reserve .ot-plate{background:rgba(255,243,224,.9);border-style:dashed}
+  .ot-empty{text-align:center;color:var(--chalk);font-weight:800;padding:20px 0}
+  @media (max-width:520px){.ot-grid{grid-template-columns:repeat(2,1fr);gap:4px 6px}.ot-tbl{height:196px}.ot-tbl:nth-child(3n+2){margin-top:0}.ot-tbl:nth-child(even){margin-top:14px}
+    .ot-top{left:4px;right:4px;top:78px;height:50px}.ot-guest{width:64px;height:76px}.ot-guest svg{width:72px;height:60px;margin-left:-4px}.ot-guests{top:14px;height:76px}
+    .ot-leg{top:114px;height:56px}.ot-leg.l{left:30px}.ot-leg.r{right:30px}.ot-plate{left:6px;right:6px}.ot-plate b{font-size:12.5px}.ot-mugs{font-size:19px}.ot-sign{font-size:22px}}
+  @media (prefers-reduced-motion:reduce){.ot-wall::before,.ot-guest,.ot-candle{animation:none}.ot-tbl,.ot-month,.ot-chev,.ot-order{transition:none}}
+
+  /* ---- the new-session form is an order slip on a wooden table ---- */
+  .ob-table{position:relative;padding:30px 12px 26px;border:3px solid var(--wood-deep);border-radius:var(--radius-md);box-shadow:var(--shadow-pop-sm);
+    background:radial-gradient(ellipse at 50% 0,rgba(255,200,110,.25),transparent 70%),repeating-linear-gradient(90deg,transparent 0 118px,rgba(0,0,0,.18) 118px 120px),repeating-linear-gradient(0deg,#8a5a35 0 54px,#7b4d2c 54px 108px)}
+  .ob-pencil{position:absolute;right:14px;top:6px;font-size:34px;transform:rotate(-38deg);filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));z-index:2;pointer-events:none}
+  .ob-shadow{max-width:560px;margin:0 auto;transform:rotate(-.6deg);filter:drop-shadow(0 8px 0 rgba(0,0,0,.35))}
+  .ob{position:relative;padding:30px 20px 24px 40px;color:var(--ink);
+    background:
+      linear-gradient(90deg,transparent 30px,rgba(214,76,76,.6) 30px 32px,transparent 32px),
+      repeating-linear-gradient(180deg,transparent 0 31px,rgba(80,120,170,.28) 31px 32px),
+      linear-gradient(#fffaf0,#fdf1d6);
+    -webkit-mask:conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) 50%/14px 100%,linear-gradient(#000 0 0) 0 0/100% calc(100% - 7px) no-repeat;
+    -webkit-mask-composite:source-over}
+  .ob::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:radial-gradient(circle at 8px 6px,rgba(43,35,32,.5) 0 2.6px,transparent 3.2px) 0 0/16px 12px repeat-x,linear-gradient(#e8d3a6,#fdf1d6)}
+  .ob-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px;padding-bottom:4px;border-bottom:2px dashed rgba(43,35,32,.45);font-family:var(--font-display);font-size:19px;letter-spacing:.06em}
+  .ob-head em{font-style:normal;font-size:13px;font-weight:900;color:#a8362b;white-space:nowrap}
+  .ob-note{margin:0 0 12px;font-weight:700;font-size:13px;color:#7a4b25}
+  .ob-row{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+  .ob-field{margin-bottom:14px;min-width:0}
+  .ob-field>label{display:block;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#a8362b;margin-bottom:2px}
+  .ob .form-input{width:100%;box-sizing:border-box;background:transparent;border:0;border-bottom:2px dashed rgba(43,35,32,.5);border-radius:0;box-shadow:none;padding:2px 2px 3px;font-family:'Caveat','Comic Sans MS',cursive;font-size:22px;font-weight:700;color:var(--ink)}
+  .ob .form-input:focus{outline:0;border-bottom-style:solid;border-bottom-color:#a8362b;background:rgba(255,230,160,.35)}
+  .ob .form-input::placeholder{color:rgba(43,35,32,.4)}
+  .ob-guests{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+  .ob-guests .btn{font-family:'Caveat','Comic Sans MS',cursive;font-size:19px;font-weight:700;padding:2px 14px;border-radius:999px;box-shadow:none;transition:transform .12s}
+  .ob-guests .btn-ghost{background:transparent;border:2px dashed rgba(43,35,32,.5);color:rgba(43,35,32,.7)}
+  .ob-guests .btn-primary{background:rgba(255,226,150,.8);border:2px solid #a8362b;color:var(--ink);transform:rotate(-1.5deg)}
+  .ob-guests .btn-primary::after{content:" ✓";color:#a8362b;font-weight:900}
+  .ob-sub{margin:6px 0 10px;text-align:center;font-family:'Caveat','Comic Sans MS',cursive;font-size:20px;font-weight:700;color:rgba(43,35,32,.55);letter-spacing:.04em}
+  .ob .sticker-card{background:rgba(255,255,255,.4);border:2px dashed rgba(43,35,32,.4);border-radius:10px;box-shadow:none;color:var(--ink)}
+  .ob .nickname-person{font-family:'Caveat','Comic Sans MS',cursive;font-size:22px;font-weight:700}
+  .ob .nickname-person{color:var(--ink);opacity:1}
+  .ob .nickname-person span{color:var(--ink)}
+  .ob .btn-secondary{background:transparent;border:2px dashed #a8362b;color:#a8362b;box-shadow:none;font-family:'Caveat','Comic Sans MS',cursive;font-size:19px;font-weight:700;padding:1px 14px}
+  .ob .btn-secondary:hover{background:rgba(255,226,150,.6)}
+  .ob .row-item{background:rgba(255,250,235,.85);border:2px solid rgba(43,35,32,.25);box-shadow:none}
+  .ob .empty-state{background:transparent;border:0;box-shadow:none;color:rgba(43,35,32,.6);font-family:'Caveat','Comic Sans MS',cursive;font-size:19px;font-weight:700}
+  .ob .form-error{min-height:18px;color:#a8362b;font-weight:800}
+  .ob-actions{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .ob-actions-r{display:flex;gap:10px;flex-wrap:wrap}
+  .ob-btn{cursor:pointer;padding:6px 16px;border:2.5px solid var(--wood-deep);border-radius:8px;background:#fff3e0;color:var(--ink);font-family:var(--font-display);font-size:15px;box-shadow:0 3px 0 rgba(0,0,0,.3);transition:transform .12s}
+  .ob-btn:hover{transform:translateY(-2px)}
+  .ob-btn:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .ob-btn.go{background:linear-gradient(#ffd36b,#f0b84e)}
+  .ob-btn.danger{background:#f6d4cc;color:#8a2a1f}
+  @media (max-width:520px){.ob{padding:28px 14px 22px 36px}.ob-row{grid-template-columns:1fr}.ob-actions-r{width:100%}.ob-btn.go{flex:1}.ob-pencil{font-size:28px;right:8px}}
+  @media (prefers-reduced-motion:reduce){.ob-btn,.ob-guests .btn{transition:none}}
+  /* ---- session detail: a table with a table-tent card, beer-coaster votes and a menu ---- */
+  .sd-table{position:relative;padding:18px 12px 30px;border:3px solid var(--wood-deep);border-radius:var(--radius-md);box-shadow:var(--shadow-pop-sm);
+    background:radial-gradient(ellipse at 50% 0,rgba(255,200,110,.25),transparent 70%),repeating-linear-gradient(90deg,transparent 0 118px,rgba(0,0,0,.18) 118px 120px),repeating-linear-gradient(0deg,#8a5a35 0 54px,#7b4d2c 54px 108px)}
+  .sd-back{cursor:pointer;margin-bottom:16px;padding:4px 14px;border:2.5px solid var(--wood-deep);border-radius:8px;background:linear-gradient(#e0ab63,#c78f4a);color:var(--wood-deep);font-family:var(--font-display);font-size:14px;box-shadow:0 3px 0 rgba(0,0,0,.3)}
+  .sd-back:hover{transform:translateY(-1px)}
+  .sd-tent{position:relative;max-width:460px;margin:0 auto 26px;padding:14px 20px 16px;text-align:center;color:var(--ink);border:3px solid var(--wood-deep);border-radius:10px 10px 4px 4px;transform:rotate(-1deg);
+    background:linear-gradient(#fffaf0,#fdf1d6);box-shadow:0 10px 0 rgba(0,0,0,.3),inset 0 0 0 5px #fffaf0,inset 0 0 0 7px rgba(168,54,43,.55)}
+  .sd-tent::after{content:"";position:absolute;left:8%;right:8%;bottom:-13px;height:8px;border-radius:0 0 50% 50%/0 0 100% 100%;background:rgba(0,0,0,.18);z-index:-1}
+  .sd-tent-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-display);font-size:13px;letter-spacing:.14em;color:#a8362b;border-bottom:2px dashed rgba(43,35,32,.4);padding:0 4px 4px}
+  .sd-tent h2{margin:10px 0 2px;font-family:var(--font-display);font-size:28px;line-height:1.1}
+  .sd-tent-date{font-family:'Caveat','Comic Sans MS',cursive;font-size:22px;font-weight:700;color:rgba(43,35,32,.75)}
+  .sd-tent-guests{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 6px}
+  .sd-tent-guests span{padding:2px 12px;border-radius:999px;border:2px solid rgba(43,35,32,.35);background:rgba(255,226,150,.55);font-weight:800;font-size:13px}
+  .sd-tent-by{font-size:12px;font-weight:800;opacity:.65}
+  .sd-tent-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+  .sd-tent-actions button{cursor:pointer;padding:4px 14px;border:2.5px solid var(--wood-deep);border-radius:8px;background:#fff3e0;color:var(--ink);font-family:var(--font-display);font-size:13px;box-shadow:0 3px 0 rgba(0,0,0,.28)}
+  .sd-tent-actions button.danger{background:#f6d4cc;color:#8a2a1f}
+  .sd-tent-actions button:hover{transform:translateY(-1px)}
+  .sd-label{text-align:center;font-family:var(--font-display);font-size:20px;color:var(--chalk);text-shadow:0 2px 0 rgba(0,0,0,.45)}
+  .sd-hint{max-width:520px;margin:4px auto 14px;text-align:center;font-weight:700;font-size:13px;color:#fff3e0;text-shadow:0 1px 0 rgba(0,0,0,.45)}
+  .sd-coasters{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:30px}
+  .sd-coaster{position:relative;width:118px;height:118px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;color:var(--ink);font-family:inherit;
+    border:3px solid #6f4a2c;background:radial-gradient(circle,#fffaf0 0 54%,#f1dcae 55% 60%,#fffaf0 61% 72%,#e8cf9a 73%);box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .15s}
+  .sd-coaster.can{cursor:pointer}
+  .sd-coaster.can:hover{transform:translateY(-4px) rotate(-4deg)}
+  .sd-coaster.voted{transform:rotate(6deg);box-shadow:0 5px 0 rgba(0,0,0,.35),0 0 22px 5px rgba(255,200,80,.75)}
+  .sd-co-face{font-size:30px;line-height:1}
+  .sd-co-name{font-family:var(--font-display);font-size:13px;line-height:1.1;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sd-co-count{font-size:12px;font-weight:900;min-height:15px}
+  .sd-stamp{position:absolute;left:50%;bottom:-9px;transform:translateX(-50%) rotate(-7deg);padding:1px 8px;border:2.5px solid #a8362b;border-radius:6px;color:#a8362b;background:rgba(255,250,240,.88);font-size:11px;font-weight:900;letter-spacing:.08em;white-space:nowrap;pointer-events:none}
+  .sd-menu{max-width:560px;margin:0 auto;transform:rotate(.6deg);filter:drop-shadow(0 8px 0 rgba(0,0,0,.35))}
+  .sd-menu-in{position:relative;padding:26px 26px 20px;color:var(--ink);border-radius:6px;background:linear-gradient(#fbf0d2,#f3e1b0);
+    box-shadow:inset 0 0 0 5px #fbf0d2,inset 0 0 0 7px #b8893a,inset 0 0 0 11px #fbf0d2,inset 0 0 0 12px rgba(184,137,58,.6)}
+  .sd-menu-title{text-align:center;font-family:'Cinzel Decorative','Cinzel',serif;font-weight:700;font-size:24px;letter-spacing:.1em;color:#7a4b25}
+  .sd-menu-sub{text-align:center;font-family:'IM Fell English','Lora',serif;font-style:italic;font-size:18px;margin-top:2px}
+  .sd-menu-note{text-align:center;font-size:11.5px;font-weight:700;opacity:.6;margin:2px 0 16px}
+  .sd-dish{margin-bottom:16px}
+  .sd-dish-name{text-align:center;font-family:'Cinzel','Lora',serif;font-weight:800;font-size:17px;letter-spacing:.04em;color:#5e3a1c;margin-bottom:4px}
+  .sd-dish-name::before,.sd-dish-name::after{content:"❦";margin:0 8px;color:#b8893a;font-size:13px}
+  .sd-dish-name a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(94,58,28,.5)}
+  .sd-dish-name a:hover{color:#a8362b}
+  .sd-line{display:flex;align-items:baseline;gap:6px;font-family:'Lora',serif;font-size:15px;font-weight:600;padding:1px 6px}
+  .sd-who i{font-style:normal;font-weight:800;color:#a8362b;margin-left:4px}
+  .sd-dots{flex:1;border-bottom:2px dotted rgba(43,35,32,.45);transform:translateY(-4px);min-width:16px}
+  .sd-price{font-family:'Cinzel','Lora',serif;font-weight:800;color:#5e3a1c;white-space:nowrap}
+  .sd-review{margin:0 6px 4px 18px;font-family:'Caveat','Comic Sans MS',cursive;font-size:18px;font-weight:600;line-height:1.15;color:rgba(43,35,32,.72)}
+  .sd-menu-foot{text-align:center;margin-top:12px;font-family:'Cinzel Decorative','Cinzel',serif;color:#7a4b25;font-size:15px}
+  @media (max-width:520px){.sd-coasters{gap:8px}.sd-coaster{width:92px;height:92px}.sd-co-face{font-size:24px}.sd-co-name{font-size:12px;max-width:72px}.sd-stamp{font-size:10px;padding:0 6px}.sd-menu-in{padding:22px 18px 16px}.sd-menu-title{font-size:20px}.sd-tent h2{font-size:24px}}
+  @media (prefers-reduced-motion:reduce){.sd-coaster,.sd-back,.sd-tent-actions button{transition:none}}
   /* ---- Beer Fridge preview: glass-door shelf ---- */
   .taproom-fridge{
     background: linear-gradient(165deg, var(--fridge-glass) 0%, var(--fridge-glass-deep) 100%);
@@ -18491,38 +18675,112 @@ async function performDeleteStandaloneRating(ratingId, beerId){
   renderPage();
 }
 
-/* ---- Beer Sessions: overzicht ---- */
+/* ---- Beer Sessions: overzicht (Our Table = a pub full of tables, one per session) ---- */
+function otCharacterSymbol(userId){
+  /* one <symbol> per person, so every seat only <use>s it instead of embedding the whole picture again */
+  try {
+    const room = getUserRoomProfile(userId);
+    const svg = renderPersonalCharacterSvg({ ...room.loadout, bodyType: room.bodyType }, { size: 200 });
+    const inner = svg.slice(svg.indexOf('>') + 1, svg.lastIndexOf('</svg>'));
+    return `<symbol id="ot-ch-${userId}" viewBox="0 0 200 240">${inner}</symbol>`;
+  } catch (e) { return ''; }
+}
+
+/* months can be folded shut; remembered per browser (a convenience only, so every access is guarded) */
+function otFoldedMonths(){
+  try { const v = JSON.parse(localStorage.getItem('tt-ot-folded') || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; }
+}
+function otSaveFolded(list){ try { localStorage.setItem('tt-ot-folded', JSON.stringify(list)); } catch (e) {} }
+function toggleOtMonth(m){
+  const grp = document.querySelector(`.ot-mgrp[data-month="${m}"]`);
+  if (!grp) return;
+  const closed = grp.classList.toggle('closed');
+  const btn = grp.querySelector('.ot-month');
+  if (btn) btn.setAttribute('aria-expanded', closed ? 'false' : 'true');
+  const list = otFoldedMonths().filter(x => x !== m);
+  if (closed) list.push(m);
+  otSaveFolded(list);
+}
+function foldAllOtMonths(fold){
+  const list = [];
+  document.querySelectorAll('.ot-mgrp').forEach(g => {
+    g.classList.toggle('closed', fold);
+    const btn = g.querySelector('.ot-month'); if (btn) btn.setAttribute('aria-expanded', fold ? 'false' : 'true');
+    if (fold) list.push(g.dataset.month);
+  });
+  otSaveFolded(list);
+}
+
+function renderOurTableTable(s, no, symbols, isLive){
+  const names = s.participantIds.map(id => resolveUserLabel(id));
+  const guests = s.participantIds.slice(0, 4).map(id => {
+    if (symbols[id]) return `<div class="ot-guest" title="${escapeHtml(resolveUserLabel(id))}"><svg viewBox="10 14 180 150" aria-hidden="true"><use href="#ot-ch-${id}" width="200" height="240"/></svg></div>`;
+    const u = findUser(id);
+    return `<div class="ot-guest" title="${escapeHtml(resolveUserLabel(id))}">${u ? avatarHtml(u, 52) : ''}</div>`;
+  }).join('');
+  const nb = s.beerIds.length;
+  const mugs = '🍺'.repeat(Math.min(nb, 3)) + (nb > 3 ? `<i>+${nb - 3}</i>` : '');
+  const when = new Date(s.date + 'T12:00:00');
+  const dateLabel = isNaN(when) ? s.date : when.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+  return `
+    <div class="ot-tbl ${isLive ? 'live' : ''}" onclick="openSessionDetail('${s.id}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openSessionDetail('${s.id}')" aria-label="Session ${escapeHtml(s.date)}">
+      <span class="ot-no">TABLE ${no}</span>${isLive ? '<span class="ot-live">TONIGHT</span>' : ''}
+      <div class="ot-guests">${guests || '<span class="ot-empty-seat">nobody sat down</span>'}</div>
+      <i class="ot-leg l"></i><i class="ot-leg r"></i><i class="ot-leg f"></i>
+      <div class="ot-top">
+        <span class="ot-candle">🕯️</span>${s.perfectPourVotes.length ? '<span class="ot-trophy" title="Perfect Pour">🏆</span>' : ''}
+        <div class="ot-mugs">${mugs || '·'}</div>
+      </div>
+      <div class="ot-plate"><b>${escapeHtml(s.location || 'Somewhere nice')}</b><small>${dateLabel} · ${nb} beer${nb === 1 ? '' : 's'}${names.length ? ' · ' + escapeHtml(names.join(', ')) : ''}</small></div>
+    </div>`;
+}
+
 function renderBeerSessionsList(data){
   const sorted = [...data.beerSessions].sort((a, b) => b.date.localeCompare(a.date));
+  const numberOf = new Map([...data.beerSessions].sort((a, b) => a.date.localeCompare(b.date)).map((s, i) => [s.id, i + 1]));
+  const live = getActiveBeerSession();
+  const symbols = {};
+  [...new Set(sorted.flatMap(s => s.participantIds.slice(0, 4)))].forEach(id => { symbols[id] = otCharacterSymbol(id); });
+  const defs = Object.values(symbols).filter(Boolean).join('');
+  Object.keys(symbols).forEach(id => { if (!symbols[id]) delete symbols[id]; });
+  const pours = data.beerSessions.reduce((n, s) => n + s.perfectPourVotes.length, 0);
+  const beers = new Set(data.beerSessions.flatMap(s => s.beerIds)).size;
+
+  const folded = otFoldedMonths();
+  const groups = [];
+  sorted.forEach(s => {
+    const m = s.date.slice(0, 7);
+    if (!groups.length || groups[groups.length - 1].m !== m) groups.push({ m, list: [] });
+    groups[groups.length - 1].list.push(s);
+  });
+  const tables = groups.map(g => {
+    const d = new Date(g.m + '-15T12:00:00');
+    const label = isNaN(d) ? g.m : d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+    const closed = folded.includes(g.m);
+    return `
+      <div class="ot-mgrp ${closed ? 'closed' : ''}" data-month="${g.m}">
+        <button type="button" class="ot-month" onclick="toggleOtMonth('${g.m}')" aria-expanded="${closed ? 'false' : 'true'}"><span class="ot-chev">▾</span>${label}<small>${g.list.length} table${g.list.length === 1 ? '' : 's'}</small></button>
+        <div class="ot-grid">${g.list.map(s => renderOurTableTable(s, numberOf.get(s.id), symbols, !!live && live.id === s.id)).join('')}</div>
+      </div>`;
+  }).join('');
+
   return `
-    <section class="section">
-      <div class="section-head">
-        <h3>📋 Beer Sessions</h3>
-        <div class="people-toolbar">
-          <span class="count-chip">${data.beerSessions.length}</span>
-          <button type="button" class="btn btn-primary" onclick="openSessionForm()">+ Nieuwe sessie</button>
-        </div>
+    <section class="ot">
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>${defs}</defs></svg>
+      <div class="ot-wall">
+        <div class="ot-sign">🍻 OUR TABLE</div>
+        <p class="ot-sub">Every night we sat down together has its own table.</p>
+        <div class="ot-stats"><span>🪑 ${data.beerSessions.length} table${data.beerSessions.length === 1 ? '' : 's'}</span><span>🍺 ${beers} different beers</span><span>🏆 ${pours} Perfect Pour${pours === 1 ? '' : 's'}</span></div>
+        <div class="ot-new"><button type="button" class="ot-order" onclick="openSessionForm()" aria-label="Nieuwe sessie">
+          <span class="ot-order-head"><b>🍻 BESTELLING</b><em>Tafel Nº ${data.beerSessions.length + 1}</em></span>
+          <span class="ot-order-line"><i>1×</i> Nieuwe sessie</span>
+          <span class="ot-order-line faint"><i>…</i> met vrienden &amp; bier</span>
+          <span class="ot-order-foot">✏️ Tik om te bestellen</span>
+        </button></div>
       </div>
-      ${sorted.length ? `
-        <div class="row-list">
-          ${sorted.map(s => `
-            <div class="row-item clickable" style="align-items:flex-start;" onclick="openSessionDetail('${s.id}')">
-              <div class="rank">📅</div>
-              <div class="info">
-                <div class="name">${s.date}${s.location ? ' · ' + escapeHtml(s.location) : ''}</div>
-                <div class="sub">
-                  🍺 ${s.beerIds.map(bid => {
-                    const b = APP_DATA.beers.find(x => x.id === bid);
-                    return b ? escapeHtml(b.name) : '(verwijderd bier)';
-                  }).join(', ')}
-                  <br>🧑‍🤝‍🧑 ${s.participantIds.map(id => resolveUserLabel(id)).join(', ')}
-                </div>
-              </div>
-              ${s.perfectPourVotes.length ? `<div class="value">🏆 ${s.perfectPourVotes.length}</div>` : ''}
-            </div>
-          `).join('')}
-        </div>
-      ` : emptyState('Nog geen sessies gelogd. Klik op "+ Nieuwe sessie" om te beginnen.')}
+      <div class="ot-floor">
+        ${sorted.length ? `${groups.length > 1 ? `<div class="ot-fold"><button type="button" onclick="foldAllOtMonths(true)">▾ Fold all months</button><button type="button" onclick="foldAllOtMonths(false)">▴ Unfold all</button></div>` : ''}${tables}` : `<div class="ot-empty">🪑 The pub is still empty.<br>Klik op "+ Nieuwe sessie" om de eerste tafel te dekken.</div>`}
+      </div>
     </section>
   `;
 }
@@ -18531,91 +18789,85 @@ function renderBeerSessionsList(data){
 function renderSessionDetailPage(data){
   const session = data.beerSessions.find(s => s.id === BEER_STATE.sessionDetailId);
   if (!session){
-    return `<section class="section">${emptyState('Deze sessie bestaat niet (meer).')}<div style="margin-top:14px;"><button type="button" class="btn btn-secondary" onclick="backToBeerSessions()">← Terug naar Sessions</button></div></section>`;
+    return `<section class="section">${emptyState('Deze sessie bestaat niet (meer).')}<div style="margin-top:14px;"><button type="button" class="btn btn-secondary" onclick="backToBeerSessions()">← Terug naar Our Table</button></div></section>`;
   }
 
   const myVote = getSessionVoteByUser(session, STATE.activeUser);
   const iAmParticipant = session.participantIds.includes(STATE.activeUser);
+  const tableNo = [...data.beerSessions].sort((a, b) => a.date.localeCompare(b.date)).findIndex(s => s.id === session.id) + 1;
+  const when = new Date(session.date + 'T12:00:00');
+  const dateLong = isNaN(when) ? session.date : when.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  /* a coaster per person at the table: tap somebody else's to give them the Perfect Pour */
+  const coasters = session.participantIds.map(id => {
+    const u = findUser(id);
+    if (!u) return '';
+    const received = session.perfectPourVotes.filter(v => v.toUserId === id).length;
+    const mine = id === STATE.activeUser;
+    const voted = !!myVote && myVote.toUserId === id;
+    const canVote = iAmParticipant && !mine;
+    return `
+      <${canVote ? 'button type="button"' : 'div'} class="sd-coaster ${voted ? 'voted' : ''} ${canVote ? 'can' : ''}" ${canVote ? `onclick="castPerfectPourVote('${session.id}','${id}')" aria-pressed="${voted}" title="${voted ? 'Stem intrekken' : 'Geef ' + escapeHtml(u.displayName) + ' de Perfect Pour'}"` : ''}>
+        <span class="sd-co-face">${u.avatarEmoji}</span>
+        <span class="sd-co-name">${escapeHtml(u.displayName)}${mine ? ' (jij)' : ''}</span>
+        <span class="sd-co-count">${received ? '🏆'.repeat(Math.min(received, 3)) : '—'}</span>
+        ${voted ? '<span class="sd-stamp">JOUW STEM</span>' : ''}
+      </${canVote ? 'button' : 'div'}>`;
+  }).join('');
+
+  /* the menu: one dish per beer, each drinker is a line with their score where the price would be */
+  const menu = session.beerIds.length ? session.beerIds.map(beerId => {
+    const b = APP_DATA.beers.find(x => x.id === beerId);
+    const drinkers = session.entries.filter(e => e.beerId === beerId);
+    return `
+      <div class="sd-dish">
+        <div class="sd-dish-name">${b ? `<a href="javascript:void(0)" onclick="openBeerDetail('${b.id}')">${escapeHtml(b.name)}</a>` : '(verwijderd bier)'}</div>
+        ${drinkers.map(e => {
+          const hasScore = typeof e.score === 'number' && e.score > 0;
+          return `
+            <div class="sd-line">
+              <span class="sd-who">${resolveUserLabel(e.userId)}${e.quantity ? ` <i>${e.quantity}×</i>` : ''}${e.firstTime ? ' <span class="sd-new" title="Eerste keer">🆕</span>' : ''}</span>
+              <span class="sd-dots"></span>
+              <span class="sd-price">${hasScore ? `${e.score}/10` : '—'}</span>
+            </div>
+            ${e.review ? `<div class="sd-review">“${escapeHtml(e.review)}”</div>` : ''}`;
+        }).join('') || '<div class="sd-review">Niemand heeft dit effectief besteld.</div>'}
+      </div>`;
+  }).join('') : `<div class="sd-review" style="text-align:center">Nog geen bieren geregistreerd in deze sessie.</div>`;
 
   return `
-    <section class="section">
-      <button type="button" class="btn btn-ghost btn-sm" onclick="backToBeerSessions()">← Terug naar Sessions</button>
-      <div class="detail-header" style="margin-top:8px;">
-        <div>
-          <h2 style="font-size:24px;">📅 ${session.date}${session.location ? ' · ' + escapeHtml(session.location) : ''}</h2>
-          <div class="detail-subline">${session.beerIds.map(bid => {
-            const b = APP_DATA.beers.find(x => x.id === bid);
-            return b ? escapeHtml(b.name) : '(verwijderd bier)';
-          }).join(', ')}</div>
-        </div>
-        <div class="detail-actions">
-          <button type="button" class="btn btn-secondary btn-sm" onclick="openSessionForm('edit', '${session.id}')">✏️ Edit Session</button>
-          <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteSession('${session.id}')">🗑️ Delete Session</button>
+    <section class="sd-table">
+      <button type="button" class="sd-back" onclick="backToBeerSessions()">← Terug naar Our Table</button>
+
+      <div class="sd-tent">
+        <div class="sd-tent-top"><span>TAFEL Nº ${tableNo}</span><span class="sd-tent-star">★</span></div>
+        <h2>${escapeHtml(session.location || 'Somewhere nice')}</h2>
+        <div class="sd-tent-date">${escapeHtml(dateLong)}</div>
+        <div class="sd-tent-guests">${session.participantIds.map(id => { const u = findUser(id); return u ? `<span>${u.avatarEmoji} ${escapeHtml(u.displayName)}</span>` : ''; }).join('')}</div>
+        <div class="sd-tent-by">Gereserveerd door ${resolveUserLabel(session.loggedBy)}</div>
+        <div class="sd-tent-actions">
+          <button type="button" onclick="openSessionForm('edit', '${session.id}')">✏️ Edit Session</button>
+          <button type="button" class="danger" onclick="confirmDeleteSession('${session.id}')">🗑️ Delete Session</button>
         </div>
       </div>
-      <div class="detail-meta-row">
-        <span class="badge mint">👤 Gelogd door ${resolveUserLabel(session.loggedBy)}</span>
-        <span class="badge lilac">🧑‍🤝‍🧑 ${session.participantIds.map(id => resolveUserLabel(id)).join(', ')}</span>
-      </div>
-    </section>
 
-    <section class="section">
-      <div class="section-head"><h3>🏆 Perfect Pour</h3></div>
-      ${iAmParticipant ? `
-        <p style="font-size:13px; color:#6b5c4d; margin-bottom:12px;">Wie verdient de Perfect Pour van deze sessie? Je stemt als ${resolveUserLabel(STATE.activeUser)}. Niet op jezelf, max. 1 stem per sessie — klik nogmaals om je stem in te trekken.</p>
-        <div class="lore-type-toggle" style="flex-wrap:wrap;">
-          ${session.participantIds.filter(id => id !== STATE.activeUser).map(id => {
-            const u = findUser(id);
-            const voted = myVote && myVote.toUserId === id;
-            return `<button type="button" class="btn ${voted ? 'btn-primary' : 'btn-ghost'} btn-sm pour-vote-btn ${voted ? 'voted' : ''}" onclick="castPerfectPourVote('${session.id}','${id}')">${u.avatarEmoji} ${escapeHtml(u.displayName)} ${voted ? '🏆' : ''}</button>`;
-          }).join('')}
+      <div class="sd-coasters-wrap">
+        <div class="sd-label">🏆 Perfect Pour</div>
+        <p class="sd-hint">${iAmParticipant
+          ? `Wie verdient de Perfect Pour van deze avond? Je stemt als ${resolveUserLabel(STATE.activeUser)}: niet op jezelf, max. 1 stem per sessie. Tik nogmaals op je bierviltje om je stem in te trekken.`
+          : 'Alleen deelnemers van deze sessie kunnen een Perfect Pour toekennen.'}</p>
+        <div class="sd-coasters">${coasters}</div>
+      </div>
+
+      <div class="sd-menu">
+        <div class="sd-menu-in">
+          <div class="sd-menu-title">— MENUKAART —</div>
+          <div class="sd-menu-sub">Bieren van deze avond</div>
+          <div class="sd-menu-note">Per bier alleen wie het effectief dronk of beoordeelde.</div>
+          ${menu}
+          <div class="sd-menu-foot">🍻 Santé!</div>
         </div>
-      ` : emptyState('Alleen deelnemers van deze sessie kunnen een Perfect Pour toekennen.')}
-
-      <div class="row-list" style="margin-top:16px;">
-        ${session.participantIds.map(id => {
-          const u = findUser(id);
-          const received = session.perfectPourVotes.filter(v => v.toUserId === id).length;
-          return `
-            <div class="row-item" style="cursor:default;">
-              <div class="avatar" style="background:${u.avatarColor}">${u.avatarEmoji}</div>
-              <div class="info">
-                <div class="name">${escapeHtml(u.displayName)}</div>
-                <div class="sub">${received} Perfect Pour${received === 1 ? '' : 's'} deze sessie</div>
-              </div>
-              <div class="value">${received ? '🏆'.repeat(Math.min(received, 3)) : '—'}</div>
-            </div>
-          `;
-        }).join('')}
       </div>
-    </section>
-
-    <section class="section">
-      <div class="section-head"><h3>📋 Bieren gedronken tijdens deze sessie</h3></div>
-      <p style="font-size:12.5px; color:#8a7a6b; font-weight:700; margin-bottom:12px;">Per bier alleen de deelnemers die het effectief dronken/beoordeelden — niet automatisch iedereen.</p>
-      ${session.beerIds.length ? session.beerIds.map(beerId => {
-        const b = APP_DATA.beers.find(x => x.id === beerId);
-        const drinkers = session.entries.filter(e => e.beerId === beerId);
-        return `
-          <div class="sticker-card" style="margin-bottom:12px;">
-            <div class="lore-item-title" style="margin-bottom:8px;">🍺 ${b ? escapeHtml(b.name) : '(verwijderd bier)'}</div>
-            <div class="row-list">
-              ${drinkers.map(e => {
-                const u = findUser(e.userId);
-                return `
-                  <div class="row-item" style="cursor:default;">
-                    <div class="avatar" style="background:${u ? u.avatarColor : 'var(--mint)'}">${u ? u.avatarEmoji : '❓'}</div>
-                    <div class="info">
-                      <div class="name">${resolveUserLabel(e.userId)}${e.quantity ? ` — ${e.quantity}×` : ''}${typeof e.score === 'number' && e.score > 0 ? ` · ${e.score}/10` : ''}${e.firstTime ? ' 🆕' : ''}</div>
-                      <div class="sub">${e.review ? escapeHtml(e.review) : 'Geen review'}</div>
-                    </div>
-                  </div>
-                `;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }).join('') : emptyState('Nog geen bieren geregistreerd in deze sessie.')}
     </section>
   `;
 }
@@ -18687,45 +18939,50 @@ function cancelSessionForm(){
 function renderSessionFormPage(data){
   const editMode = BEER_STATE.sessionFormMode === 'edit';
   const session = editMode ? data.beerSessions.find(s => s.id === BEER_STATE.sessionFormEditId) : null;
+  const tableNo = editMode && session
+    ? [...data.beerSessions].sort((a, b) => a.date.localeCompare(b.date)).findIndex(s => s.id === session.id) + 1
+    : data.beerSessions.length + 1;
 
   return `
-    <section class="section">
-      <div class="page-header" style="margin:0 0 16px;">
-        <h2 style="font-size:20px;">${editMode ? '✏️ Beer Session bewerken' : '➕ Nieuwe Beer Session'}</h2>
-      </div>
+    <section class="ob-table">
+      <span class="ob-pencil" aria-hidden="true">✏️</span>
+      <div class="ob-shadow"><div class="ob">
+        <div class="ob-head"><b>🍻 ${editMode ? 'BESTELLING WIJZIGEN' : 'BESTELLING'}</b><em>Tafel Nº ${tableNo}</em></div>
 
-      ${!editMode && SESSION_DRAFT.terraceEventId ? `<p class="form-meta" style="margin-top:0;">🍻 Linked from a Terrace Plan — date, location and attendees below are pre-filled.</p>` : ''}
+        ${!editMode && SESSION_DRAFT.terraceEventId ? `<p class="ob-note">🍻 Linked from a Terrace Plan — date, location and attendees below are pre-filled.</p>` : ''}
 
-      <div class="form-grid">
-        <div class="form-field">
-          <label class="form-label" for="sf-date">Datum *</label>
-          <input class="form-input" id="sf-date" type="date" value="${session ? session.date : (SESSION_DRAFT.prefillDate || todayISO())}">
+        <div class="ob-row">
+          <div class="ob-field">
+            <label for="sf-date">Datum</label>
+            <input class="form-input" id="sf-date" type="date" value="${session ? session.date : (SESSION_DRAFT.prefillDate || todayISO())}">
+          </div>
+          <div class="ob-field">
+            <label for="sf-location">Waar zitten we?</label>
+            <input class="form-input" id="sf-location" type="text" placeholder="Optioneel" value="${session ? escapeHtml(session.location || '') : escapeHtml(SESSION_DRAFT.prefillLocation || '')}">
+          </div>
         </div>
-        <div class="form-field">
-          <label class="form-label" for="sf-location">Locatie</label>
-          <input class="form-input" id="sf-location" type="text" placeholder="Optioneel" value="${session ? escapeHtml(session.location || '') : escapeHtml(SESSION_DRAFT.prefillLocation || '')}">
-        </div>
-      </div>
 
-      <div class="form-field" style="margin-top:14px;">
-        <label class="form-label">Wie neemt deel? *</label>
-        <div class="lore-type-toggle">
-          ${data.users.map(u => `<button type="button" class="btn ${SESSION_DRAFT.participantIds.includes(u.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionParticipant('${u.id}', this)">${u.avatarEmoji} ${u.displayName}</button>`).join('')}
+        <div class="ob-field">
+          <label>Wie zit er aan tafel?</label>
+          <div class="ob-guests">
+            ${data.users.map(u => `<button type="button" class="btn ${SESSION_DRAFT.participantIds.includes(u.id) ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="toggleSessionParticipant('${u.id}', this)">${u.avatarEmoji} ${escapeHtml(u.displayName)}</button>`).join('')}
+          </div>
         </div>
-      </div>
 
-      <div id="session-participant-beers" style="margin-top:16px;">
-        ${buildParticipantBeerListsHtml()}
-      </div>
-
-      <div id="sf-error" class="form-error"></div>
-      <div class="form-actions" style="justify-content:space-between;">
-        ${editMode ? `<button type="button" class="btn btn-danger" onclick="confirmDeleteSession('${session.id}')">🗑️ Delete Session</button>` : '<span></span>'}
-        <div style="display:flex; gap:10px;">
-          <button type="button" class="btn btn-secondary" onclick="cancelSessionForm()">Annuleren</button>
-          <button type="button" class="btn btn-primary" onclick="submitSessionForm()">${editMode ? 'Wijzigingen opslaan' : 'Sessie opslaan'}</button>
+        <div class="ob-sub">— de bestelling —</div>
+        <div id="session-participant-beers">
+          ${buildParticipantBeerListsHtml()}
         </div>
-      </div>
+
+        <div id="sf-error" class="form-error"></div>
+        <div class="ob-actions">
+          ${editMode ? `<button type="button" class="ob-btn danger" onclick="confirmDeleteSession('${session.id}')">🗑️ Bon verscheuren</button>` : '<span></span>'}
+          <div class="ob-actions-r">
+            <button type="button" class="ob-btn" onclick="cancelSessionForm()">✗ Doorstrepen</button>
+            <button type="button" class="ob-btn go" onclick="submitSessionForm()">${editMode ? '🛎️ Wijzigingen opslaan' : '🛎️ Bestelling plaatsen'}</button>
+          </div>
+        </div>
+      </div></div>
     </section>
   `;
 }
