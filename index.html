@@ -18627,8 +18627,8 @@ function openStandaloneRatingForm(beerId){
     <form data-beer-id="${beerId}" onsubmit="return submitStandaloneRatingForm(event)">
       <div class="form-grid">
         <div class="form-field">
-          <label class="form-label" for="sr-score">Score (0-10) *</label>
-          <input class="form-input" id="sr-score" type="number" min="0" max="10" step="0.5" value="7" required>
+          <label class="form-label" for="sr-score">Score (0,5 - 10) *</label>
+          <input class="form-input" id="sr-score" type="text" inputmode="decimal" autocomplete="off" placeholder="bv. 7,5" value="7" required>
         </div>
         <div class="form-field">
           <label class="form-label" for="sr-date">Datum *</label>
@@ -18656,21 +18656,36 @@ function openStandaloneRatingForm(beerId){
   `);
 }
 
+/* beer scores may have a decimal, typed with a comma or a dot ("7,5", "8.3"): one decimal place, 0.5 to 10.
+   Returns null for an empty field, NaN for something that is not a valid score. */
+function parseScoreInput(raw){
+  const t = String(raw == null ? '' : raw).trim().replace(',', '.');
+  if (t === '') return null;
+  if (!/^\d{1,2}(\.\d{0,2})?$/.test(t)) return NaN;
+  const n = Math.round(parseFloat(t) * 10) / 10;
+  return n >= 0.5 && n <= 10 ? n : NaN;
+}
+function scoreToInput(n){ return typeof n === 'number' && n > 0 ? String(n).replace('.', ',') : ''; }
+
 async function submitStandaloneRatingForm(event){
   event.preventDefault();
   const form = event.target;
   const beerId = form.dataset.beerId;
   const errorEl = document.getElementById('sr-error');
 
-  const score = Math.max(0, Math.min(10, parseFloat(document.getElementById('sr-score').value)));
+  const score = parseScoreInput(document.getElementById('sr-score').value);
   const date = document.getElementById('sr-date').value;
   const review = document.getElementById('sr-review').value.trim();
   const quantityRaw = document.getElementById('sr-quantity').value;
   const quantity = quantityRaw === '' ? 0 : Math.max(0, parseInt(quantityRaw, 10) || 0);
   const context = document.getElementById('sr-context').value.trim();
 
-  if (!score || !date){
+  if (score === null || !date){
     errorEl.textContent = 'Vul minstens een score en datum in.';
+    return false;
+  }
+  if (Number.isNaN(score)){
+    errorEl.textContent = 'De score moet een getal zijn tussen 0,5 en 10 (bv. 7,5).';
     return false;
   }
   errorEl.textContent = '';
@@ -19166,8 +19181,8 @@ function openAddBeerLineModal(userId, lineIndex){
           ${isEdit ? '<div class="form-hint" style="font-size:11.5px; color:#8a7a6b; margin-top:4px;">0 invullen verwijdert dit bier uit de sessie.</div>' : ''}
         </div>
         <div class="form-field">
-          <label class="form-label" for="abl-score">Score (0-10)</label>
-          <input class="form-input" id="abl-score" type="number" min="0" max="10" step="0.5" value="${isEdit && line.score > 0 ? line.score : ''}" placeholder="Optioneel">
+          <label class="form-label" for="abl-score">Score (0,5 - 10)</label>
+          <input class="form-input" id="abl-score" type="text" inputmode="decimal" autocomplete="off" value="${isEdit ? scoreToInput(line.score) : ''}" placeholder="Optioneel, bv. 7,5">
         </div>
       </div>
       <div class="form-field" style="margin-top:10px;">
@@ -19195,7 +19210,9 @@ function submitAddBeerLine(event){
   const quantityInput = parseInt(document.getElementById('abl-quantity').value, 10);
   const quantity = isNaN(quantityInput) ? (isEdit ? 0 : 1) : Math.max(0, quantityInput);
   const scoreRaw = document.getElementById('abl-score').value;
-  const score = scoreRaw === '' ? 0 : Math.max(0, Math.min(10, parseFloat(scoreRaw) || 0));
+  const parsedScore = parseScoreInput(scoreRaw);
+  if (Number.isNaN(parsedScore)){ errorEl.textContent = 'De score moet een getal zijn tussen 0,5 en 10 (bv. 7,5).'; return false; }
+  const score = parsedScore === null ? 0 : parsedScore;
   const review = document.getElementById('abl-review').value.trim();
 
   if (!beerId){ errorEl.textContent = 'Kies een bier.'; return false; }
