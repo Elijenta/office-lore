@@ -12753,7 +12753,8 @@ function renderChallengesPage(){
   const dailiesDone = dailies.filter(a => ['complete', 'claimed'].includes(challengeStatusOf(a))).length;
   const todayEnds = dailies.length ? dailies[0].expiresAt : null;
   const weeklies = getMyWeeklies(), gweek = getGroupWeeklies();
-  const toClaim = all.filter(a => challengeStatusOf(a) === 'complete').length;
+  const forgotten = getForgottenRewards();
+  const toClaim = all.filter(a => challengeStatusOf(a) === 'complete' && (a.userId !== null || forgotten.includes(a) || getChallengeContributors(a).some(x => x.userId === STATE.activeUser))).length;
 
   const chips = [
     ['qb-today', '☀️', 'Today'], ['qb-group', '🌟', 'Group'], ['qb-weekly', '📅', 'Weekly'], ['qb-gquest', '🤝', 'Quest'],
@@ -12778,6 +12779,11 @@ function renderChallengesPage(){
   return `
     <div class="qb">
       ${head}
+      ${forgotten.length ? `<section id="qb-forgotten" class="qb-section">
+        ${qbSign('🎁', 'STILL TO CLAIM', String(forgotten.length))}
+        <div class="qb-grid">${forgotten.map(renderChallengeCard).join('')}</div>
+        <p class="qb-foot">Finished earlier, but the reward was never claimed. It is still yours.</p>
+      </section>` : ''}
       <section id="qb-today" class="qb-section">
         ${qbSign('☀️', "TODAY'S QUESTS", `${dailiesDone} / ${dailies.length || 3}${todayEnds ? ` · <span class="wk-countdown" data-ends="${todayEnds}">Ends in ${formatWeekLeft(Date.parse(todayEnds) - Date.now())}</span>` : ''}`)}
         ${renderTodaysQuests()}
@@ -13170,6 +13176,12 @@ setInterval(() => {
 function getTodaysQuests(){
   return getMyChallenges().filter(a => a.type === 'personal_daily' && a.userId === STATE.activeUser && Date.parse(a.expiresAt) > Date.now())
     .sort((a, b) => a.id.localeCompare(b.id));
+}
+// finished quests whose time ran out before the reward was claimed: no section shows them, but the server still pays out
+function getForgottenRewards(){
+  return getMyChallenges().filter(a => challengeStatusOf(a) === 'complete' && Date.parse(a.expiresAt) <= Date.now()
+    && (a.userId === STATE.activeUser || getChallengeContributors(a).some(x => x.userId === STATE.activeUser)))
+    .sort((a, b) => Date.parse(b.expiresAt) - Date.parse(a.expiresAt));
 }
 function getTodaysSweep(){
   return APP_DATA.challenges.sweeps.find(x => x.userId === STATE.activeUser && x.periodKey === challengeToday()) || null;
