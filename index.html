@@ -3739,6 +3739,11 @@
     transition: transform .15s ease;
   }
   .poem-card:hover{ transform: translateY(-2px); }
+  .pw-fold-btn{ margin-left: auto; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #2b2320; background: #fff6dc; color: #2b2320; font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 2px 0 rgba(43,35,32,.5); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .pw-fold-btn:active{ transform: translateY(1px); box-shadow: 0 1px 0 rgba(43,35,32,.5); }
+  .section.pw-folded .pw-body{ display: none; }
+  .section.pw-folded .pw-toolbar{ display: none; }
+  .section.pw-folded .section-head{ margin-bottom: 0; }
   .gp-card{ cursor: default; }
   .gp-card:hover{ transform: none; }
   .gp-card.gp-winner{ box-shadow: 0 0 0 2px #e0a526, 3px 4px 0 rgba(43,35,32,.25); }
@@ -4726,9 +4731,30 @@
   .rm2-ward{ display: flex; flex-direction: column; }
   .rm2-ward .cornice{ height: 3.2cqw; margin: 0 -1cqw; background: linear-gradient(180deg, #7a4a22, #5e3a1d); border: .35cqw solid #2b2320; border-radius: .8cqw .8cqw .3cqw .3cqw; }
   .rm2-ward .body{ flex: 1; display: flex; gap: .4cqw; padding: .8cqw; background: #5e3a1d; border: .35cqw solid #2b2320; border-top: 0; position: relative; perspective: 90cqw; }
-  .rm2-ward .inside{ position: absolute; inset: .8cqw; background: linear-gradient(180deg, #2a1a0e, #3b2515); display: flex; align-items: flex-start; justify-content: center; gap: 1cqw; padding-top: 2.4cqw; }
-  .rm2-ward .inside::before{ content: ""; position: absolute; left: .6cqw; right: .6cqw; top: 1.6cqw; height: .4cqw; background: #c9a15e; }
-  .rm2-ward .inside i{ width: 3cqw; height: 11cqw; border-radius: .6cqw .6cqw 1cqw 1cqw; margin-top: .8cqw; background: var(--c); box-shadow: inset -.5cqw 0 rgba(0,0,0,.2); position: relative; }
+  .rm2-ward .inside{ position: absolute; inset: .8cqw; container-type: size; overflow: hidden; background: linear-gradient(90deg, rgba(0,0,0,.28), transparent 14%, transparent 86%, rgba(0,0,0,.28)), linear-gradient(180deg, #2a1a0e, #3b2515); }
+  .rm2-ward .inside .rail{ position: absolute; left: 3cqw; right: 3cqw; height: 2.2cqw; border-radius: 2cqw; background: linear-gradient(180deg, #f1d79a, #b98a3c); box-shadow: 0 .8cqw 0 rgba(0,0,0,.28); }
+  .rm2-ward .inside .hg{ position: absolute; left: 5cqw; right: 5cqw; display: flex; justify-content: space-around; align-items: flex-start; }
+  .rm2-ward .inside .hg.g1{ top: 4cqh; } .rm2-ward .inside .hg.g2{ top: 27cqh; }
+  .rm2-ward .inside u{ text-decoration: none; position: relative; display: block; padding-top: 3.6cqw; transform-origin: 50% 0; animation: rm2-sway 5s ease-in-out infinite; }
+  .rm2-ward .inside u:nth-child(2n){ animation-delay: -1.7s; } .rm2-ward .inside u:nth-child(3n){ animation-delay: -3.1s; }
+  @keyframes rm2-sway{ 0%, 100%{ transform: rotate(-1.6deg); } 50%{ transform: rotate(1.6deg); } }
+  .rm2-ward .inside u::before{ content: ""; position: absolute; left: 50%; top: 0; width: .8cqw; height: 3.6cqw; margin-left: -.4cqw; border-radius: .6cqw; background: #d9b86a; }
+  .rm2-ward .inside u i{ display: block; background: linear-gradient(100deg, rgba(255,255,255,.22), transparent 38%, rgba(0,0,0,.2)), var(--c); }
+  .rm2-ward .inside .tee{ width: min(27cqw, 11.5cqh); aspect-ratio: 1 / 1.05; clip-path: polygon(0 24%, 26% 0, 38% 0, 50% 13%, 62% 0, 74% 0, 100% 24%, 85% 43%, 76% 35%, 76% 100%, 24% 100%, 24% 35%, 15% 43%); }
+  .rm2-ward .inside .pants{ height: min(33cqh, 74cqw); aspect-ratio: .36 / 1; background: linear-gradient(180deg, rgba(0,0,0,.28) 0 7%, transparent 7%), repeating-linear-gradient(0deg, transparent 0 12cqw, rgba(255,255,255,.07) 12cqw 13cqw), linear-gradient(100deg, rgba(255,255,255,.2), transparent 40%, rgba(0,0,0,.22)), var(--c); clip-path: polygon(0 0, 100% 0, 100% 100%, 57% 100%, 50% 33%, 43% 100%, 0 100%); }
+  .rm2-ward .inside .jacket{ width: min(31cqw, 15cqh); aspect-ratio: 1 / .92; clip-path: polygon(0 22%, 24% 0, 38% 0, 50% 10%, 62% 0, 76% 0, 100% 22%, 100% 86%, 84% 86%, 80% 38%, 80% 100%, 20% 100%, 20% 38%, 16% 86%, 0 86%); }
+  .rm2-ward .inside .plank{ position: absolute; left: 3cqw; right: 3cqw; top: 66cqh; height: 3cqw; border-radius: .6cqw; background: linear-gradient(180deg, #e7c887, #b98a3c); box-shadow: 0 .8cqw 0 rgba(0,0,0,.3); }
+  .rm2-ward .inside .fold{ position: absolute; left: 6cqw; right: 6cqw; bottom: 34cqh; display: flex; justify-content: space-between; align-items: flex-end; }
+  .rm2-ward .inside .fold span{ display: flex; flex-direction: column-reverse; width: 38cqw; }
+  .rm2-ward .inside .fold s{ display: block; text-decoration: none; height: min(3.4cqh, 9cqw); margin-top: -.2cqw; border-radius: 1.2cqw; background: linear-gradient(180deg, rgba(255,255,255,.25), transparent 50%, rgba(0,0,0,.18)), var(--c); }
+  .rm2-ward .inside .fold s:nth-child(2n){ margin-left: 1.4cqw; margin-right: -1.4cqw; }
+  .rm2-ward .inside .shoes{ position: absolute; left: 4cqw; right: 4cqw; bottom: 3cqh; display: flex; justify-content: space-between; align-items: flex-end; }
+  .rm2-ward .inside .pr{ display: flex; align-items: flex-end; }
+  .rm2-ward .inside .pr s{ display: block; text-decoration: none; width: 19cqw; height: min(9.4cqh, 11cqw); clip-path: polygon(0 20%, 36% 20%, 52% 42%, 88% 54%, 100% 80%, 100% 100%, 0 100%); background: linear-gradient(180deg, rgba(255,255,255,.25), transparent 40%), linear-gradient(180deg, var(--c) 0 74%, #f4ecdb 74%); }
+  .rm2-ward .inside .pr s + s{ margin-left: -9cqw; filter: brightness(.8); transform: translateY(-9%); }
+  .rm2-ward .inside .pr.boot s{ height: min(14cqh, 19cqw); clip-path: polygon(0 0, 44% 0, 48% 38%, 88% 54%, 100% 80%, 100% 100%, 0 100%); background: linear-gradient(180deg, rgba(255,255,255,.2), transparent 40%), linear-gradient(180deg, var(--c) 0 82%, #2b2320 82%); }
+  .rm2-ward .inside .pr.loaf s{ height: min(8cqh, 11cqw); clip-path: polygon(0 28%, 30% 28%, 48% 44%, 90% 56%, 100% 80%, 100% 100%, 0 100%); background: linear-gradient(180deg, rgba(255,255,255,.3), transparent 45%), linear-gradient(180deg, var(--c) 0 80%, #2b2320 80%); }
+  @media (prefers-reduced-motion: reduce){ .rm2-ward .inside u{ animation: none; } }
   .rm2-ward .door{ flex: 1; position: relative; background: linear-gradient(135deg, #a8733f, #8a5a35); border: .3cqw solid #2b2320; border-radius: .5cqw; transition: transform .45s cubic-bezier(.3,1.4,.5,1); box-shadow: inset 0 0 0 .6cqw #b88650, inset 0 0 0 .8cqw rgba(0,0,0,.25); }
   .rm2-ward .door.l{ transform-origin: 0 50%; } .rm2-ward .door.r{ transform-origin: 100% 50%; }
   .rm2-ward .door::after{ content: ""; position: absolute; top: 48%; width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #d9a21b); border: .25cqw solid #2b2320; }
@@ -9912,7 +9938,6 @@ function renderRoomPage(data){
   const uid = viewedUser.id;
   const hasRoom = APP_DATA.roomProfiles.some(r => r.userId === uid);
   const f = (cls, key, tag, inner, onclick, z) => `<div class="rm2-f ${cls} ${onclick ? '' : 'still'}" style="${roomPos(key)}" ${onclick ? `onclick="${onclick}" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"` : ''} aria-label="${escapeHtml(tag)}">${inner}${tag && onclick ? `<span class="rm2-tag">${escapeHtml(tag)}</span>` : ''}</div>`;
-  const clothes = ['#ff8fb3', '#6fb8ff', '#ffc93c', '#4fd8a2'];
   const bookRows = ['#d9526a', '#4a7fd0', '#e8b030', '#4fa36a', '#9a52d0'].map((c, i) => `<div class="row">${[c, '#8a5a35', '#4a7fd0', '#d9526a', c].map((cc, j) => `<i style="--c:${cc};--bh:${(2.6 + ((i * 3 + j * 5) % 3) * .7).toFixed(1)}cqw"></i>`).join('')}</div>`).join('');
   const temp = getTemporaryTitles(uid).map(t => `${t.icon} ${t.label}`).join(' · ') + (getAvatarOverride(uid) ? ` ${getAvatarOverride(uid).icon} ${getAvatarOverride(uid).label.toUpperCase()}` : '');
   const petSpeciesCount = (APP_DATA.petSpecies || []).length;
@@ -9922,7 +9947,7 @@ function renderRoomPage(data){
       <div class="rm2"><div class="rm2-stage">
         <div class="rm2-wall"></div><div class="rm2-wain"></div><div class="rm2-floor"></div><div class="rm2-beam"></div>
         <div class="rm2-rug" style="${roomPos('rug')}"></div>
-        ${f('rm2-ward', 'wardrobe', 'Kleerkast', `<div class="cornice"></div><div class="body"><div class="inside">${clothes.map(c => `<i style="--c:${c}"></i>`).join('')}</div><div class="door l"></div><div class="door r"></div></div><div class="feet"><b></b><b></b></div>`, isOwnRoom ? `openRoomWardrobeModal('${uid}'${hasRoom ? '' : ", 'base'"})` : '')}
+        ${f('rm2-ward', 'wardrobe', 'Kleerkast', `<div class="cornice"></div><div class="body"><div class="inside"><span class="rail" style="top:4cqh"></span><span class="rail" style="top:27cqh"></span><div class="hg g1"><u><i class="tee" style="--c:#ff8fb3"></i></u><u><i class="tee" style="--c:#ffc93c"></i></u><u><i class="tee" style="--c:#5fb6e8"></i></u></div><div class="hg g2"><u><i class="pants" style="--c:#4a7fd0"></i></u><u><i class="jacket" style="--c:#4fa36a"></i></u><u><i class="pants" style="--c:#8a6f4a"></i></u></div><span class="plank"></span><div class="fold"><span><s style="--c:#d9526a"></s><s style="--c:#f3e3c3"></s><s style="--c:#9a52d0"></s><s style="--c:#e8b030"></s></span><span><s style="--c:#4fd8a2"></s><s style="--c:#6fb8ff"></s><s style="--c:#ff8fb3"></s></span></div><div class="shoes"><span class="pr"><s style="--c:#d9526a"></s><s style="--c:#d9526a"></s></span><span class="pr boot"><s style="--c:#8a5a35"></s><s style="--c:#8a5a35"></s></span><span class="pr loaf"><s style="--c:#4a7fd0"></s><s style="--c:#4a7fd0"></s></span></div></div><div class="door l"></div><div class="door r"></div></div><div class="feet"><b></b><b></b></div>`, isOwnRoom ? `openRoomWardrobeModal('${uid}'${hasRoom ? '' : ", 'base'"})` : '')}
         ${f('', 'window', '', `<div class="rm2-win"><span class="cloud">☁️</span><span class="curt l"></span><span class="curt r"></span></div>`, '')}
         ${f('', 'banner', 'Voortgang', `<div class="rm2-banner"><b>${escapeHtml(viewedUser.displayName)}</b><span>Level ${level.level} · ${escapeHtml(level.title)}</span>${temp ? `<div class="tb">${temp}</div>` : ''}<div class="bar"><i style="width:${level.progressPct}%"></i></div></div>`, `openRoomProgressModal('${uid}')`)}
         ${f('rm2-shelf', 'shelf', 'Trofeeën', `<div class="items"><span>🏆</span><span>🥇</span><span>🍺</span></div><div class="plank"></div>`, `openRoomTrophyModal('${uid}')`)}
@@ -19904,6 +19929,24 @@ function renderChallengeBoardSection(){
   `;
 }
 
+/* fold a Poetry Wall section: starts open on every visit, the fold is only remembered until the page is reloaded */
+const PW_FOLDED = new Set();
+function pwFolded(id){ return PW_FOLDED.has(id); }
+function togglePwSection(id){
+  if (PW_FOLDED.has(id)) PW_FOLDED.delete(id); else PW_FOLDED.add(id);
+  const sec = document.querySelector(`[data-pw-sec="${id}"]`);
+  if (sec){
+    const folded = PW_FOLDED.has(id);
+    sec.classList.toggle('pw-folded', folded);
+    const b = sec.querySelector('.pw-fold-btn');
+    if (b){ b.setAttribute('aria-expanded', String(!folded)); b.querySelector('i').textContent = folded ? '▸' : '▾'; }
+  }
+}
+function pwFoldBtn(id){
+  const f = pwFolded(id);
+  return `<button type="button" class="pw-fold-btn" aria-expanded="${!f}" onclick="togglePwSection('${id}')" title="Inklappen / openklappen"><i>${f ? '▸' : '▾'}</i></button>`;
+}
+
 /* ---- 🌟 Showdown poems (0096): poems written for the Daily Poetry Showdown, kept readable after the round ---- */
 const GROUP_POEMS = { list: [], loaded: false, busy: false, broken: false };
 async function loadGroupPoems(){
@@ -19925,13 +19968,14 @@ function renderShowdownPoemsSection(){
   const list = GROUP_POEMS.list;
   if (!list.length) return '';
   return `
-    <section class="section">
+    <section class="section ${pwFolded('showdown') ? 'pw-folded' : ''}" data-pw-sec="showdown">
       <div class="section-head">
         <h3>🌟 Showdown Poems</h3>
         <span class="count-chip">${list.length}</span>
+        ${pwFoldBtn('showdown')}
       </div>
-      <p class="gp-lede">Written for the Daily Poetry Showdown quest. They stay here to be read.</p>
-      <div class="grid cols-auto">${list.map(e => {
+      <p class="gp-lede pw-body">Written for the Daily Poetry Showdown quest. They stay here to be read.</p>
+      <div class="grid cols-auto pw-body">${list.map(e => {
         const u = findUser(e.user_id);
         return `
         <div class="sticker-card poem-card gp-card ${e.winner ? 'gp-winner' : ''}">
@@ -20013,16 +20057,17 @@ function renderPoetryWallPage(data){
   `;
 
   const wallSection = `
-    <section class="section">
+    <section class="section ${pwFolded('wall') ? 'pw-folded' : ''}" data-pw-sec="wall">
       <div class="section-head">
         <h3>✒️ The Wall</h3>
         <span class="count-chip">${data.poems.length}</span>
+        ${pwFoldBtn('wall')}
       </div>
-      <div class="people-toolbar" style="margin-bottom:16px;">
+      <div class="people-toolbar pw-toolbar" style="margin-bottom:16px;">
         <button type="button" class="btn btn-primary" onclick="openPoemForm('add')">+ Write a Poem</button>
         ${(data.poemBackgrounds || []).length ? `<button type="button" class="btn btn-secondary" onclick="openPoemBackgroundsOverviewModal()">🎨 Backgrounds (${data.poemBackgrounds.filter(b => poemBgOwned(b.id)).length}/${data.poemBackgrounds.length})</button>` : ''}
       </div>
-      ${sortedPoems.length ? `<div class="grid cols-auto">${sortedPoems.map(p => renderPoemCard(p)).join('')}</div>` : emptyState('Nog geen gedichten op de Wall. Wees de eerste.')}
+      <div class="pw-body">${sortedPoems.length ? `<div class="grid cols-auto">${sortedPoems.map(p => renderPoemCard(p)).join('')}</div>` : emptyState('Nog geen gedichten op de Wall. Wees de eerste.')}</div>
     </section>
   `;
 
