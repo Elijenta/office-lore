@@ -3739,6 +3739,11 @@
     transition: transform .15s ease;
   }
   .poem-card:hover{ transform: translateY(-2px); }
+  .gp-card{ cursor: default; }
+  .gp-card:hover{ transform: none; }
+  .gp-card.gp-winner{ box-shadow: 0 0 0 2px #e0a526, 3px 4px 0 rgba(43,35,32,.25); }
+  .gp-prompt{ font-family: 'Lora', serif; font-style: italic; font-size: 13px; color: #6b5a4c; margin-bottom: 8px; }
+  .gp-lede{ margin: -4px 0 12px; font-size: 13px; opacity: .8; }
   .poem-card::before{
     content: '🖋️';
     position: absolute;
@@ -19899,6 +19904,56 @@ function renderChallengeBoardSection(){
   `;
 }
 
+/* ---- 🌟 Showdown poems (0096): poems written for the Daily Poetry Showdown, kept readable after the round ---- */
+const GROUP_POEMS = { list: [], loaded: false, busy: false, broken: false };
+async function loadGroupPoems(){
+  if (GROUP_POEMS.busy || GROUP_POEMS.broken || !STATE.activeUser) return;
+  GROUP_POEMS.busy = true;
+  try {
+    const { data, error } = await sb.rpc('get_group_poems');
+    if (error){ console.error('get_group_poems failed (migration 0096 not run yet?):', error); GROUP_POEMS.broken = true; }
+    else { GROUP_POEMS.list = data || []; GROUP_POEMS.loaded = true; }
+  } finally { GROUP_POEMS.busy = false; }
+  if (STATE.activePage === 'poetrywall' && POETRY_STATE.view === 'wall') renderPage();
+}
+function renderShowdownPoemsSection(){
+  if (GROUP_POEMS.broken) return '';
+  if (!GROUP_POEMS.loaded){
+    if (!GROUP_POEMS.busy) setTimeout(loadGroupPoems, 0);
+    return '';
+  }
+  const list = GROUP_POEMS.list;
+  if (!list.length) return '';
+  return `
+    <section class="section">
+      <div class="section-head">
+        <h3>🌟 Showdown Poems</h3>
+        <span class="count-chip">${list.length}</span>
+      </div>
+      <p class="gp-lede">Written for the Daily Poetry Showdown quest. They stay here to be read.</p>
+      <div class="grid cols-auto">${list.map(e => {
+        const u = findUser(e.user_id);
+        return `
+        <div class="sticker-card poem-card gp-card ${e.winner ? 'gp-winner' : ''}">
+          <div class="poem-card-top">
+            <span class="badge lilac">🌟 Poetry Showdown</span>
+            ${e.winner ? '<span class="badge yellow">👑 Winner</span>' : ''}
+          </div>
+          <div class="gp-prompt">“${escapeHtml(e.prompt || '')}”</div>
+          <div class="poem-body">${escapeHtml(e.text || '')}</div>
+          <div class="nickname-person" style="margin-top:10px;">
+            ${u ? avatarHtml(u, 22) : ''}
+            <span>${u ? escapeHtml(u.displayName) : 'onbekend'}</span>
+          </div>
+          <div class="nickname-meta-row">
+            <span class="stat-chip">📅 ${escapeHtml(e.day_key || '')}</span>
+            ${e.votes ? `<span class="stat-chip">🗳️ ${e.votes}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('')}</div>
+    </section>`;
+}
+
 function renderPoetryWallPage(data){
   const potm = getPoemOfTheMonth();
   const laureateId = POET_LAUREATE_STATE.currentLaureateId;
@@ -19971,7 +20026,7 @@ function renderPoetryWallPage(data){
     </section>
   `;
 
-  return challengeCardSection + dailyChallengeSection + wallSection + challengeBoardSection + potmSection + laureateSection + leaderboardSection;
+  return challengeCardSection + dailyChallengeSection + wallSection + renderShowdownPoemsSection() + challengeBoardSection + potmSection + laureateSection + leaderboardSection;
 }
 
 /* ---- Poem backgrounds (0087): a poem's author picks one of the looks they earned. Everybody sees it. ---- */
