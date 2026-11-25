@@ -4784,7 +4784,7 @@
   .rm2-char svg{ width: 100%; height: auto; filter: drop-shadow(0 1cqw .6cqw rgba(60,30,10,.35)); animation: rm2-idle 4.5s ease-in-out infinite; transform-origin: 50% 100%; }
   @keyframes rm2-idle{ 0%, 100%{ transform: scale(1, 1); } 50%{ transform: scale(1.012, .99); } }
   .rm2-bowl{ display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
-  .rm2-bowl .pet{ width: 11cqw; margin-bottom: -2.6cqw; z-index: 2; filter: drop-shadow(0 .8cqw .4cqw rgba(60,30,10,.3)); }
+  .rm2-bowl .pet{ width: calc(12cqw * var(--ps, 1)); margin-bottom: -2.6cqw; z-index: 2; filter: drop-shadow(0 .8cqw .4cqw rgba(60,30,10,.3)); }
   .rm2-bowl .bowl{ width: 11cqw; height: 5cqw; border-radius: 0 0 50% 50% / 0 0 100% 100%; background: linear-gradient(180deg, #e0576a, #b03045); border: .35cqw solid #2b2320; position: relative; box-shadow: 0 .5cqw 0 rgba(0,0,0,.3); }
   .rm2-bowl .bowl::before{ content: ""; position: absolute; left: -.35cqw; right: -.35cqw; top: -1.1cqw; height: 2cqw; border-radius: 50%; background: #7a1e2c; border: .35cqw solid #2b2320; }
   .rm2-bowl .bowl::after{ content: "🐾"; position: absolute; left: 50%; top: .5cqw; transform: translateX(-50%); font-size: 1.9cqw; opacity: .8; }
@@ -4804,7 +4804,7 @@
     .rm2-banner b{ font-size: 5.6cqw; } .rm2-banner span{ font-size: 3cqw; } .rm2-banner .tb{ font-size: 2.4cqw; } .rm2-banner{ padding: 2cqw 1.6cqw 5cqw; } .rm2-banner .bar{ height: 1.6cqw; margin: 1cqw 6cqw 0; }
     .rm2-shelf .items{ font-size: 7cqw; } .rm2-door{ font-size: 3.6cqw; } .rm2-door span{ font-size: 7cqw; } .rm2-door small{ font-size: 2.2cqw; }
     .rm2-bowl .hint{ font-size: 2.4cqw; } .rm2-ghost{ font-size: 3.2cqw; } .rm2-ghost b{ font-size: 6cqw; }
-    .rm2-bowl .pet{ width: 24cqw; margin-bottom: -5cqw; } .rm2-bowl .bowl{ width: 22cqw; height: 10cqw; } .rm2-bowl .bowl::before{ height: 4cqw; top: -2.2cqw; } .rm2-bowl .bowl::after{ font-size: 4cqw; }
+    .rm2-bowl .pet{ width: calc(24cqw * (1 + (var(--ps, 1) - 1) * .6)); margin-bottom: -5cqw; } .rm2-bowl .bowl{ width: 22cqw; height: 10cqw; } .rm2-bowl .bowl::before{ height: 4cqw; top: -2.2cqw; } .rm2-bowl .bowl::after{ font-size: 4cqw; }
   }
   @media (prefers-reduced-motion: reduce){ .rm2-char svg, .rm2-win .cloud{ animation: none; } }
   /* the desk: sized by its own width (100cqw = the desk), so the same art works in the room and in the picker */
@@ -4924,7 +4924,7 @@
     @keyframes hm-idle{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,.99)}}
     .hm-crown{position:absolute;left:50%;top:-4.5cqw;transform:translateX(-50%);font-size:4.2cqw;filter:drop-shadow(0 .4cqw 0 rgba(0,0,0,.3));animation:hm-crown 3s ease-in-out infinite}
     @keyframes hm-crown{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-.6cqw)}}
-    .hm-pet{position:absolute;right:-30%;bottom:-6%;width:46%;z-index:3}
+    .hm-pet{position:absolute;right:calc(-30% - (var(--ps, 1) - 1) * 7%);bottom:-6%;width:calc(46% * (1 + (var(--ps, 1) - 1) * .6));z-index:3}
     .hm-say{position:absolute;left:50%;bottom:118%;transform:translateX(-30%);white-space:nowrap;background:#fff;border:.35cqw solid #2b2320;border-radius:1.6cqw;padding:.5cqw 1.4cqw;font:600 1.6cqw Fredoka;color:#2b2320;opacity:0;animation:hm-say 14s ease-in-out infinite;animation-delay:var(--sd,0s);z-index:8}
     .hm-say:after{content:"";position:absolute;left:24%;bottom:-1cqw;width:1.2cqw;height:1.2cqw;background:#fff;border-right:.35cqw solid #2b2320;border-bottom:.35cqw solid #2b2320;transform:rotate(45deg)}
     @keyframes hm-say{0%,6%{opacity:0;transform:translateX(-30%) translateY(1cqw) scale(.8)}9%,22%{opacity:1;transform:translateX(-30%) translateY(0) scale(1)}26%,100%{opacity:0;transform:translateX(-30%) translateY(-1cqw) scale(.9)}}
@@ -10033,7 +10033,7 @@ function renderRoomPage(data){
         ${f('rm2-door', 'door', '', `<div><span>🏠</span>Huisje<small>binnenkort</small></div>`, '')}
         ${f('rm2-char', 'char', '', renderPersonalCharacterSvg({ ...room.loadout, bodyType: room.bodyType }, { size: 340 }), '')}
         ${f('rm2-desk', 'desk', 'Bureau', deskArtHtml(getRoomFurnitureId(uid, 'desk'), viewedUser.displayName, title ? '「' + escapeHtml(title.text) + '」' : '— geen titel —'), isOwnRoom ? 'openRoomDeskModal()' : '')}
-        ${f('rm2-bowl ' + (pet ? '' : 'empty'), 'bowl', pet ? pet.name : 'Companion', `${pet ? `<img class="pet" src="${pet.img}" alt="" draggable="false">` : ''}<div class="bowl"></div>${pet ? '' : '<div class="hint">leeg voerbakje</div>'}`, (isOwnRoom && petSpeciesCount) ? `openRoomCompanionModal('${uid}')` : '')}
+        ${f('rm2-bowl ' + (pet ? '' : 'empty'), 'bowl', pet ? pet.name : 'Companion', `${pet ? `<img class="pet" style="--ps:${petScale(pet.species)}" src="${pet.img}" alt="" draggable="false">` : ''}<div class="bowl"></div>${pet ? '' : '<div class="hint">leeg voerbakje</div>'}`, (isOwnRoom && petSpeciesCount) ? `openRoomCompanionModal('${uid}')` : '')}
         ${f('rm2-chest', 'chest', 'Inventory', '<div class="lid"></div><div class="box"></div>', `openRoomInventoryModal('${uid}')`)}
         ${f('rm2-ghost', 'ghost', '', '<div><b>＋</b>plek vrij</div>', '')}
         <div class="rm2-vig"></div>
@@ -10083,6 +10083,9 @@ function getUserPet(userId){
   const look = (APP_DATA.petOutfits || []).find(x => x.id === key);
   return { species: l.pet, name: sp ? sp.name : l.pet, look: key, lookName: look ? look.name : 'Classic', img: PET_IMAGES[key] };
 }
+/* a cat is small, a Highland cow is not: every species has its own size next to the player (1 = the cat) */
+const PET_SCALE = { kat: 1, golden: 1.3, dobermann: 1.4, koe: 1.7 };
+function petScale(species){ return PET_SCALE[species] || 1; }
 function renderPetImg(userId, cls){
   const pet = getUserPet(userId);
   return pet ? `<img class="${cls}" src="${pet.img}" alt="${escapeHtml(pet.name)}" title="${escapeHtml(pet.name)} · ${escapeHtml(pet.lookName)}" draggable="false">` : '';
@@ -13759,7 +13762,7 @@ function renderHomeScene(){
           ${u.id === lordId ? '<span class="hm-crown">👑</span>' : ''}
           <span class="hm-say" data-uid="${u.id}" style="--sd:-${(i * 3.3 + 1).toFixed(1)}s">${escapeHtml(pickHomeSaying(u.id))}</span>
           ${renderPersonalCharacterSvg({ ...room.loadout, bodyType: room.bodyType }, { size: 260 })}
-          ${pet ? `<img class="hm-pet" src="${pet.img}" alt="" draggable="false">` : ''}
+          ${pet ? `<img class="hm-pet" style="--ps:${petScale(pet.species)}" src="${pet.img}" alt="" draggable="false">` : ''}
         </div>`,
       tent: `<div class="hm-tent ${rk && rk <= 3 ? 'r' + rk : ''}" style="left:${cx}cqw;top:57.4cqw">${Array.isArray(doneToday) && doneToday.includes(u.id) ? '<span class="ok" title="Daily Sweep klaar">✅</span>' : ''}<b>${rk ? ['🥇', '🥈', '🥉'][rk - 1] + ' ' : ''}${escapeHtml(u.displayName)}<em class="lv">Lv ${lvl.level}</em></b><small>${title ? '「' + escapeHtml(title.text) + '」' : escapeHtml(lvl.title)}</small></div>`,
       drink: `<span class="hm-plate sip" style="left:${(N === 1 ? 17 : 6 + i * (22 / (N - 1))) - 1.6}cqw;--bd:-${(i * 2.1).toFixed(1)}s">${rk === 1 ? '🥂' : drinks[i % drinks.length]}</span>`,
