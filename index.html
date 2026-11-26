@@ -14235,7 +14235,7 @@ function homeSceneToasts(t, leaderId){
   } catch (e) { /* private browsing etc. */ }
 }
 /* ---------- 🎄 KERSTMARKT: the home scene during the Christmas weeks, growing with everybody's kerstballen ---------- */
-const XMAS = { start: '2026-11-26', countFrom: '2026-12-01', end: '2027-01-16', steps: [0, 20, 50, 90, 140, 200, 270, 350, 440, 540], dailyGames: 3, data: null, busy: false, broken: false };
+const XMAS = { start: '2026-11-26', countFrom: '2026-11-26', end: '2027-01-16', steps: [0, 20, 50, 90, 140, 200, 270, 350, 440, 540], dailyGames: 3, data: null, busy: false, broken: false };
 const XMAS_UNLOCKS = [
   'Het chocolademelkkraampje, de eerste twee kerstbomen en sneeuw op het kasteel',
   'Het wafelkraampje, een derde kerstboom, lantaarns, een lichtsnoer en lichtjes langs het dak',
@@ -15319,7 +15319,7 @@ function openXmasTree(uid){
         ${own ? '<div class="xt-opts" id="xt-opts"></div>' : ''}
       </div>
       ${own ? `<div class="modal-actions xt-save"><button type="button" class="btn btn-primary" onclick="xtSave()">Bewaar mijn boom</button></div>
-        <p class="ch-note xt-msg" id="xt-msg">${xmasSeason() ? 'De eerste keer bewaren levert 5 kerstballen op. Daarna mag je blijven aanpassen.' : 'Je kunt al oefenen. De 5 kerstballen verdien je door je boom vanaf 1 december te bewaren.'}</p>` : ''}
+        <p class="ch-note xt-msg" id="xt-msg">${xmasSeason() ? 'De eerste keer bewaren levert 5 kerstballen op. Daarna mag je blijven aanpassen.' : 'Buiten de kerstperiode kun je oefenen, zonder kerstballen.'}</p>` : ''}
       <h4 class="room-outfit-sets-title">Om ter mooiste</h4>
       <div class="xt-contest" id="xt-contest"></div>
       <p class="ch-note xt-msg" id="xt-vote-msg"></p>
@@ -15379,7 +15379,7 @@ function xtContest(){
     return `<div class="${xtWinner(u.id) ? 'win' : ''}"><span class="mini" onclick="openXmasTree('${u.id}')">${xtSvg(saved)}</span><b>${xtWinner(u.id) ? '🏆 ' : ''}${escapeHtml(u.displayName)}</b><em>⭐ ${xtStars(u.id)}</em>${action}</div>`;
   }).join('');
   const msg = document.getElementById('xt-vote-msg');
-  if (msg) msg.textContent = voting ? 'Je hebt 1 ster. Die mag je tot en met 24 december verplaatsen.' : today < XMAS.countFrom ? 'Sterren geven kan van 1 tot en met 24 december.' : 'Het stemmen is afgelopen.';
+  if (msg) msg.textContent = voting ? 'Je hebt 1 ster. Die mag je tot en met 24 december verplaatsen.' : today < XMAS.countFrom ? 'Sterren geven kan tot en met 24 december.' : 'Het stemmen is afgelopen.';
 }
 async function xtVote(uid){
   const { data, error } = await sb.rpc('vote_xmas_tree', { p_user: uid });
@@ -15518,7 +15518,7 @@ function xmQuestCard(){
   return `<section class="xq-card">
     ${xmArt(XMAS_STALL_IMAGES, 'choco', 'xq-stall')}
     <div class="xq-text"><h4>Kerstquests</h4>
-      <p>${xmasSeason() ? `Vandaag kerstballen verzameld bij <b>${used} van ${XMAS.dailyGames}</b> spellen.` : 'Vanaf 1 december verdien je hier kerstballen voor de markt.'}</p>
+      <p>${xmasSeason() ? `Vandaag kerstballen verzameld bij <b>${used} van ${XMAS.dailyGames}</b> spellen.` : 'Buiten de kerstperiode verdien je geen kerstballen.'}</p>
       <div class="xq-dots">${Array.from({ length: XMAS.dailyGames }, (_, i) => `<i class="${i < used ? 'on' : ''}"></i>`).join('')}</div>
       <p class="lv">Kerstmarkt level <b>${info.level}</b>${info.next ? ` · nog ${info.next - info.total} 🎁 tot level ${info.level + 1}` : ' · volledig!'}</p>
       <span class="xm-bar big"><i style="width:${info.pct}%"></i></span>
@@ -15570,7 +15570,7 @@ function xmasCollected(game){
 function xmasGamesToday(){ const d = XMAS.data; return d && d.day === xmasToday() && d.mine ? Object.keys(d.mine).length : 0; }
 const XM_LIMIT_TEXT = () => `Je hebt vandaag al bij ${XMAS.dailyGames} spellen kerstballen verzameld.`;
 function xmasGameNote(game){
-  if (!xmasSeason()) return `Proefronde: vanaf 1 december tellen je kerstballen mee, bij maximaal ${XMAS.dailyGames} spellen per dag.`;
+  if (!xmasSeason()) return 'Proefronde: buiten de kerstperiode tellen kerstballen niet mee.';
   const n = xmasCollected(game), used = xmasGamesToday();
   if (n) return `✓ Vandaag al ${n} 🎁 verzameld met dit spel. Speel gerust verder voor de lol.`;
   if (used >= XMAS.dailyGames) return XM_LIMIT_TEXT() + ' Dit spel is vandaag voor de lol.';
@@ -15582,7 +15582,7 @@ const XMAS_COUNT = n => `${n} kerstbal${n === 1 ? '' : 'len'}`;
 async function xmasCollect(game, score, balls, targetId){
   const say = html => { const el = document.getElementById(targetId); if (el) el.innerHTML = html; xmasRefreshNotes(); };
   if (!balls) return;
-  if (!xmasSeason()) return say(`🎁 Goed voor ${XMAS_COUNT(balls)} (telt vanaf 1 december)`);
+  if (!xmasSeason()) return say(`🎁 Goed voor ${XMAS_COUNT(balls)} (buiten de kerstperiode telt dit niet mee)`);
   if (xmasCollected(game)) return say('Vandaag al verzameld: deze ronde was voor de lol.');
   if (xmasGamesToday() >= XMAS.dailyGames) return say(XM_LIMIT_TEXT() + ' Deze ronde was voor de lol.');
   say('Kerstballen ophangen…');
@@ -15594,7 +15594,7 @@ async function xmasCollect(game, score, balls, targetId){
   XMAS.broken = false;
   await loadXmas();
   if (data && data.ok) return say(`🎁 <b>+${XMAS_COUNT(data.amount)}</b> voor de kerstmarkt!`);
-  say(data && data.reason === 'already' ? 'Vandaag al verzameld: deze ronde was voor de lol.' : data && data.reason === 'limit' ? XM_LIMIT_TEXT() + ' Deze ronde was voor de lol.' : 'Deze ronde telt niet mee.');
+  say(data && data.reason === 'already' ? 'Vandaag al verzameld: deze ronde was voor de lol.' : data && data.reason === 'limit' ? XM_LIMIT_TEXT() + ' Deze ronde was voor de lol.' : data && data.reason === 'closed' ? 'De databank staat nog niet open voor vandaag (draai 0098 opnieuw).' : 'Deze ronde telt niet mee.');
 }
 
 function renderXmasWorld(ctx){
