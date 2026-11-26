@@ -34,7 +34,8 @@ select * from (values
   (95, 'comma beer ratings',      exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'beer_ratings' and column_name = 'rating' and data_type = 'numeric')),
   (96, 'showdown poems',          to_regprocedure('public.get_group_poems(integer)') is not null),
   (97, 'kerstmarkt',              to_regclass('public.xmas_baubles') is not null),
-  (98, 'kerstspelletjes en boom',  to_regprocedure('public.save_xmas_room(jsonb)') is not null)
+  (98, 'kerstspelletjes en boom',  to_regprocedure('public.save_xmas_room(jsonb)') is not null),
+  (99, 'kerstgedicht, winterbier', to_regprocedure('public.get_xmas_extras()') is not null)
 ) as t(migration, wat, toegepast) order by migration;
 -- (de outfit-sets 67 t/m 74 zie je met:  select id, name from public.character_outfit_sets order by sort_order;
 --  verwacht: be1, be2, lk1, bt1, ch1, cp1, pt1, qz1, rb1, lg1, lg2)
