@@ -3,6 +3,7 @@ into index.html as WebP data URIs:
   bg-characters.png -> const XMAS_PEOPLE_IMAGES (market visitors)
   bg-marktjes.png   -> const XMAS_STALL_IMAGES  (market stalls, by name: see STALL_ORDER)
   bg-kerstbomen.png -> const XMAS_TREE_IMAGES   (Christmas trees, by name: see TREE_ORDER)
+  bg-kerstman.png, bg-sneeuwman.png -> const XMAS_EXTRA_IMAGES (one drawing per sheet)
 Re-run after changing a sheet:  python3 build_xmas_images.py
 - a sheet needs a transparent background; every figure that does not touch another one is cut out
 - reading order: row by row, left to right"""
@@ -70,4 +71,13 @@ def embed_named(marker, const, sheet, order, width=None, height=None):
 
 embed_named('XMAS_STALLS', 'XMAS_STALL_IMAGES', 'bg-marktjes.png', STALL_ORDER, width=380)
 embed_named('XMAS_TREES', 'XMAS_TREE_IMAGES', 'bg-kerstbomen.png', TREE_ORDER, height=440)
+
+extras = []
+for key, sheet, width in [('santa', 'bg-kerstman.png', 560), ('snowman', 'bg-sneeuwman.png', 220)]:
+    figs = cut_sheet(sheet)
+    assert len(figs) == 1, f'{sheet}: expected 1 drawing, found {len(figs)}'
+    fig = figs[0].resize((width, round(figs[0].height * width / figs[0].width)), Image.LANCZOS)
+    extras.append(f"  {key}: {{ r: {fig.height / fig.width:.3f}, src: '{encode(fig)}' }}")
+put('XMAS_EXTRAS', 'const XMAS_EXTRA_IMAGES = {\n' + ',\n'.join(extras) + '\n};')
+print('embedded', len(extras), 'extras,', sum(map(len, extras)) // 1024, 'KB')
 print('embedded', len(people), 'visitors,', sum(map(len, people)) // 1024, 'KB')
