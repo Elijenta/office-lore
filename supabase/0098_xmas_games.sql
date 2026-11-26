@@ -5,7 +5,7 @@
 --   * maximaal 1 keer per dag per spel, en
 --   * bij maximaal 3 verschillende spellen per dag (Brusselse tijd).
 -- De server rekent zelf uit hoeveel een ronde waard is en weigert buiten
--- de kerstperiode (1 december 2026 t/m 6 januari 2027).
+-- de kerstperiode (1 december 2026 t/m 15 januari 2027).
 --   snowball : 8 punten = 1, 14 = 2, 20 = 3
 --   beer     : aantal glazen van 95% of beter in een ronde (max 3)
 --   order    : aantal juiste bestellingen in een ronde (max 3)
@@ -51,7 +51,7 @@ declare
   v_games int;
 begin
   if v_user is null or not public.is_app_member('officelore') then raise exception 'Access denied'; end if;
-  if v_day < date '2026-12-01' or v_day >= date '2027-01-07' then
+  if v_day < date '2026-12-01' or v_day >= date '2027-01-16' then
     return jsonb_build_object('ok', false, 'reason', 'closed');
   end if;
 
@@ -92,7 +92,7 @@ begin
   if p_config is null or jsonb_typeof(p_config) <> 'object' or octet_length(p_config::text) > 1000 then raise exception 'Invalid tree'; end if;
   insert into public.xmas_trees (user_id, config) values (v_user, p_config)
     on conflict (user_id) do update set config = excluded.config, updated_at = now();
-  if v_day >= date '2026-12-01' and v_day < date '2027-01-07' then
+  if v_day >= date '2026-12-01' and v_day < date '2027-01-16' then
     insert into public.xmas_baubles (user_id, amount, source, ref) values (v_user, 5, 'tree', 'first')
       on conflict (user_id, source, ref) do nothing;
     get diagnostics v_rows = row_count;

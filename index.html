@@ -4959,7 +4959,7 @@
     .hm-arrow{position:absolute;left:-1cqw;width:16cqw;padding:.6cqw 2cqw .6cqw 1cqw;background:linear-gradient(180deg,#d9a46a,#b87d44);border:.35cqw solid #2b2320;clip-path:polygon(0 0,86% 0,100% 50%,86% 100%,0 100%);font:400 1.6cqw Chewy;color:#3a2713;cursor:pointer;z-index:6;white-space:nowrap}
     .hm-arrow small{display:block;font:600 1.05cqw Fredoka}
     .hm-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 60%,rgba(40,20,10,.3));z-index:10}
-    /* ---------- 🎄 Kerstmarkt (home, Dec 1 - Jan 6) ---------- */
+    /* ---------- 🎄 Kerstmarkt (home, Nov 26 - Jan 15) ---------- */
     .hm.xmas .hm-stage{--sky1:#10183a;--sky2:#2c3f7a;isolation:isolate}
     .xm-ground{position:absolute;left:0;right:0;top:43.5cqw;bottom:0;background:radial-gradient(ellipse at 50% 0,rgba(255,224,150,.28),transparent 60%),linear-gradient(180deg,#e6eefa,#c4d3ea);z-index:1;border-top:.5cqw solid #b8c8e2}
     .xm-ground:after{content:"";position:absolute;left:18%;right:18%;top:22%;bottom:6%;border-radius:50%;background:rgba(255,255,255,.35)}
@@ -5092,6 +5092,41 @@
     .xl-preview{position:sticky;top:-16px;z-index:40;background:var(--card);padding:6px 0 10px;pointer-events:none}.xl-preview .rm2{margin:0 auto}
     .xt-row button.all{border-style:dashed}
     @media (max-width:640px){.xl-preview .rm2{width:200px}}
+    /* garland + snow, shared by the Quest Board and the Taproom */
+    .xg-garland{display:flex;justify-content:center;pointer-events:none;position:relative;z-index:4}.xg-garland svg{flex:1 1 0;min-width:0;height:auto;overflow:visible;filter:drop-shadow(0 3px 2px rgba(0,0,0,.35))}
+    .xg-bulb{animation:xt-twinkle 2.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(255,230,140,.9))}
+    .xg-snow{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:6;border-radius:inherit}.xg-snow i{position:absolute;top:-8px;width:var(--s);height:var(--s);border-radius:50%;background:#fff;opacity:.75;animation:xg-fall var(--d) linear infinite;animation-delay:var(--dl)}
+    @keyframes xg-fall{0%{top:-1%;transform:translateX(0)}100%{top:101%;transform:translateX(var(--w))}}
+    /* ---- Quest Board in December ---- */
+    .qb.xmas{border-color:#0d2418;background:repeating-linear-gradient(92deg,rgba(0,0,0,.09) 0 2px,transparent 2px 11px),repeating-linear-gradient(88deg,rgba(255,255,255,.04) 0 1px,transparent 1px 7px),linear-gradient(180deg,#2a6143,#1c4a32 55%,#143524)}
+    .qb.xmas .xg-garland.top{margin:-12px -6px 2px}
+    .qb.xmas .qb-banner{position:relative;background:linear-gradient(180deg,#a8232f,#6e121d);border:3px solid #2b2320;box-shadow:0 4px 0 rgba(0,0,0,.35),inset 0 0 0 3px #ffd36e}
+    .qb.xmas .xq-tree{height:46px;width:auto;margin:-6px 0 -6px 0}@media (max-width:640px){.qb.xmas .xq-tree{display:none}.xq-card{gap:10px;padding:12px}.xq-stall{width:24%}}
+    .qb.xmas .qb-nav{background:rgba(94,16,26,.95)}.qb.xmas .qb-chip{border-color:#ffd36e}
+    .qb.xmas .qb-sign{background:linear-gradient(180deg,#b3262e,#82161f);border-color:#2b2320;margin-top:8px}.qb.xmas .qb-sign:before{content:"";position:absolute;left:-4px;right:-4px;top:-9px;height:14px;background:radial-gradient(circle at 9px 0,#fff 9px,transparent 9.5px) 0 0/18px 100% repeat-x,linear-gradient(#fff,#fff) 0 0/100% 6px no-repeat;filter:drop-shadow(0 2px 0 rgba(120,150,200,.55));pointer-events:none}
+    .qb.xmas .qb-sign .nail{background:radial-gradient(circle at 35% 30%,#fff3b0,#c99211)}
+    .qb.xmas .qc,.qb.xmas .gd-card,.qb.xmas .wk-card,.qb.xmas .cf-card,.qb.xmas .sweep{border-color:#b3262e;box-shadow:0 0 0 2px #ffd36e,0 5px 0 rgba(0,0,0,.35),0 10px 16px rgba(0,0,0,.28);background:radial-gradient(circle at 8px 0,#fff 7px,transparent 7.5px) 0 0/16px 11px repeat-x,linear-gradient(135deg,#fff8e4,#f3e2bb)}
+    .qb.xmas .pin,.qb.xmas .gd-card::before,.qb.xmas .wk-card::before{top:-11px;width:22px;height:22px;margin-left:-11px;border:2px solid #2b2320;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#ff6b6b 22%,#b3161e 75%)}
+    .qb.xmas .qc:nth-child(3n+2) .pin,.qb.xmas .wk-card:nth-child(3n+2)::before{background:radial-gradient(circle at 35% 30%,#fff 0 12%,#ffe07a 22%,#c58a0e 75%)}
+    .qb.xmas .qc:nth-child(3n) .pin,.qb.xmas .wk-card:nth-child(3n)::before{background:radial-gradient(circle at 35% 30%,#fff 0 12%,#7cc0ff 22%,#1d5fa8 75%)}
+    .qb.xmas .qb-foot{color:#f4f8ff}
+    .xq-card{position:relative;display:flex;gap:14px;align-items:center;margin:0 0 14px;padding:14px;border:3px solid #2b2320;border-radius:16px;box-shadow:inset 0 0 0 3px #ffd36e,0 5px 0 rgba(0,0,0,.3);background:linear-gradient(180deg,#17224c,#2c3f7a);color:#fff3d6}
+    .xq-stall{width:min(28%,170px);height:auto;flex:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.4))}.xq-text{flex:1;min-width:0}.xq-text h4{margin:0 0 4px;font:400 24px Chewy,cursive;color:#ffe9a8}.xq-text p{margin:0 0 6px;color:#fff3d6;font-size:14px}.xq-text p.lv{margin-top:8px;font-size:13px}
+    .xq-dots{display:flex;gap:7px}.xq-dots i{width:20px;height:20px;border-radius:50%;border:2px solid #2b2320;background:rgba(255,255,255,.25)}.xq-dots i.on{background:radial-gradient(circle at 35% 30%,#fff 0 12%,#ff6b6b 22%,#b3161e 75%)}
+    .xq-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.xq-btns button{cursor:pointer;font:400 16px Chewy,cursive;padding:7px 16px;border:3px solid #2b2320;border-radius:99px;background:linear-gradient(180deg,#ffe58a,#f0b429);color:#3a2713;box-shadow:0 3px 0 rgba(0,0,0,.35)}.xq-btns button:hover{transform:translateY(-1px)}
+    .xq-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:1%;margin:6px -10px -22px;padding:20px 12px 8px;border-radius:0 0 13px 13px;background:linear-gradient(180deg,transparent 55%,#dbe7f8 55.5%,#fff)}.xq-footer img{height:auto;min-width:0;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}.xq-footer .s{width:22%}.xq-footer .t1{width:11%}.xq-footer .t2{width:12%}.xq-footer .t3{width:13%}
+    /* ---- Taproom in December ---- */
+    .tpc.xmas .xg-garland.top{margin:-3cqw -3cqw 2cqw}.tpc.xmas .xg-garland.mid{margin:-3.4cqw -1cqw -3.4cqw;z-index:6}.tpc.xmas .xg-garland.floor{grid-column:1/-1;margin:-6.5cqw -3cqw -3cqw}
+    .tpc.xmas .tpc-sign{margin-bottom:3.5cqw}.tpc.xmas .tpc-floor>*{min-width:0}.tpc.xmas .xg-garland svg{width:0}
+    .xt-wreath{position:absolute;top:50%;width:8cqw;height:8cqw;margin-top:-4cqw;border-radius:50%;border:2cqw solid transparent;background:radial-gradient(circle,#8c4b31 0 47%,#2b2320 48% 52%,#2e7d46 53% 94%,#2b2320 95%) border-box;background-clip:border-box}.xt-wreath:before{content:"";position:absolute;inset:-2cqw;border-radius:50%;background:radial-gradient(circle at 50% 9%,#e0463f 0 .55cqw,transparent .6cqw),radial-gradient(circle at 86% 30%,#ffd24a 0 .55cqw,transparent .6cqw),radial-gradient(circle at 87% 70%,#e0463f 0 .55cqw,transparent .6cqw),radial-gradient(circle at 13% 70%,#ffd24a 0 .55cqw,transparent .6cqw),radial-gradient(circle at 14% 30%,#e0463f 0 .55cqw,transparent .6cqw)}.xt-wreath:after{content:"";position:absolute;left:50%;bottom:-2.4cqw;width:4cqw;height:2.4cqw;margin-left:-2cqw;background:#c9262c;border:.3cqw solid #2b2320;clip-path:polygon(0 0,50% 35%,100% 0,100% 100%,50% 65%,0 100%)}.xt-wreath.l{right:calc(100% + 3cqw)}.xt-wreath.r{left:calc(100% + 3cqw)}
+    .xt-snowcap{position:absolute;left:-.8cqw;right:-.8cqw;top:-1.4cqw;height:2.4cqw;background:radial-gradient(circle at 1.4cqw 0,#fff 1.4cqw,transparent 1.45cqw) 0 0/2.8cqw 100% repeat-x,linear-gradient(#fff,#fff) 0 0/100% 1cqw no-repeat}
+    .tpc.xmas .tpc-seat:after{content:"";position:absolute;left:50%;top:-1%;width:34%;height:18%;transform:translateX(-52%) rotate(-8deg);background:linear-gradient(#fff,#fff) 0 100%/100% 30% no-repeat,#c9262c;clip-path:polygon(0 100%,0 70%,12% 70%,40% 12%,62% 0,66% 10%,56% 20%,88% 70%,100% 70%,100% 100%);filter:drop-shadow(0 0 1px #2b2320) drop-shadow(0 .3cqw 0 #2b2320);pointer-events:none;z-index:3}
+    .xt-socks{grid-column:1/-1;display:flex;justify-content:center;gap:6cqw}.xt-socks button{display:flex;flex-direction:column;align-items:center;gap:.5cqw;background:none;border:0;padding:0;cursor:pointer;transform-origin:50% 0;animation:xt-swing 5s ease-in-out infinite}.xt-socks button:nth-child(2){animation-delay:-1.6s}.xt-socks button:nth-child(3){animation-delay:-3.2s}.xt-socks svg{width:10cqw;height:auto;filter:drop-shadow(0 .6cqw .4cqw rgba(0,0,0,.35))}.xt-socks b{font:400 var(--fs-m) Chewy,cursive;color:#fff3d6;background:#2b2320;border-radius:99px;padding:.2cqw 1.8cqw}
+    @keyframes xt-swing{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+    .tpc-floor .xt-tapcard{grid-column:1/-1;display:flex;align-items:center;gap:3cqw;padding:2cqw 3cqw;border:.5cqw solid #2b2320;border-radius:2cqw;background:linear-gradient(180deg,#7a1e2c,#4c0f1a);box-shadow:inset 0 0 0 .4cqw #ffd36e,.5cqw .7cqw 0 rgba(0,0,0,.35);color:#fff3d6}.xt-tapcard .art{width:22cqw;height:auto;flex:none}.xt-tapcard b{display:block;font:400 var(--fs-l) Chewy,cursive;color:#ffe9a8}.xt-tapcard small{display:block;font-size:var(--fs-m);margin-bottom:1.2cqw}.xt-tapcard button{cursor:pointer;font:400 var(--fs-m) Chewy,cursive;padding:1cqw 2.6cqw;border:.4cqw solid #2b2320;border-radius:99px;background:linear-gradient(180deg,#ffe58a,#f0b429);color:#3a2713}
+    .xt-trees{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;margin:-1cqw 0 -5cqw;pointer-events:none}.xt-trees img{height:auto;filter:drop-shadow(0 .8cqw .6cqw rgba(0,0,0,.4))}.xt-trees .a{width:15cqw}.xt-trees .b{width:12cqw}.xt-trees .c{width:15cqw}
+    .taproom-page.xmas .taproom-nav.bar{background:linear-gradient(180deg,#7a1e2c,#4c0f1a)}
+    @media (prefers-reduced-motion:reduce){.xg-snow,.xt-socks button,.xg-bulb{animation:none}.xg-snow{display:none}}
     .xm-gamelist{display:grid;gap:10px;margin:6px 0 4px}.xm-gamelist button{display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;padding:12px 14px;border:3px solid #2b2320;border-radius:14px;background:#fff7dc;color:#3a2713;box-shadow:0 4px 0 rgba(0,0,0,.22)}.xm-gamelist button:hover{transform:translateY(-2px)}.xm-gamelist span{font-size:30px}.xm-gamelist b{font:400 19px Chewy,cursive}.xm-gamelist small{display:block;font:600 12px Fredoka,sans-serif;opacity:.75}
     .modal-box:has(.bt-wrap){max-width:480px;padding:16px}
     .bt-stage{position:relative;display:flex;gap:8px;border:3px solid #2b2320;border-radius:16px;padding:12px 10px 8px;user-select:none;-webkit-user-select:none;background:repeating-linear-gradient(90deg,#5a3318 0 38px,#4b2a13 38px 41px)}
@@ -13361,17 +13396,20 @@ function renderChallengesPage(){
   </nav>`;
 
   const head = `
-    <div class="qb-banner"><span class="qb-banner-title">⚔️ QUEST BOARD</span>
+    ${xmasActive() ? xmSnow(26) + xmGarland(4, 'top') : ''}
+    <div class="qb-banner">${xmasActive() ? xmArt(XMAS_TREE_IMAGES, 'gold', 'xq-tree') : ''}<span class="qb-banner-title">${xmasActive() ? '🎄 KERST QUEST BOARD' : '⚔️ QUEST BOARD'}</span>
       ${getWornTitle(STATE.activeUser) ? `<span class="qb-banner-title-worn">「${escapeHtml(getWornTitle(STATE.activeUser).text)}」</span>` : ''}<span class="qb-banner-sub">${toClaim ? `🎁 ${toClaim} reward${toClaim === 1 ? '' : 's'} to claim` : `🎯 ${computePlayerXp(STATE.activeUser).challengeXp} Challenge XP`}</span></div>
+    ${xmasActive() ? xmQuestCard() : ''}
     ${renderPathToThrone()}
     ${renderMysteryTray()}
     ${nav}`;
+  const qbClass = xmasActive() ? 'qb xmas' : 'qb', qbEnd = xmasActive() ? xmQuestFooter() : '';
 
-  if (CHALLENGE_STATE.tab === 'chaos') return `<div class="qb">${head}${qbSign('🎭', 'CHAOS FEED')}${renderChaosFeed()}</div>`;
-  if (CHALLENGE_STATE.tab === 'guide') return `<div class="qb">${head}${qbSign('📖', 'QUEST GUIDE')}${renderQuestGuide()}</div>`;
+  if (CHALLENGE_STATE.tab === 'chaos') return `<div class="${qbClass}">${head}${qbSign('🎭', 'CHAOS FEED')}${renderChaosFeed()}${qbEnd}</div>`;
+  if (CHALLENGE_STATE.tab === 'guide') return `<div class="${qbClass}">${head}${qbSign('📖', 'QUEST GUIDE')}${renderQuestGuide()}${qbEnd}</div>`;
 
   return `
-    <div class="qb">
+    <div class="${qbClass}">
       ${head}
       ${forgotten.length ? `<section id="qb-forgotten" class="qb-section">
         ${qbSign('🎁', 'STILL TO CLAIM', String(forgotten.length))}
@@ -13404,6 +13442,7 @@ function renderChallengesPage(){
         ${renderReignPressure()}
         <div class="qb-grid">${rebel.map(a => renderWeeklyCard(a)).join('')}</div>
       </section>` : ''}
+      ${qbEnd}
     </div>`;
 }
 
@@ -14196,7 +14235,7 @@ function homeSceneToasts(t, leaderId){
   } catch (e) { /* private browsing etc. */ }
 }
 /* ---------- 🎄 KERSTMARKT: the home scene during the Christmas weeks, growing with everybody's kerstballen ---------- */
-const XMAS = { start: '2026-12-01', end: '2027-01-07', steps: [0, 20, 50, 90, 140, 200, 270, 350, 440, 540], dailyGames: 3, data: null, busy: false, broken: false };
+const XMAS = { start: '2026-11-26', countFrom: '2026-12-01', end: '2027-01-16', steps: [0, 20, 50, 90, 140, 200, 270, 350, 440, 540], dailyGames: 3, data: null, busy: false, broken: false };
 const XMAS_UNLOCKS = [
   'Het chocolademelkkraampje, de eerste twee kerstbomen en sneeuw op het kasteel',
   'Het wafelkraampje, een derde kerstboom, lantaarns, een lichtsnoer en lichtjes langs het dak',
@@ -14211,8 +14250,8 @@ const XMAS_UNLOCKS = [
 ];
 function xmasPreviewLevel(){ const m = /[?&]xmas=(\d+)/.exec(location.search); return m ? Math.max(1, Math.min(10, +m[1])) : null; }
 function xmasToday(){ try { return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Brussels' }); } catch (e){ return new Date().toISOString().slice(0, 10); } }
-function xmasSeason(){ const d = xmasToday(); return d >= XMAS.start && d < XMAS.end; }  // only then do kerstballen count
-function xmasActive(){ return !!xmasPreviewLevel() || xmasSeason(); }
+function xmasSeason(){ const d = xmasToday(); return d >= XMAS.countFrom && d < XMAS.end; }  // only then do kerstballen count
+function xmasActive(){ const d = xmasToday(); return !!xmasPreviewLevel() || (d >= XMAS.start && d < XMAS.end); }  // the decorations (end = first day without)
 function xmasLevelInfo(){
   const pv = xmasPreviewLevel();
   const total = pv ? XMAS.steps[pv - 1] : ((XMAS.data && XMAS.data.total) || 0);
@@ -14229,7 +14268,7 @@ async function loadXmas(){
     if (error){ console.warn('get_xmas_state not available (migration 0097 not run yet?):', error.message); XMAS.broken = true; }
     else XMAS.data = data;
   } finally { XMAS.busy = false; }
-  if (STATE.activePage === 'home' || STATE.activePage === 'room') renderPage();
+  if (['home', 'room', 'challenges'].includes(STATE.activePage)) renderPage();
 }
 function xmasBoardLine(){
   const info = xmasLevelInfo();
@@ -15340,7 +15379,7 @@ function xtContest(){
     return `<div class="${xtWinner(u.id) ? 'win' : ''}"><span class="mini" onclick="openXmasTree('${u.id}')">${xtSvg(saved)}</span><b>${xtWinner(u.id) ? '🏆 ' : ''}${escapeHtml(u.displayName)}</b><em>⭐ ${xtStars(u.id)}</em>${action}</div>`;
   }).join('');
   const msg = document.getElementById('xt-vote-msg');
-  if (msg) msg.textContent = voting ? 'Je hebt 1 ster. Die mag je tot en met 24 december verplaatsen.' : today < XMAS.start ? 'Sterren geven kan van 1 tot en met 24 december.' : 'Het stemmen is afgelopen.';
+  if (msg) msg.textContent = voting ? 'Je hebt 1 ster. Die mag je tot en met 24 december verplaatsen.' : today < XMAS.countFrom ? 'Sterren geven kan van 1 tot en met 24 december.' : 'Het stemmen is afgelopen.';
 }
 async function xtVote(uid){
   const { data, error } = await sb.rpc('vote_xmas_tree', { p_user: uid });
@@ -15456,6 +15495,47 @@ async function xlSave(){
     say('✨ Bewaard! Je Hoekje straalt.');
   }
   if (STATE.activePage === 'room') renderPage();
+}
+
+/* ---------- 🎄 Christmas dressing for the Quest Board and the Taproom (same weeks as the market) ---------- */
+/* a pine garland with lights and bows, in `n` swags */
+function xmGarland(n, cls){
+  const colors = ['#ff4d4f', '#ffd24a', '#4fa8ff', '#52d67a'];
+  const swag = k => {
+    const y = t => 12 + Math.sin(t * Math.PI) * 24;
+    const needles = Array.from({ length: 34 }, (_, i) => { const t = i / 33, x = t * 200, yy = y(t) + ((i * 7) % 9) - 4; return `<ellipse cx="${x.toFixed(0)}" cy="${yy.toFixed(0)}" rx="11" ry="6" transform="rotate(${(i % 2 ? 38 : -38) + (t - .5) * 40} ${x.toFixed(0)} ${yy.toFixed(0)})" fill="${['#1f6b3a', '#2e8c4f', '#17542d'][i % 3]}"/>`; }).join('');
+    const bulbs = [.16, .38, .62, .84].map((t, i) => `<circle class="xg-bulb" cx="${t * 200}" cy="${y(t) + 6}" r="5" fill="${colors[(i + k) % 4]}" stroke="#2b2320" stroke-width="1.2" style="animation-delay:-${((i + k * 4) * .37 % 2.4).toFixed(2)}s"/>`).join('');
+    return `<svg viewBox="0 0 200 52" aria-hidden="true">${needles}${bulbs}<path d="M0 12l-13-9v18zM0 12l13-9v18zM-3 14l-8 20 9-4 3 8 4-22z" fill="#c9262c" stroke="#2b2320" stroke-width="1.5" stroke-linejoin="round"/><circle cx="0" cy="12" r="4.5" fill="#ffd24a" stroke="#2b2320" stroke-width="1.5"/></svg>`;
+  };
+  return `<div class="xg-garland ${cls || ''}" aria-hidden="true">${Array.from({ length: n }, (_, i) => swag(i)).join('')}</div>`;
+}
+function xmSnow(n){ return `<div class="xg-snow" aria-hidden="true">${Array.from({ length: n }, (_, i) => `<i style="left:${(i * 37) % 100}%;--s:${3 + i % 4}px;--d:${11 + i % 9}s;--dl:-${((i * 2.3) % 17).toFixed(1)}s;--w:${(i % 2 ? 1 : -1) * (20 + i % 5 * 8)}px"></i>`).join('')}</div>`; }
+function xmArt(map, key, cls){ const a = map[key]; return a ? `<img class="${cls}" src="${a.src}" alt="" draggable="false">` : ''; }
+/* on the Quest Board: how far the market is, and what you can still collect today */
+function xmQuestCard(){
+  if (!XMAS.data && !XMAS.broken && !XMAS.busy && STATE.activeUser) setTimeout(loadXmas, 0);
+  const info = xmasLevelInfo(), used = xmasSeason() ? xmasGamesToday() : 0;
+  return `<section class="xq-card">
+    ${xmArt(XMAS_STALL_IMAGES, 'choco', 'xq-stall')}
+    <div class="xq-text"><h4>Kerstquests</h4>
+      <p>${xmasSeason() ? `Vandaag kerstballen verzameld bij <b>${used} van ${XMAS.dailyGames}</b> spellen.` : 'Vanaf 1 december verdien je hier kerstballen voor de markt.'}</p>
+      <div class="xq-dots">${Array.from({ length: XMAS.dailyGames }, (_, i) => `<i class="${i < used ? 'on' : ''}"></i>`).join('')}</div>
+      <p class="lv">Kerstmarkt level <b>${info.level}</b>${info.next ? ` · nog ${info.next - info.total} 🎁 tot level ${info.level + 1}` : ' · volledig!'}</p>
+      <span class="xm-bar big"><i style="width:${info.pct}%"></i></span>
+      <div class="xq-btns"><button type="button" onclick="openXmasGames()">🎮 Kerstspelletjes</button><button type="button" onclick="openXmasTree()">🎄 Mijn kerstboom</button></div>
+    </div>
+  </section>`;
+}
+function xmQuestFooter(){
+  return `<div class="xq-footer" aria-hidden="true">${xmArt(XMAS_TREE_IMAGES, 'snow', 't1')}${xmArt(XMAS_STALL_IMAGES, 'wafel', 's')}${xmArt(XMAS_TREE_IMAGES, 'candy', 't2')}${xmArt(XMAS_TREE_IMAGES, 'classic', 't3')}${xmArt(XMAS_STALL_IMAGES, 'deco', 's')}${xmArt(XMAS_TREE_IMAGES, 'snowlit', 't1')}</div>`;
+}
+/* in the Taproom: a stocking for everybody */
+function xmStockings(){
+  const cols = [['#c9262c', '#f6f1e4'], ['#2e7d46', '#f6f1e4'], ['#2f6fb0', '#f6f1e4'], ['#8a5ac0', '#ffe9a8']];
+  return `<div class="xt-socks">${APP_DATA.users.map((u, i) => { const [c, t] = cols[i % cols.length]; return `<button type="button" onclick="goToRoom('${u.id}')" title="De kerstsok van ${escapeHtml(u.displayName)}"><svg viewBox="0 0 80 110" aria-hidden="true"><path d="M40 0V12" stroke="#e8b023" stroke-width="3"/><path d="M22 22H58V62Q58 74 66 80Q78 90 68 101Q58 110 42 100L28 90Q22 84 22 74Z" fill="${c}" stroke="#2b2320" stroke-width="3" stroke-linejoin="round"/><path d="M30 88q10-2 14 12M24 50h32M24 58h32" stroke="${t}" stroke-width="4" fill="none"/><rect x="17" y="10" width="46" height="17" rx="6" fill="#fff" stroke="#2b2320" stroke-width="3"/><path d="M40 33l3 7 8 .6-6 5 2 7.400-7-4-7 4 2-7.400-6-5 8-.6z" fill="#ffd24a"/></svg><b>${escapeHtml(u.displayName)}</b></button>`; }).join('')}</div>`;
+}
+function xmTapCard(){
+  return `<div class="tpc-cell xt-tapcard">${xmArt(XMAS_STALL_IMAGES, 'bier', 'art')}<div><b>Winterbier van het huis</b><small>Iemand nog een winterbiertje?</small><button type="button" onclick="openBeerGame()">🍺 Tap er eentje</button></div></div>`;
 }
 
 /* the list of Christmas games */
@@ -15889,7 +15969,7 @@ const MODULES = {
       else body = renderTaproomPage(data); // 'taproom' -- de nieuwe standaard landingspagina
 
       const xpOverview = (BEER_STATE.view === 'taproom' || BEER_STATE.view === 'wardrobe' || BEER_STATE.view === 'throne') ? '' : renderBeerXpOverview();
-      return `<div class="taproom-page">${navHtml}${xpOverview}${body}</div>`;
+      return `<div class="taproom-page ${xmasActive() ? 'xmas' : ''}">${navHtml}${xpOverview}${body}</div>`;
     }
   },
 
@@ -19424,21 +19504,25 @@ function renderTaproomPage(data){
   const upcoming = getUpcomingTerraceEvents().find(e => e.status === 'confirmed');
   setTimeout(mountTaproomSceneWall, 0);
   return `
-  <div class="tpc">
+  <div class="tpc ${xmasActive() ? 'xmas' : ''}">
     <div class="tpc-wallshell">${renderTaproomWallShell()}</div>
     <div class="tpc-room">
       <div class="tpc-wall">
-        <div class="tpc-sign"><b>🍺 THE TAPROOM</b><small>EST. 2026</small></div>
+        ${xmasActive() ? xmGarland(4, 'top') : ''}
+        <div class="tpc-sign">${xmasActive() ? '<i class="xt-wreath l"></i><i class="xt-wreath r"></i><i class="xt-snowcap"></i>' : ''}<b>🍺 THE TAPROOM</b><small>${xmasActive() ? 'KERSTCAFÉ · EST. 2026' : 'EST. 2026'}</small></div>
         <div id="tpc-wallhost" class="tpc-wallhost"></div>
       </div>
+      ${xmasActive() ? xmGarland(5, 'mid') : ''}
       ${back.html}
       ${taproomSceneBar(back.onTap)}
       <div class="tpc-floor">
+        ${xmasActive() ? xmGarland(4, 'floor') + xmStockings() + xmTapCard() : ''}
         <div class="tpc-cell">${taproomSceneTable(main, !!active, false)}</div>
         <div class="tpc-cell small">${second ? taproomSceneTable(second, false, true) : ''}</div>
         ${upcoming ? `<div class="tpc-cell tpc-note">${renderTaproomNextRoundCard(upcoming)}</div>` : ''}
         <div class="tpc-cell">${taproomSceneVitrine()}</div>
         <div class="tpc-cell">${taproomSceneChalk()}</div>
+        ${xmasActive() ? `<div class="xt-trees" aria-hidden="true">${xmArt(XMAS_TREE_IMAGES, 'classic', 'a')}${xmArt(XMAS_TREE_IMAGES, 'candy', 'b')}${xmArt(XMAS_TREE_IMAGES, 'gold', 'c')}</div>` : ''}
       </div>
       <div class="tpc-below">
         ${renderTaproomPrestigeZone()}
