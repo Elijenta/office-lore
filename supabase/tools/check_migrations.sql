@@ -29,7 +29,12 @@ select * from (values
   (90, 'public player xp',        exists (select 1 from pg_proc where proname = 'player_challenge_xp')),
   (91, 'beer outfit be3',         exists (select 1 from public.character_outfit_sets where id = 'be3')),
   (92, 'legendary outfit lg3',    exists (select 1 from public.character_outfit_sets where id = 'lg3')),
-  (93, 'more nickname reactions', exists (select 1 from pg_constraint where conname = 'nickname_votes_type_format'))
+  (93, 'more nickname reactions', exists (select 1 from pg_constraint where conname = 'nickname_votes_type_format')),
+  (94, 'halloween outfits m/f',   exists (select 1 from public.character_seasonal_outfits where id = 'hw2' and name = 'Vampire')),
+  (95, 'comma beer ratings',      exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'beer_ratings' and column_name = 'rating' and data_type = 'numeric')),
+  (96, 'showdown poems',          to_regprocedure('public.get_group_poems(integer)') is not null),
+  (97, 'kerstmarkt',              to_regclass('public.xmas_baubles') is not null),
+  (98, 'kerstspelletjes en boom',  to_regprocedure('public.save_xmas_room(jsonb)') is not null)
 ) as t(migration, wat, toegepast) order by migration;
 -- (de outfit-sets 67 t/m 74 zie je met:  select id, name from public.character_outfit_sets order by sort_order;
 --  verwacht: be1, be2, lk1, bt1, ch1, cp1, pt1, qz1, rb1, lg1, lg2)
